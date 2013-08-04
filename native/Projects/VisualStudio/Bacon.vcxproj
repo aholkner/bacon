@@ -10,6 +10,20 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Source\Bacon\Audio.cpp" />
+    <ClCompile Include="..\..\Source\Bacon\Bacon.cpp" />
+    <ClCompile Include="..\..\Source\Bacon\Fonts.cpp" />
+    <ClCompile Include="..\..\Source\Bacon\Graphics.cpp" />
+    <ClCompile Include="..\..\Source\Bacon\Keyboard.cpp" />
+    <ClCompile Include="..\..\Source\Bacon\Mouse.cpp" />
+    <ClCompile Include="..\..\Source\Bacon\Window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Source\Bacon\Bacon.h" />
+    <ClInclude Include="..\..\Source\Bacon\BaconInternal.h" />
+    <ClInclude Include="..\..\Source\Bacon\HandleArray.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EB03D04A-0B82-4DA8-9D4D-75D566D1C18B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
