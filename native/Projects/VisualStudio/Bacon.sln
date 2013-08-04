@@ -20,6 +20,7 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libGLESv2", "..\..\Vendor\Angle\src\libGLESv2\libGLESv2.vcxproj", "{B5871A7A-968C-42E3-A33B-981E6F448E78}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "preprocessor", "..\..\Vendor\Angle\src\compiler\preprocessor\preprocessor.vcxproj", "{FBE32DF3-0FB0-4F2F-A424-2C21BD7BC325}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GorillaAudio", "..\..\Vendor\GorillaAudio\build\GorillaAudio.vcxproj", "{7F983407-ECC7-4E7F-AD1E-9E8069282377}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -217,6 +218,12 @@ Global
 		{FBE32DF3-0FB0-4F2F-A424-2C21BD7BC325}.Release|Win32.Build.0 = Release|Win32
 		{FBE32DF3-0FB0-4F2F-A424-2C21BD7BC325}.Release|x64.ActiveCfg = Release|x64
 		{FBE32DF3-0FB0-4F2F-A424-2C21BD7BC325}.Release|x64.Build.0 = Release|x64
+		{7F983407-ECC7-4E7F-AD1E-9E8069282377}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7F983407-ECC7-4E7F-AD1E-9E8069282377}.Debug|Win32.Build.0 = Debug|Win32
+		{7F983407-ECC7-4E7F-AD1E-9E8069282377}.Debug|x64.ActiveCfg = Debug|Win32
+		{7F983407-ECC7-4E7F-AD1E-9E8069282377}.Release|Win32.ActiveCfg = Release|Win32
+		{7F983407-ECC7-4E7F-AD1E-9E8069282377}.Release|Win32.Build.0 = Release|Win32
+		{7F983407-ECC7-4E7F-AD1E-9E8069282377}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
