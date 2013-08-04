@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FreeImageLib", "..\..\Vendo
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "freetype", "..\..\Vendor\FreeType\builds\win32\vc2010\freetype.vcxproj", "{78B079BD-9FC7-4B9E-B4A6-96DA0F00248B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GorillaAudio", "..\..\Vendor\GorillaAudio\build\GorillaAudio.vcxproj", "{7F983407-ECC7-4E7F-AD1E-9E8069282377}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -35,6 +37,12 @@ Global
 		{78B079BD-9FC7-4B9E-B4A6-96DA0F00248B}.Release|Win32.ActiveCfg = Release|Win32
 		{78B079BD-9FC7-4B9E-B4A6-96DA0F00248B}.Release|Win32.Build.0 = Release|Win32
 		{78B079BD-9FC7-4B9E-B4A6-96DA0F00248B}.Release|x64.ActiveCfg = Release|Win32
+		{7F983407-ECC7-4E7F-AD1E-9E8069282377}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7F983407-ECC7-4E7F-AD1E-9E8069282377}.Debug|Win32.Build.0 = Debug|Win32
+		{7F983407-ECC7-4E7F-AD1E-9E8069282377}.Debug|x64.ActiveCfg = Debug|Win32
+		{7F983407-ECC7-4E7F-AD1E-9E8069282377}.Release|Win32.ActiveCfg = Release|Win32
+		{7F983407-ECC7-4E7F-AD1E-9E8069282377}.Release|Win32.Build.0 = Release|Win32
+		{7F983407-ECC7-4E7F-AD1E-9E8069282377}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

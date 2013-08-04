@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7F983407-ECC7-4E7F-AD1E-9E8069282377}</ProjectGuid>
+    <RootNamespace>GorillaAudio</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <UseOfAtl>false</UseOfAtl>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../ext/libvorbis/include;$(ProjectDir)/../ext/libogg/include;$(ProjectDir)/../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;ENABLE_XAUDIO2;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../ext/libvorbis/include;$(ProjectDir)/../ext/libogg/include;$(ProjectDir)/../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <PreprocessorDefinitions>ENABLE_XAUDIO2;WIN32;NDEBUG;_NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\ext\libogg\src\bitwise.c" />
+    <ClCompile Include="..\ext\libogg\src\framing.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\analysis.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\barkmel.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\bitrate.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\block.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\codebook.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\envelope.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\floor0.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\floor1.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\info.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\lookup.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\lpc.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\lsp.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\mapping0.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\mdct.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\psy.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\psytune.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\ext\libvorbis\lib\registry.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\res0.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\sharedbook.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\smallft.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\synthesis.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\tone.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\vorbisenc.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\vorbisfile.c" />
+    <ClCompile Include="..\ext\libvorbis\lib\window.c" />
+    <ClCompile Include="..\src\common\gc_common.c" />
+    <ClCompile Include="..\src\common\gc_thread.c" />
+    <ClCompile Include="..\src\devices\ga_openal.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\src\devices\ga_xaudio2.c" />
+    <ClCompile Include="..\src\ga.c" />
+    <ClCompile Include="..\src\gau.c" />
+    <ClCompile Include="..\src\ga_stream.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\ext\libogg\include\ogg\config_types.h" />
+    <ClInclude Include="..\ext\libogg\include\ogg\ogg.h" />
+    <ClInclude Include="..\ext\libogg\include\ogg\os_types.h" />
+    <ClInclude Include="..\ext\libvorbis\include\vorbis\codec.h" />
+    <ClInclude Include="..\ext\libvorbis\include\vorbis\vorbisenc.h" />
+    <ClInclude Include="..\ext\libvorbis\include\vorbis\vorbisfile.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\backends.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\bitrate.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\books\coupled\res_books_stereo.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\books\floor\floor_books.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\books\uncoupled\res_books_uncoupled.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\codebook.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\codec_internal.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\envelope.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\highlevel.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\lookup.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\lookup_data.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\lpc.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\lsp.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\masking.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\mdct.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\misc.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\floor_all.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\psych_11.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\psych_16.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\psych_44.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\psych_8.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\residue_16.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\residue_44.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\residue_44u.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\residue_8.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\setup_11.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\setup_16.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\setup_22.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\setup_32.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\setup_44.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\setup_44u.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\setup_8.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\modes\setup_X.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\os.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\psy.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\registry.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\scales.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\smallft.h" />
+    <ClInclude Include="..\ext\libvorbis\lib\window.h" />
+    <ClInclude Include="..\include\gorilla\common\gc_common.h" />
+    <ClInclude Include="..\include\gorilla\common\gc_thread.h" />
+    <ClInclude Include="..\include\gorilla\common\gc_types.h" />
+    <ClInclude Include="..\include\gorilla\devices\ga_openal.h" />
+    <ClInclude Include="..\include\gorilla\devices\ga_xaudio2.h" />
+    <ClInclude Include="..\include\gorilla\ga.h" />
+    <ClInclude Include="..\include\gorilla\gau.h" />
+    <ClInclude Include="..\include\gorilla\ga_internal.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\ext\libogg\include\ogg\config_types.h.in" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
