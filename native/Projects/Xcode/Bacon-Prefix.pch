@@ -1,0 +1,14 @@
+//
+//  Prefix header
+//
+//  The contents of this file are implicitly included at the beginning of every source file.
+//
+
+#ifdef __OBJC__
+	#import <Cocoa/Cocoa.h>	
+	#import <Foundation/Foundation.h>
+	#import <Cocoa/Cocoa.h>
+	#import <CoreVideo/CoreVideo.h>
+	#import <OpenGL/OpenGL.h>
+#endif
+

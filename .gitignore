@@ -1,0 +1,19 @@
+# Python
+*.pyc
+*.pyo
+
+# Sublime
+*.sublime-project
+*.sublime-workspace
+
+# Xcode
+xcuserdata
+
+# MSVC
+projects/msvc/Debug
+projects/msvc/Release
+
+# Distribution
+bacon/Bacon.dylib
+bacon/Bacon.dll
+
