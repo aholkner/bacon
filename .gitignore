@@ -10,8 +10,11 @@
 xcuserdata
 
 # MSVC
-projects/msvc/Debug
-projects/msvc/Release
+Debug
+Release
+*.suo
+*.sdf
+*.opensdf
 
 # Distribution
 bacon/Bacon.dylib
