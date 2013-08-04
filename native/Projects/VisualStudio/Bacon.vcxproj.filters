@@ -33,6 +33,9 @@
     <ClCompile Include="..\..\Source\Bacon\windows\XInputController.cpp">
       <Filter>Source\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Bacon\windows\Platform.cpp">
+      <Filter>Source\Windows</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Bacon\Bacon.h">
