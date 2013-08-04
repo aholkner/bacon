@@ -19,7 +19,9 @@ ipch
 *.ilk
 *.pdb
 *.dll
-
+*.lib
+*.exp
+*.vcxproj.user
 
 # Distribution
 bacon/Bacon.dylib

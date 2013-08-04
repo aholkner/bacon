@@ -1,5 +1,15 @@
 #pragma once
 
+#ifdef WIN32
+    #ifdef BACON_DLL_EXPORT
+        #define BACON_API __declspec(dllexport)
+    #else
+        #define BACON_API __declspec(dllimport)
+    #endif
+#else
+    #define BACON_API
+#endif
+
 #define BACON_VERSION_MAJOR 0
 #define BACON_VERSION_MINOR 1
 #define BACON_VERSION_PATCH 0
@@ -233,89 +243,89 @@ enum Keys
 extern "C" {
 #endif
 	
-	int Bacon_GetVersion(int* major, int* minor, int* patch);
-	int Bacon_Init();
-	int Bacon_Run();
-	int Bacon_Shutdown();
-	int Bacon_InternalTick();
-	int Bacon_SetTickCallback(Bacon_TickCallback callback);
+	BACON_API int Bacon_GetVersion(int* major, int* minor, int* patch);
+	BACON_API int Bacon_Init();
+	BACON_API int Bacon_Run();
+	BACON_API int Bacon_Shutdown();
+	BACON_API int Bacon_InternalTick();
+	BACON_API int Bacon_SetTickCallback(Bacon_TickCallback callback);
 
-	int Bacon_SetWindowResizeEventHandler(Bacon_WindowResizeEventHandler handler);
-	int Bacon_GetWindowSize(int* width, int* height);
-	int Bacon_SetWindowSize(int width, int height);
-	int Bacon_SetWindowFullscreen(int fullscreen);
+	BACON_API int Bacon_SetWindowResizeEventHandler(Bacon_WindowResizeEventHandler handler);
+	BACON_API int Bacon_GetWindowSize(int* width, int* height);
+	BACON_API int Bacon_SetWindowSize(int width, int height);
+	BACON_API int Bacon_SetWindowFullscreen(int fullscreen);
 	
-	int Bacon_CreateShader(int* outHandle, const char* vertexSource, const char* fragmentSource);
-	int Bacon_CreateImage(int* outHandle, int width, int height);
-	int Bacon_LoadImage(int* outHandle, const char* path, int flags);
-	int Bacon_UnloadImage(int handle);
-	int Bacon_GetImageSize(int handle, int* width, int* height);
+	BACON_API int Bacon_CreateShader(int* outHandle, const char* vertexSource, const char* fragmentSource);
+	BACON_API int Bacon_CreateImage(int* outHandle, int width, int height);
+	BACON_API int Bacon_LoadImage(int* outHandle, const char* path, int flags);
+	BACON_API int Bacon_UnloadImage(int handle);
+	BACON_API int Bacon_GetImageSize(int handle, int* width, int* height);
 	
-	int Bacon_PushTransform();
-	int Bacon_PopTransform();
-	int Bacon_Translate(float x, float y);
-	int Bacon_Scale(float sx, float sy);
-	int Bacon_Rotate(float radians);
-	int Bacon_SetTransform(float* matrix);
+	BACON_API int Bacon_PushTransform();
+	BACON_API int Bacon_PopTransform();
+	BACON_API int Bacon_Translate(float x, float y);
+	BACON_API int Bacon_Scale(float sx, float sy);
+	BACON_API int Bacon_Rotate(float radians);
+	BACON_API int Bacon_SetTransform(float* matrix);
 	
-	int Bacon_PushColor();
-	int Bacon_PopColor();
-	int Bacon_SetColor(float r, float g, float b, float a);
-	int Bacon_MultiplyColor(float r, float g, float b, float a);
+	BACON_API int Bacon_PushColor();
+	BACON_API int Bacon_PopColor();
+	BACON_API int Bacon_SetColor(float r, float g, float b, float a);
+	BACON_API int Bacon_MultiplyColor(float r, float g, float b, float a);
 	
-	int Bacon_Flush();
-	int Bacon_Clear(float r, float g, float b, float a);
-	int Bacon_SetFrameBuffer(int image);
-	int Bacon_SetViewport(int x, int y, int width, int height);
-	int Bacon_SetShader(int shader);
-	int Bacon_SetBlending(int src, int dest);
-	int Bacon_DrawImage(int handle, float x1, float y1, float x2, float y2);
-	int Bacon_DrawImageRegion(int image, float x1, float y1, float x2, float y2,
-							 float ix1, float iy1, float ix2, float iy2);
-	int Bacon_DrawImageQuad(int image, float* positions, float* texCoords, float* colors);
-	int Bacon_DrawLine(float x1, float y1, float x2, float y2);
+	BACON_API int Bacon_Flush();
+	BACON_API int Bacon_Clear(float r, float g, float b, float a);
+	BACON_API int Bacon_SetFrameBuffer(int image);
+	BACON_API int Bacon_SetViewport(int x, int y, int width, int height);
+	BACON_API int Bacon_SetShader(int shader);
+	BACON_API int Bacon_SetBlending(int src, int dest);
+	BACON_API int Bacon_DrawImage(int handle, float x1, float y1, float x2, float y2);
+	BACON_API int Bacon_DrawImageRegion(int image, float x1, float y1, float x2, float y2,
+				            			float ix1, float iy1, float ix2, float iy2);
+	BACON_API int Bacon_DrawImageQuad(int image, float* positions, float* texCoords, float* colors);
+	BACON_API int Bacon_DrawLine(float x1, float y1, float x2, float y2);
 	
 	// Fonts
-	int Bacon_LoadFont(int* outHandle, const char* path);
-	int Bacon_UnloadFont(int font);
-	int Bacon_GetFontMetrics(int font, float size, float* outAscent, float* outDescent);
-	int Bacon_GetGlyph(int font, float size, int character, int* outImage,
-					  float* outOffsetX, float* outOffsetY, float* outAdvance);
+	BACON_API int Bacon_LoadFont(int* outHandle, const char* path);
+	BACON_API int Bacon_UnloadFont(int font);
+	BACON_API int Bacon_GetFontMetrics(int font, float size, float* outAscent, float* outDescent);
+	BACON_API int Bacon_GetGlyph(int font, float size, int character, int* outImage,
+					             float* outOffsetX, float* outOffsetY, float* outAdvance);
 
 	
 	// Keyboard
-	int Bacon_GetKeyState(int key, int* outPressed);
-	int Bacon_SetKeyEventHandler(Bacon_KeyEventHandler handler);
+	BACON_API int Bacon_GetKeyState(int key, int* outPressed);
+	BACON_API int Bacon_SetKeyEventHandler(Bacon_KeyEventHandler handler);
 	
 	// Mouse
-	int Bacon_GetMousePosition(float* outX, float* outY);
-	int Bacon_SetMouseButtonEventHandler(Bacon_MouseButtonEventHandler handler);
-	int Bacon_SetMouseScrollEventHandler(Bacon_MouseScrollEventHandler handler);
+	BACON_API int Bacon_GetMousePosition(float* outX, float* outY);
+	BACON_API int Bacon_SetMouseButtonEventHandler(Bacon_MouseButtonEventHandler handler);
+	BACON_API int Bacon_SetMouseScrollEventHandler(Bacon_MouseScrollEventHandler handler);
 
 	// Controller
-	int Bacon_SetControllerConnectedEventHandler(Bacon_ControllerConnectedEventHandler handler);
-	int Bacon_SetControllerButtonEventHandler(Bacon_ControllerButtonEventHandler handler);
-	int Bacon_SetControllerAxisEventHandler(Bacon_ControllerAxisEventHandler handler);
-	int Bacon_GetControllerPropertyInt(int controller, int property, int* outValue);
-	int Bacon_GetControllerPropertyString(int controller, int property, char* outBuffer, int* inOutBufferSize);
+	BACON_API int Bacon_SetControllerConnectedEventHandler(Bacon_ControllerConnectedEventHandler handler);
+	BACON_API int Bacon_SetControllerButtonEventHandler(Bacon_ControllerButtonEventHandler handler);
+	BACON_API int Bacon_SetControllerAxisEventHandler(Bacon_ControllerAxisEventHandler handler);
+	BACON_API int Bacon_GetControllerPropertyInt(int controller, int property, int* outValue);
+	BACON_API int Bacon_GetControllerPropertyString(int controller, int property, char* outBuffer, int* inOutBufferSize);
 	
 	// Audio
-	int Bacon_LoadSound(int* outHandle, const char* path, int flags);
-	int Bacon_UnloadSound(int sound);
-	int Bacon_PlaySound(int soundHandle);
-	
-	int Bacon_CreateVoice(int* outHandle, int sound, int voiceFlags);
-	int Bacon_DestroyVoice(int voice);
-	int Bacon_PlayVoice(int voice);
-	int Bacon_StopVoice(int voice);
-	int Bacon_SetVoiceGain(int voice, float gain);
-	int Bacon_SetVoicePitch(int voice, float pitch);
-	int Bacon_SetVoicePan(int voice, float pan);
-	int Bacon_SetVoiceLoopPoints(int voice, int startSample, int endSample);
-	int Bacon_SetVoiceCallback(int voice, Bacon_VoiceCallback callback);
-	int Bacon_IsVoicePlaying(int voice, int* playing);
-	int Bacon_GetVoicePosition(int voice, int* sample);
-	int Bacon_SetVoicePosition(int voice, int sample);
+	BACON_API int Bacon_LoadSound(int* outHandle, const char* path, int flags);
+	BACON_API int Bacon_UnloadSound(int sound);
+	BACON_API int Bacon_PlaySound(int soundHandle);
+	 
+	BACON_API int Bacon_CreateVoice(int* outHandle, int sound, int voiceFlags);
+	BACON_API int Bacon_DestroyVoice(int voice);
+	BACON_API int Bacon_PlayVoice(int voice);
+	BACON_API int Bacon_StopVoice(int voice);
+	BACON_API int Bacon_SetVoiceGain(int voice, float gain);
+	BACON_API int Bacon_SetVoicePitch(int voice, float pitch);
+	BACON_API int Bacon_SetVoicePan(int voice, float pan);
+	BACON_API int Bacon_SetVoiceLoopPoints(int voice, int startSample, int endSample);
+	BACON_API int Bacon_SetVoiceCallback(int voice, Bacon_VoiceCallback callback);
+	BACON_API int Bacon_IsVoicePlaying(int voice, int* playing);
+	BACON_API int Bacon_GetVoicePosition(int voice, int* sample);
+	BACON_API int Bacon_SetVoicePosition(int voice, int sample);
 	
 #if __cplusplus
 }
