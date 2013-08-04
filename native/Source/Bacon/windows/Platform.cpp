@@ -22,12 +22,15 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         // Fallthrough
 
     case WM_PAINT:
-        Graphics_BeginFrame(g_Width, g_Height);
-        Bacon_InternalTick();
-        Graphics_EndFrame();
+        if (g_Context)
+        {
+            Graphics_BeginFrame(g_Width, g_Height);
+            Bacon_InternalTick();
+            Graphics_EndFrame();
 
-        eglSwapBuffers(g_Display, g_Surface);
-        ValidateRect(g_hWnd, NULL);
+            eglSwapBuffers(g_Display, g_Surface);
+            ValidateRect(g_hWnd, NULL);
+        }
         break;
 
     case WM_DESTROY:
@@ -61,7 +64,7 @@ static int Platform_CreateWindow()
     if (!RegisterClass (&wndclass) ) 
         return FALSE; 
 
-    wStyle = WS_VISIBLE | WS_POPUP | WS_BORDER | WS_SYSMENU | WS_CAPTION | WS_SIZEBOX;
+    wStyle = WS_POPUP | WS_BORDER | WS_SYSMENU | WS_CAPTION | WS_SIZEBOX;
 
     // Adjust the window rectangle so that the client area has
     // the correct number of pixels
