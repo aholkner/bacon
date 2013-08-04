@@ -12,12 +12,12 @@ void Tick()
 {
 	static float time = 0.f;
 	time += 0.01f;
-	Bacon_Clear(0.3, 0.3, 0.3, 1);
+	Bacon_Clear(0.3f, 0.3f, 0.3f, 1.f);
 	Bacon_SetColor(1, 1, 1, 1);
 	
 	int w, h;
 	Bacon_GetImageSize(g_Glyph, &w, &h);
-	Bacon_DrawImage(g_Glyph, 10, 10, 10 + w, 10 + h);
+	Bacon_DrawImage(g_Glyph, 10.f, 10.f, 10.f + w, 10.f + h);
 }
 
 void OnControllerConnected(int controller, int connected)
