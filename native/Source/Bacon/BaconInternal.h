@@ -15,7 +15,7 @@ void Graphics_Init();
 void Graphics_Shutdown();
 void Graphics_InitGL();
 void Graphics_ShutdownGL();
-void Graphics_BeginFrame(float width, float height);
+void Graphics_BeginFrame(int width, int height);
 void Graphics_EndFrame();
 int Graphics_GetImageBitmap(int handle, FIBITMAP** bitmap);
 int Graphics_SetImageBitmap(int handle, FIBITMAP* bitmap);

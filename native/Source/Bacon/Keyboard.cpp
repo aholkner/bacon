@@ -21,7 +21,7 @@ void Keyboard_SetKeyState(int key, bool value)
 {
 	if (key >= 0 && key < Key_MaxKey)
 	{
-		if (s_KeyStates[key] != value)
+		if (s_KeyStates[key] != (char)value)
 		{
 			s_KeyStates[key] = value;
 			if (s_Handler)

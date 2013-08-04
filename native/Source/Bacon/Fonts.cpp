@@ -12,7 +12,7 @@ using namespace std;
 
 namespace {
 	
-	constexpr int Dpi = 96;
+	const int Dpi = 96;
 
 	struct Font
 	{
@@ -137,8 +137,8 @@ int Bacon_GetGlyph(int handle, float size, int character, int* outImage,
 	Graphics_SetImageBitmap(*outImage, bmp32);
 	
 	*outAdvance = face->glyph->advance.x / 64.f;
-	*outOffsetX = face->glyph->bitmap_left;
-	*outOffsetY = face->glyph->bitmap_top;
+	*outOffsetX = (float)face->glyph->bitmap_left;
+	*outOffsetY = (float)face->glyph->bitmap_top;
 	
 	return Bacon_Error_None;
 }

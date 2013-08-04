@@ -18,11 +18,56 @@
     <ClCompile Include="..\..\Source\Bacon\Keyboard.cpp" />
     <ClCompile Include="..\..\Source\Bacon\Mouse.cpp" />
     <ClCompile Include="..\..\Source\Bacon\Window.cpp" />
+    <ClCompile Include="..\..\Source\Bacon\windows\XInputController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Bacon\Bacon.h" />
     <ClInclude Include="..\..\Source\Bacon\BaconInternal.h" />
     <ClInclude Include="..\..\Source\Bacon\HandleArray.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Vendor\Angle\src\compiler\preprocessor\preprocessor.vcxproj">
+      <Project>{fbe32df3-0fb0-4f2f-a424-2c21bd7bc325}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Vendor\Angle\src\compiler\translator_common.vcxproj">
+      <Project>{5b3a6db8-1e7e-40d7-92b9-da8aae619fad}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Vendor\Angle\src\compiler\translator_hlsl.vcxproj">
+      <Project>{5620f0e4-6c43-49bc-a178-b804e1a0c3a7}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Vendor\Angle\src\libEGL\libEGL.vcxproj">
+      <Project>{e746fca9-64c3-433e-85e8-9a5a67ab7ed6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Vendor\Angle\src\libGLESv2\libGLESv2.vcxproj">
+      <Project>{b5871a7a-968c-42e3-a33b-981e6f448e78}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Vendor\FreeImage\FreeImageLib\FreeImageLib.2012.vcxproj">
+      <Project>{9e219df2-315d-478e-8a07-8960c377ce1e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Vendor\FreeImage\LibJPEG\LibJPEG.2012.vcxproj">
+      <Project>{5e1d4e5f-e10c-4ba3-b663-f33014fd21d9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Vendor\FreeImage\LibMNG\LibMNG.2012.vcxproj">
+      <Project>{912a2d43-35a3-4af2-b2eb-0d81effda6dc}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Vendor\FreeImage\LibOpenJPEG\LibOpenJPEG.2012.vcxproj">
+      <Project>{e3536c28-a7f1-4b53-8e52-7d2232f9e098}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Vendor\FreeImage\LibPNG\LibPNG.2012.vcxproj">
+      <Project>{7db10b50-ce00-4d7a-b322-6824f05d2fcb}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Vendor\FreeImage\LibTIFF4\LibTIFF4.2012.vcxproj">
+      <Project>{ec085cbd-e9c3-477f-9a97-cb9d5da30e27}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Vendor\FreeImage\ZLib\ZLib.2012.vcxproj">
+      <Project>{33134f61-c1ad-4b6f-9cea-503a9f140c52}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Vendor\FreeType\builds\win32\vc2010\freetype.vcxproj">
+      <Project>{78b079bd-9fc7-4b9e-b4a6-96da0f00248b}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Vendor\GorillaAudio\build\GorillaAudio.vcxproj">
+      <Project>{7f983407-ecc7-4e7f-ad1e-9e8069282377}</Project>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EB03D04A-0B82-4DA8-9D4D-75D566D1C18B}</ProjectGuid>
@@ -31,17 +76,17 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -53,14 +98,20 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)\..\..\..\bacon\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)\..\..\..\bacon\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FREEIMAGE_LIB;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..\Vendor\Angle\include;$(ProjectDir)\..\..\Vendor\GorillaAudio\include;$(ProjectDir)\..\..\Vendor\FreeType\include;$(ProjectDir)\..\..\Vendor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -76,6 +127,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(ProjectDir)\..\..\Vendor\Angle\include;$(ProjectDir)\..\..\Vendor\GorillaAudio\include;$(ProjectDir)\..\..\Vendor\FreeType\include;$(ProjectDir)\..\..\Vendor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

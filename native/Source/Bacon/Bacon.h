@@ -266,7 +266,7 @@ extern "C" {
 	int Bacon_Flush();
 	int Bacon_Clear(float r, float g, float b, float a);
 	int Bacon_SetFrameBuffer(int image);
-	int Bacon_SetViewport(float x, float y, float width, float height);
+	int Bacon_SetViewport(int x, int y, int width, int height);
 	int Bacon_SetShader(int shader);
 	int Bacon_SetBlending(int src, int dest);
 	int Bacon_DrawImage(int handle, float x1, float y1, float x2, float y2);

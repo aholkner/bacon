@@ -12,9 +12,14 @@ xcuserdata
 # MSVC
 Debug
 Release
+ipch
 *.suo
 *.sdf
 *.opensdf
+*.ilk
+*.pdb
+*.dll
+
 
 # Distribution
 bacon/Bacon.dylib

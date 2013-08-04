@@ -4,6 +4,9 @@
     <Filter Include="Source">
       <UniqueIdentifier>{c548da30-d50a-4cd3-a0fe-8718ffa8bd0b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Windows">
+      <UniqueIdentifier>{e7b3dba2-3c86-479c-83f1-25c30d01e4ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Source\Bacon\Audio.cpp">
@@ -26,6 +29,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Source\Bacon\Window.cpp">
       <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Bacon\windows\XInputController.cpp">
+      <Filter>Source\Windows</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

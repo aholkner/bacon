@@ -1,4 +1,12 @@
+
+#ifdef __APPLE__
 #include <OpenGL/gl3.h>
+#else
+#define GL_GLEXT_PROTOTYPES
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#endif
+
 #include <FreeImage/FreeImage.h>
 #include <vmmlib/vmmlib.hpp>
 
@@ -20,19 +28,25 @@ using vmml::frustumf;
 
 namespace {
 	
-	constexpr const char* VertexAttribPosition = "a_Position";
-	constexpr const char* VertexAttribTexCoord0 = "a_TexCoord0";
-	constexpr const char* VertexAttribColor = "a_Color";
-	
-	constexpr const char* UniformProjection = "g_Projection";
-	constexpr const char* UniformTexture0 = "g_Texture0";
+    const char* const VertexAttribPosition = "a_Position";
+    const char* const VertexAttribTexCoord0 = "a_TexCoord0";
+    const char* const VertexAttribColor = "a_Color";
 
-	constexpr int BoundVertexAttribPosition = 0;
-	constexpr int BoundVertexAttribTexCoord0 = 1;
-	constexpr int BoundVertexAttribColor = 2;
+    const char* const UniformProjection = "g_Projection";
+    const char* const UniformTexture0 = "g_Texture0";
+
+	const int BoundVertexAttribPosition = 0;
+	const int BoundVertexAttribTexCoord0 = 1;
+	const int BoundVertexAttribColor = 2;
 
 	struct Vertex
 	{
+        Vertex(vec3f const& position, vec2f const& texCoord, vec4f const& color)
+            : m_Position(position)
+            , m_TexCoord0(texCoord)
+            , m_Color(color)
+        { }
+
 		vec3f m_Position;
 		vec2f m_TexCoord0;
 		vec4f m_Color;
@@ -61,12 +75,12 @@ namespace {
 		
 	struct Impl
 	{
-		GLuint m_VBO = 0;
-		GLuint m_IBO = 0;
-		GLuint m_VAO = 0;
+        GLuint m_VBO;
+        GLuint m_IBO;
+        GLuint m_VAO;
 		
-		float m_FrameBufferWidth;
-		float m_FrameBufferHeight;
+		int m_FrameBufferWidth;
+		int m_FrameBufferHeight;
 		
 		HandleArray<Shader> m_Shaders;
 		int m_DefaultShader;
@@ -102,6 +116,9 @@ namespace {
 void Graphics_Init()
 {
 	s_Impl = new Impl;
+    s_Impl->m_VBO = 0;
+    s_Impl->m_IBO = 0;
+    s_Impl->m_VAO = 0;
 	s_Impl->m_Images.Reserve(256);
 	s_Impl->m_Shaders.Reserve(16);
 	s_Impl->m_Vertices.reserve(8096);
@@ -140,8 +157,10 @@ void Graphics_InitGL()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_Impl->m_IBO);
 	
 	// Vertex Array Object
-	glGenVertexArrays(1, &s_Impl->m_VAO);
-	glBindVertexArray(s_Impl->m_VAO);
+#if __APPLE__
+	glGenVertexArraysOES(1, &s_Impl->m_VAO);
+	glBindVertexArrayOES(s_Impl->m_VAO);
+#endif
 	glEnableVertexAttribArray(BoundVertexAttribPosition);
 	glVertexAttribPointer(BoundVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	glEnableVertexAttribArray(BoundVertexAttribTexCoord0);
@@ -189,7 +208,7 @@ void Graphics_ShutdownGL()
 {
 }
 
-void Graphics_BeginFrame(float width, float height)
+void Graphics_BeginFrame(int width, int height)
 {
 	if (!s_Impl->m_PendingDeleteTextures.empty())
 	{
@@ -420,26 +439,28 @@ static bool CreateImageTexture(Image* image)
 
 	bool ownsData = false;
 	BYTE* data = nullptr;
-	GLuint format = GL_BGRA;
+	GLuint format = GL_BGRA8_EXT;
 	GLuint internalFormat = GL_RGBA;
 	if (bitmap)
 	{
 		data = FreeImage_GetBits(bitmap);
 		int pitch = FreeImage_GetPitch(bitmap);
 		int bpp = FreeImage_GetBPP(bitmap);
-		if (bpp == 24)
+		/*  TODO: not exposed by Angle
+        if (bpp == 24)
 		{
 			format = GL_BGR;
 			internalFormat = GL_RGB;
 		}
-		else if (bpp == 32)
+		else*/
+        if (bpp == 32)
 		{
-			format = GL_BGRA;
+			format = GL_BGRA8_EXT;
 			internalFormat = GL_RGBA;
 		}
 		else
 		{
-			format = GL_BGRA;
+			format = GL_BGRA8_EXT;
 			internalFormat = GL_RGBA;
 
 			ownsData = true;
@@ -509,7 +530,7 @@ static bool CreateImageFrameBuffer(Image* image)
 	
 	glGenFramebuffers(1, &image->m_FrameBuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, image->m_FrameBuffer);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, image->m_Texture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, image->m_Texture, 0);
 	return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 }
 
@@ -670,7 +691,7 @@ int Bacon_SetFrameBuffer(int image)
 	return BindFrameBuffer(image);
 }
 
-int Bacon_SetViewport(float x, float y, float width, float height)
+int Bacon_SetViewport(int x, int y, int width, int height)
 {
 	REQUIRE_GL();
 
@@ -681,7 +702,7 @@ int Bacon_SetViewport(float x, float y, float width, float height)
 		frameBufferHeight = s_Impl->m_Images.Get(s_Impl->m_CurrentFrameBuffer)->m_Height;
 	
 	glViewport(x, frameBufferHeight - (y + height), width, height);
-	s_Impl->m_Projection = frustumf(0, width, height, 0, -1, 1).compute_ortho_matrix();
+	s_Impl->m_Projection = frustumf(0.f, (float)width, (float)height, 0.f, -1.f, 1.f).compute_ortho_matrix();
 	s_Impl->m_CurrentShader = -1; // Invalidate uniform
 	return Bacon_Error_None;
 }
@@ -777,8 +798,8 @@ int Bacon_DrawImageRegion(int handle, float x1, float y1, float x2, float y2,
 		Image* image = s_Impl->m_Images.Get(handle);
 		if (!image)
 			return Bacon_Error_InvalidHandle;
-		float w = image->m_Width;
-		float h = image->m_Height;
+		float w = (float)image->m_Width;
+		float h = (float)image->m_Height;
 		u1 = u1 / w;
 		v1 = 1.f - v1 / h;
 		u2 = u2 / h;
@@ -839,11 +860,11 @@ int Bacon_DrawImageQuad(int image, float* positions, float* texCoords, float* co
 	vector<Vertex>& vertices = s_Impl->m_Vertices;
 	unsigned short index = vertices.size();
 	for (int i = 0; i < 4; ++i)
-		vertices.push_back({
+		vertices.push_back(Vertex(
 			transform * vec3f(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]),
 			vec2f(texCoords[i * 2], texCoords[i * 2 + 1]),
 			color * vec4f(colors[i * 4], colors[i * 4 + 1], colors[i * 4 + 2], colors[i * 4 + 3])
-		});
+		));
 	
 	vector<unsigned short>& indices = s_Impl->m_Indices;
 	indices.push_back(index + 0);
@@ -868,8 +889,8 @@ int Bacon_DrawLine(float x1, float y1, float x2, float y2)
 	vec4f const& color = s_Impl->m_ColorStack.back();
 	vector<Vertex>& vertices = s_Impl->m_Vertices;
 	unsigned short index = vertices.size();
-	vertices.push_back({ transform * vec3f(x1, y1, z), vec2f(0, 0), color });
-	vertices.push_back({ transform * vec3f(x2, y2, z), vec2f(1, 0), color });
+	vertices.push_back(Vertex(transform * vec3f(x1, y1, z), vec2f(0, 0), color));
+	vertices.push_back(Vertex(transform * vec3f(x2, y2, z), vec2f(1, 0), color));
 
 	vector<unsigned short>& indices = s_Impl->m_Indices;
 	indices.push_back(index + 0);
@@ -886,10 +907,10 @@ int Bacon_Flush()
 		return Bacon_Error_None;
 	
 	glBindBuffer(GL_ARRAY_BUFFER, s_Impl->m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * s_Impl->m_Vertices.size(), &s_Impl->m_Vertices[0], GL_DYNAMIC_COPY);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * s_Impl->m_Vertices.size(), &s_Impl->m_Vertices[0], GL_DYNAMIC_DRAW);
 	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_Impl->m_IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * s_Impl->m_Indices.size(), &s_Impl->m_Indices[0], GL_DYNAMIC_COPY);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * s_Impl->m_Indices.size(), &s_Impl->m_Indices[0], GL_DYNAMIC_DRAW);
 	
 	glDrawElements(s_Impl->m_CurrentMode, (int)s_Impl->m_Indices.size(), GL_UNSIGNED_SHORT, 0);
 	

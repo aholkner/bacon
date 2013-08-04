@@ -130,7 +130,7 @@ def load(function_wrapper = None):
 
 	Clear = fn(_lib.Bacon_Clear, c_float, c_float, c_float, c_float)
 	SetFrameBuffer = fn(_lib.Bacon_SetFrameBuffer, c_int)
-	SetViewport = fn(_lib.Bacon_SetViewport, c_float, c_float, c_float, c_float)
+	SetViewport = fn(_lib.Bacon_SetViewport, c_int, c_int, c_int, c_int)
 	SetShader = fn(_lib.Bacon_SetShader, c_int)
 	SetBlending = fn(_lib.Bacon_SetBlending, c_int, c_int)
 	DrawImage = fn(_lib.Bacon_DrawImage, c_int, c_float, c_float, c_float, c_float)

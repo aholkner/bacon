@@ -8,6 +8,12 @@ namespace Bacon {
 	class HandleArray
 	{
 	public:
+        HandleArray()
+            : m_Free(0xffff)
+            , m_NextVersion(1)
+        {
+        }
+
 		void Reserve(std::size_t count)
 		{
 			m_Elements.reserve(count);
@@ -37,7 +43,7 @@ namespace Bacon {
 				return 0;
 			
 			index = (int)m_Elements.size();
-			m_Elements.push_back({ T(), 0, 0xffff });
+			m_Elements.push_back(Element(T(), 0, 0xffff));
 			return CreateHandle(index);
 		}
 		
@@ -57,14 +63,21 @@ namespace Bacon {
 	private:
 		struct Element
 		{
+            Element(const T& value, unsigned short version, unsigned short nextFree)
+                : m_Value(value)
+                , m_Version(version)
+                , m_NextFree(nextFree)
+            {
+            }
+
 			T m_Value;
 			unsigned short m_Version;
 			unsigned short m_NextFree;		// 0xffff if occupied
 		};
 		
 		std::vector<Element> m_Elements;
-		unsigned short m_Free = 0xffff;		// 0xffff if none free
-		unsigned short m_NextVersion = 1;
+		unsigned short m_Free;		// 0xffff if none free
+		unsigned short m_NextVersion;
 		
 		int CreateHandle(unsigned short index)
 		{
@@ -75,7 +88,7 @@ namespace Bacon {
 		int GetIndexFromHandle(int handle)
 		{
 			int index = handle & 0xffff;
-			if (index >= m_Elements.size() ||
+			if (index >= (int)m_Elements.size() ||
 				m_Elements[index].m_NextFree != 0xffff ||
 				m_Elements[index].m_Version != GetVersionFromHandle(handle))
 				return -1;

@@ -298,25 +298,25 @@ template < typename T >
 void
 frustum< T >::compute_ortho_matrix( matrix< 4, 4, T >& M ) const
 {
-    M( 0,0 ) = 2.0 / ( right() - left() );
+    M( 0,0 ) = T(2.0) / ( right() - left() );
     M( 0,1 ) = 0.0;
     M( 0,2 ) = 0.0;
     M( 0,3 ) = -( right() + left() ) / ( right() - left() );
     
     M( 1,0 ) = 0.0;
-    M( 1,1 ) = 2.0 / ( top() - bottom() );
+    M( 1,1 ) = T(2.0) / ( top() - bottom() );
     M( 1,2 ) = 0.0f;
     M( 1,3 ) = -( top() + bottom() ) / ( top() - bottom() );
 
     M( 2,0 ) = 0.0;
     M( 2,1 ) = 0.0;
-    M( 2,2 ) = -2.0 / ( far_plane() - near_plane() );
+    M( 2,2 ) = T(-2.0) / ( far_plane() - near_plane() );
     M( 2,3 ) = -( far_plane() + near_plane() ) / ( far_plane() - near_plane() );
 
     M( 3,0 ) = 0.0;
     M( 3,1 ) = 0.0;
     M( 3,2 ) = 0.0;
-    M( 3,3 ) = 1.0f;
+    M( 3,3 ) = T(1.0);
 }
 
 template < typename T >
