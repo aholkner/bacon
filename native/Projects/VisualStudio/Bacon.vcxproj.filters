@@ -47,5 +47,8 @@
     <ClInclude Include="..\..\Source\Bacon\HandleArray.h">
       <Filter>Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\Bacon\windows\Platform.h">
+      <Filter>Source\Windows</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

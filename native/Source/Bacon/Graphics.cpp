@@ -161,7 +161,7 @@ void Graphics_InitGL()
 	glGenVertexArraysOES(1, &s_Impl->m_VAO);
 	glBindVertexArrayOES(s_Impl->m_VAO);
 #endif
-	glEnableVertexAttribArray(BoundVertexAttribPosition);
+    glEnableVertexAttribArray(BoundVertexAttribPosition);
 	glVertexAttribPointer(BoundVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	glEnableVertexAttribArray(BoundVertexAttribTexCoord0);
 	glVertexAttribPointer(BoundVertexAttribTexCoord0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, m_TexCoord0));
@@ -172,14 +172,13 @@ void Graphics_InitGL()
 	Bacon_CreateShader(&s_Impl->m_DefaultShader,
 		 
 		 // Vertex shader
-		 "#version 150\n"
+		 "precision highp float;\n"
+         "attribute vec3 a_Position;\n"
+		 "attribute vec2 a_TexCoord0;\n"
+         "attribute vec4 a_Color;\n"
 		 
-		 "in vec3 a_Position;\n"
-		 "in vec4 a_Color;\n"
-		 "in vec2 a_TexCoord0;\n"
-		 
-		 "out vec2 v_TexCoord0;\n"
-		 "out vec4 v_Color;\n"
+		 "varying vec2 v_TexCoord0;\n"
+		 "varying vec4 v_Color;\n"
 		 
 		 "uniform mat4 g_Projection;\n"
 		 
@@ -191,16 +190,14 @@ void Graphics_InitGL()
 		 "}\n",
 		 
 		 // Fragment shader
-		 "#version 150\n"
-		 
+         "precision highp float;\n"
 		 "uniform sampler2D g_Texture0;\n"
-		 "in vec2 v_TexCoord0;\n"
-		 "in vec4 v_Color;\n"
-		 "out vec4 f_Color;\n"
+		 "varying vec2 v_TexCoord0;\n"
+		 "varying vec4 v_Color;\n"
 		 
 		 "void main()\n"
 		 "{"
-		 "    f_Color = v_Color * texture(g_Texture0, v_TexCoord0);\n"
+         "    gl_FragColor = texture2D(g_Texture0, v_TexCoord0);\n"
 		 "}\n");
 }
 
@@ -304,6 +301,8 @@ static int CompileShader(Shader* shader)
 	
 	GLuint program = glCreateProgram();
 	glBindAttribLocation(program, BoundVertexAttribPosition, VertexAttribPosition);
+    glBindAttribLocation(program, BoundVertexAttribTexCoord0, VertexAttribTexCoord0);
+    glBindAttribLocation(program, BoundVertexAttribColor, VertexAttribColor);
 	glAttachShader(program, vertexShader);
 	glAttachShader(program, fragmentShader);
 	
@@ -439,8 +438,8 @@ static bool CreateImageTexture(Image* image)
 
 	bool ownsData = false;
 	BYTE* data = nullptr;
-	GLuint format = GL_BGRA8_EXT;
-	GLuint internalFormat = GL_RGBA;
+	GLuint format = GL_BGRA_EXT;
+	GLuint internalFormat = GL_BGRA_EXT;
 	if (bitmap)
 	{
 		data = FreeImage_GetBits(bitmap);
@@ -455,13 +454,13 @@ static bool CreateImageTexture(Image* image)
 		else*/
         if (bpp == 32)
 		{
-			format = GL_BGRA8_EXT;
-			internalFormat = GL_RGBA;
+			format = GL_BGRA_EXT;
+			internalFormat = GL_BGRA_EXT;
 		}
 		else
 		{
-			format = GL_BGRA8_EXT;
-			internalFormat = GL_RGBA;
+			format = GL_BGRA_EXT;
+			internalFormat = GL_BGRA_EXT;
 
 			ownsData = true;
 			pitch = image->m_Width * 4;
@@ -470,12 +469,13 @@ static bool CreateImageTexture(Image* image)
 		}
 		
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, pitch / (bpp / 8));
+
+		//glPixelStorei(GL_UNPACK_ROW_LENGTH, pitch / (bpp / 8));
 	}
 	
 	glGenTextures(1, &image->m_Texture);
 	glBindTexture(GL_TEXTURE_2D, image->m_Texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->m_Width, image->m_Height, 0, format, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, image->m_Width, image->m_Height, 0, format, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
@@ -761,7 +761,9 @@ int Bacon_Clear(float r, float g, float b, float a)
 	Bacon_Flush();
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT);
+#ifdef __APPLE__
 	glGetError(); // Consume known error
+#endif
 	return Bacon_Error_None;
 }
 

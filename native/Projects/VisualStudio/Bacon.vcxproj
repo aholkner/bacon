@@ -25,6 +25,7 @@
     <ClInclude Include="..\..\Source\Bacon\Bacon.h" />
     <ClInclude Include="..\..\Source\Bacon\BaconInternal.h" />
     <ClInclude Include="..\..\Source\Bacon\HandleArray.h" />
+    <ClInclude Include="..\..\Source\Bacon\windows\Platform.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Vendor\Angle\src\compiler\preprocessor\preprocessor.vcxproj">

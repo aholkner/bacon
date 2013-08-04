@@ -23,6 +23,9 @@ ipch
 *.exp
 *.vcxproj.user
 
+# Debug logs
+debug.txt
+
 # Distribution
 bacon/Bacon.dylib
 bacon/Bacon.dll
