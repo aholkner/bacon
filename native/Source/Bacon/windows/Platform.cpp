@@ -19,6 +19,8 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_SIZE:
+        g_Width = lParam & 0xffff;
+        g_Height = (lParam >> 16) & 0xffff;
         // Fallthrough
 
     case WM_PAINT:

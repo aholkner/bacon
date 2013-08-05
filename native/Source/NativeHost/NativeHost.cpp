@@ -17,7 +17,7 @@ void Tick()
 	
 	int w, h;
 	Bacon_GetImageSize(g_Glyph, &w, &h);
-	//Bacon_DrawImage(g_Glyph, 10.f, 10.f, 10.f + w, 10.f + h);
+	Bacon_DrawImage(g_Glyph, 10.f, 10.f, 10.f + w, 10.f + h);
 
     int kw, kh;
     Bacon_GetImageSize(g_Kitten, &kw, &kh);
