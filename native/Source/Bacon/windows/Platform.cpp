@@ -19,6 +19,7 @@ static unordered_map<UINT, int> s_KeyMap;
 
 static void InitKeyMap();
 static void OnKey(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+static void OnMouseButton(HWND hWnd, UINT uMsg, WPARAM wParam, short x, short y);
 
 LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 {
@@ -53,6 +54,25 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         OnKey(hWnd, uMsg, wParam, lParam);
         return 0;
 
+    case WM_LBUTTONDOWN:
+    case WM_MBUTTONDOWN:
+    case WM_RBUTTONDOWN:
+    case WM_LBUTTONUP:
+    case WM_MBUTTONUP:
+    case WM_RBUTTONUP:
+        Mouse_SetMousePosition((float)LOWORD(lParam), (float)HIWORD(lParam));
+        OnMouseButton(hWnd, uMsg, wParam, LOWORD(lParam), HIWORD(lParam));
+        return 0;
+
+    case WM_MOUSEMOVE:
+        Mouse_SetMousePosition((float)LOWORD(lParam), (float)HIWORD(lParam));
+        return 0;
+
+    case WM_MOUSEWHEEL:
+        Mouse_SetMousePosition((float)LOWORD(lParam), (float)HIWORD(lParam));
+        Mouse_OnMouseScrolled(0.f, (float)HIWORD(wParam) / WHEEL_DELTA);
+        return 0;
+        
     default: 
         return DefWindowProc (hWnd, uMsg, wParam, lParam); 
     } 
@@ -314,3 +334,36 @@ static void OnKey(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         Keyboard_SetKeyState(it->second, pressed);
 }
 
+static void OnMouseButton(HWND hWnd, UINT uMsg, WPARAM wParam, short x, short y)
+{
+    int button = 0;
+    bool pressed = false;
+    switch (uMsg)
+    {
+    case WM_LBUTTONDOWN:
+        button = 0; 
+        pressed = true;
+        break;
+    case WM_MBUTTONDOWN:
+        button = 1; 
+        pressed = true;
+        break;
+    case WM_RBUTTONDOWN:
+        button = 2; 
+        pressed = true;
+        break;
+    case WM_LBUTTONUP:
+        button = 0; 
+        pressed = false;
+        break;
+    case WM_MBUTTONUP:
+        button = 1; 
+        pressed = false;
+        break;
+    case WM_RBUTTONUP:
+        button = 2; 
+        pressed = false;
+        break;
+    }
+    Mouse_SetMouseButtonPressed(button, pressed);
+}
