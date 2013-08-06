@@ -46,9 +46,20 @@ void OnControllerAxis(int controller, int axis, float value)
 	printf("%d %d %f\n", controller, axis, value);
 }
 
+void OnKey(int key, int value)
+{
+    if (key == 'f' && value)
+    {
+        static bool fullscreen = false;
+        fullscreen = !fullscreen;
+        Bacon_SetWindowFullscreen(fullscreen);
+    }
+}
+
 int main(int argc, const char * argv[])
 {
 	Bacon_Init();
+    Bacon_SetKeyEventHandler(OnKey);
 	Bacon_SetControllerButtonEventHandler(OnControllerButton);
 	Bacon_SetControllerAxisEventHandler(OnControllerAxis);
 	Bacon_SetControllerConnectedEventHandler(OnControllerConnected);

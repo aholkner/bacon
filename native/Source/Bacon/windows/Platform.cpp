@@ -11,6 +11,8 @@ using namespace std;
 HWND g_hWnd = NULL;
 LPCTSTR WndClass = TEXT("BaconWnd");
 int g_Width = 640, g_Height = 480;
+bool g_Fullscreen = false;
+static WINDOWPLACEMENT g_SavedWindowPlacement;
 
 EGLDisplay g_Display;
 EGLContext g_Context;
@@ -47,9 +49,43 @@ int Bacon_SetWindowSize(int width, int height)
     return Bacon_Error_None;
 }
 
+
+
 int Bacon_SetWindowFullscreen(int fullscreen)
 {
-    // TODO
+    // http://blogs.msdn.com/b/oldnewthing/archive/2010/04/12/9994016.aspx
+
+    if ((bool)fullscreen == g_Fullscreen)
+        return Bacon_Error_None;
+
+    g_Fullscreen = (bool)fullscreen;
+
+    DWORD dwStyle = GetWindowLong(g_hWnd, GWL_STYLE);
+    if (fullscreen) 
+    {
+        MONITORINFO mi = { sizeof(mi) };
+        if (GetWindowPlacement(g_hWnd, &g_SavedWindowPlacement) &&
+            GetMonitorInfo(MonitorFromWindow(g_hWnd,
+            MONITOR_DEFAULTTOPRIMARY), &mi)) 
+        {
+                SetWindowLong(g_hWnd, GWL_STYLE,
+                    dwStyle & ~WS_OVERLAPPEDWINDOW);
+                SetWindowPos(g_hWnd, HWND_TOP,
+                    mi.rcMonitor.left, mi.rcMonitor.top,
+                    mi.rcMonitor.right - mi.rcMonitor.left,
+                    mi.rcMonitor.bottom - mi.rcMonitor.top,
+                    SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+        }
+    } 
+    else 
+    {
+        SetWindowLong(g_hWnd, GWL_STYLE,
+            dwStyle | WS_OVERLAPPEDWINDOW);
+        SetWindowPlacement(g_hWnd, &g_SavedWindowPlacement);
+        SetWindowPos(g_hWnd, NULL, 0, 0, 0, 0,
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
+            SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+    }
     return Bacon_Error_None;
 }
 
