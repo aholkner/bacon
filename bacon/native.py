@@ -1,5 +1,6 @@
 from ctypes import *
 import os
+import sys
 
 '''Blend values that can be passed to set_blending'''
 class BlendFlags(object):
@@ -84,7 +85,13 @@ def create_fn(function_wrapper):
 def load(function_wrapper = None):	
 	fn = create_fn(function_wrapper)
 
-	_lib_path = os.path.join(os.path.dirname(__file__), 'Bacon.dylib')
+	if sys.platform == 'win32':
+		# Dependent DLLs loaded by Bacon.dll also need to be loaded from this path, use
+		# SetDllDirectory to affect the library search path; requires XP SP 1 or Vista.
+		windll.kernel32.SetDllDirectoryA(bytes(os.path.dirname(__file__), 'utf-8'))
+		_lib_path = 'Bacon.dll'
+	elif sys.platform == 'darwin':
+		_lib_path = os.path.join(os.path.dirname(__file__), 'Bacon.dylib')
 	_lib = cdll.LoadLibrary(_lib_path)
 
 	# Function types
@@ -175,7 +182,7 @@ def load(function_wrapper = None):
 	class BaconLibrary(object):
 		pass
 	ns = BaconLibrary()
-	for k, v in locals().items():
+	for k, v in list(locals().items()):
 		setattr(ns, k, v)
 
 	return ns

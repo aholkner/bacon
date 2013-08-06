@@ -687,14 +687,14 @@ def run():
 
 	lib.Run()
 
-	lib.SetWindowResizeEventHandler(None)
-	lib.SetKeyEventHandler(None)
-	lib.SetMouseButtonEventHandler(None)
-	lib.SetMouseScrollEventHandler(None)
-	lib.SetControllerConnectedEventHandler(None)
-	lib.SetControllerButtonEventHandler(None)
-	lib.SetControllerAxisEventHandler(None)
-	lib.SetTickCallback(None)
+	lib.SetWindowResizeEventHandler(lib.WindowResizeEventHandler(0))
+	lib.SetKeyEventHandler(lib.KeyEventHandler(0))
+	lib.SetMouseButtonEventHandler(lib.MouseButtonEventHandler(0))
+	lib.SetMouseScrollEventHandler(lib.MouseScrollEventHandler(0))
+	lib.SetControllerConnectedEventHandler(lib.ControllerConnectedEventHandler(0))
+	lib.SetControllerButtonEventHandler(lib.ControllerButtonEventHandler(0))
+	lib.SetControllerAxisEventHandler(lib.ControllerAxisEventHandler(0))
+	lib.SetTickCallback(lib.TickCallback(0))
 	
 # Graphics
 push_transform = lib.PushTransform
