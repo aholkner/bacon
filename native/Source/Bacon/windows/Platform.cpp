@@ -3,6 +3,7 @@
 #include "Platform.h"
 
 #include <EGL/egl.h>
+#include <EGL/eglext.h>
 
 #include <unordered_map>
 using namespace std;
@@ -21,6 +22,21 @@ static void InitKeyMap();
 static void OnKey(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 static void OnMouseButton(HWND hWnd, UINT uMsg, WPARAM wParam, short x, short y);
 
+
+int Bacon_SetWindowSize(int width, int height)
+{
+    g_Width = width;
+    g_Height = height;
+    // TODO size existing window
+    return Bacon_Error_None;
+}
+
+int Bacon_SetWindowFullscreen(int fullscreen)
+{
+    // TODO
+    return Bacon_Error_None;
+}
+
 LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 {
     switch (uMsg) 
@@ -31,6 +47,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_SIZE:
         g_Width = lParam & 0xffff;
         g_Height = (lParam >> 16) & 0xffff;
+        Window_OnSizeChanged(g_Width, g_Height);
         // Fallthrough
 
     case WM_PAINT:
@@ -79,7 +96,6 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     return 1; 
 }
-
 
 static int Platform_CreateWindow()
 {
@@ -149,7 +165,7 @@ static int Platform_CreateEGLContext()
     };
 
     // Get Display
-    g_Display = eglGetDisplay(GetDC(g_hWnd));
+    g_Display = eglGetDisplay(EGL_D3D11_ELSE_D3D9_DISPLAY_ANGLE);//GetDC(g_hWnd));
     if (g_Display == EGL_NO_DISPLAY)
         return Bacon_Error_Unknown;
 
