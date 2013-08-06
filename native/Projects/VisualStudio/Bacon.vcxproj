@@ -116,7 +116,13 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(TargetPath) $(ProjectDir)\..\..\..\bacon\</Command>
+      <Command>copy $(TargetPath) $(ProjectDir)\..\..\..\bacon\
+copy $(OutDir)\Bacon.pdb $(ProjectDir)\..\..\..\bacon\
+copy $(OutDir)\libEGL.dll $(ProjectDir)\..\..\..\bacon\
+copy $(OutDir)\libEGL.pdb $(ProjectDir)\..\..\..\bacon\
+copy $(OutDir)\libGLESv2.dll $(ProjectDir)\..\..\..\bacon\
+copy $(OutDir)\libGLESv2.pdb $(ProjectDir)\..\..\..\bacon\
+copy "$(ProgramFiles)\Windows Kits\8.0\Redist\D3D\x86\D3DCompiler_46.dll" $(ProjectDir)\..\..\..\bacon\</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
