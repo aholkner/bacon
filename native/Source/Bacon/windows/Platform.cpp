@@ -160,6 +160,7 @@ static int Platform_CreateWindow()
     wndclass.hInstance     = hInstance; 
     wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH); 
     wndclass.lpszClassName = WndClass;
+    wndclass.hCursor       = LoadCursor(NULL, IDC_ARROW);
     if (!RegisterClass (&wndclass) ) 
         return FALSE; 
 
