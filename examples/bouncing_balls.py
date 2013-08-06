@@ -56,8 +56,11 @@ def on_tick():
 bacon.on_tick = on_tick
 
 def on_key(key, value):
-    if key == ord('f'):
-        bacon.window.fullscreen = not bacon.window.fullscreen
+    if value:
+        if key == ord('f'):
+            bacon.window.fullscreen = not bacon.window.fullscreen
+        if key == ord('g'):
+            bacon.window.width += 50
 bacon.on_key = on_key
 
 def on_controller_connected(controller):

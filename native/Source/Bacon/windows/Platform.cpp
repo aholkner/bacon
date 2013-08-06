@@ -19,15 +19,31 @@ EGLSurface g_Surface;
 static unordered_map<UINT, int> s_KeyMap;
 
 static void InitKeyMap();
+static void OnSize(int width, int height);
 static void OnKey(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 static void OnMouseButton(HWND hWnd, UINT uMsg, WPARAM wParam, short x, short y);
 
-
+static void GetWindowFrameSizeForContentSize(int& width, int& height, int windowStyle)
+{
+    RECT windowRect;
+    windowRect.left = 0;
+    windowRect.top = 0;
+    windowRect.right = width;
+    windowRect.bottom = height;
+    AdjustWindowRect(&windowRect, windowStyle, FALSE);
+    width = windowRect.right - windowRect.left;
+    height = windowRect.bottom - windowRect.top;
+}
+    
 int Bacon_SetWindowSize(int width, int height)
 {
     g_Width = width;
     g_Height = height;
-    // TODO size existing window
+    if (g_hWnd)
+    {
+        GetWindowFrameSizeForContentSize(width, height, GetWindowLong(g_hWnd, GWL_STYLE));
+        SetWindowPos(g_hWnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
+    }
     return Bacon_Error_None;
 }
 
@@ -45,9 +61,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_SIZE:
-        g_Width = lParam & 0xffff;
-        g_Height = (lParam >> 16) & 0xffff;
-        Window_OnSizeChanged(g_Width, g_Height);
+        OnSize(lParam & 0xffff, (lParam >> 16) & 0xffff);
         // Fallthrough
 
     case WM_PAINT:
@@ -101,7 +115,6 @@ static int Platform_CreateWindow()
 {
     WNDCLASS wndclass = { 0 }; 
     DWORD    wStyle   = 0;
-    RECT     windowRect;
     HINSTANCE hInstance = GetModuleHandle(NULL);
 
     wndclass.style         = CS_OWNDC;
@@ -116,11 +129,9 @@ static int Platform_CreateWindow()
 
     // Adjust the window rectangle so that the client area has
     // the correct number of pixels
-    windowRect.left = 0;
-    windowRect.top = 0;
-    windowRect.right = g_Width;
-    windowRect.bottom = g_Height;
-    AdjustWindowRect ( &windowRect, wStyle, FALSE );
+    int windowWidth = g_Width;
+    int windowHeight = g_Height;
+    GetWindowFrameSizeForContentSize(windowWidth, windowHeight, wStyle);
 
     g_hWnd = CreateWindow(
         WndClass,
@@ -128,8 +139,8 @@ static int Platform_CreateWindow()
         wStyle,
         0,
         0,
-        windowRect.right - windowRect.left,
-        windowRect.bottom - windowRect.top,
+        windowWidth,
+        windowHeight,
         NULL,
         NULL,
         hInstance,
@@ -238,6 +249,12 @@ int Bacon_Run()
     return Bacon_Error_None;
 }
 
+static void OnSize(int width, int height)
+{
+    g_Width = width;
+    g_Height = height;
+    Window_OnSizeChanged(g_Width, g_Height);
+}
 
 static struct {
     UINT m_VirtualKey;
