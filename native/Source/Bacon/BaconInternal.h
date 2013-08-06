@@ -9,6 +9,7 @@ void Audio_Update();
 
 void Controller_Init();
 void Controller_Shutdown();
+void Controller_Update();
 
 void Fonts_Init();
 void Fonts_Shutdown();

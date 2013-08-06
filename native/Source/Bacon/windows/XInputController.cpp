@@ -1,39 +1,26 @@
-// Placeholder
-#include "../Bacon.h"
-#include "../BaconInternal.h"
+#include "Controller.h"
 
-void Controller_Init()
+void XInputController_Init()
 {
-    
-}
 
-void Controller_Shutdown()
+
+}
+void XInputController_Shutdown()
 {
 
 }
 
-int Bacon_SetControllerConnectedEventHandler(Bacon_ControllerConnectedEventHandler handler)
+void XInputController_Update()
 {
-    return Bacon_Error_None;
+
 }
 
-int Bacon_SetControllerButtonEventHandler(Bacon_ControllerButtonEventHandler handler)
+int XInputController_GetControllerPropertyInt(int controller, int property, int* outValue)
 {
-    return Bacon_Error_None;
+    return Bacon_Error_InvalidArgument;
 }
 
-int Bacon_SetControllerAxisEventHandler(Bacon_ControllerAxisEventHandler handler)
+int XInputController_GetControllerPropertyString(int controller, int property, char* outBuffer, int* inOutBufferSize)
 {
-    return Bacon_Error_None;
+    return Bacon_Error_InvalidArgument;
 }
-
-int Bacon_GetControllerPropertyInt(int controller, int property, int* outValue)
-{
-    return Bacon_Error_None;
-}
-
-int Bacon_GetControllerPropertyString(int controller, int property, char* outBuffer, int* inOutBufferSize)
-{
-    return Bacon_Error_None;
-}
-

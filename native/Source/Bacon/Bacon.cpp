@@ -28,6 +28,7 @@ int Bacon_Shutdown()
 int Bacon_InternalTick()
 {
 	Audio_Update();
+    Controller_Update();
 	
 	if (s_TickCallback)
 		s_TickCallback();

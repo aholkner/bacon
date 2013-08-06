@@ -2,4 +2,3 @@
 
 #include <windows.h>
 extern HWND g_hWnd;
-

@@ -30,10 +30,16 @@
     <ClCompile Include="..\..\Source\Bacon\Window.cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Bacon\windows\XInputController.cpp">
+    <ClCompile Include="..\..\Source\Bacon\windows\Platform.cpp">
       <Filter>Source\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\Bacon\windows\Platform.cpp">
+    <ClCompile Include="..\..\Source\Bacon\windows\DirectInputController.cpp">
+      <Filter>Source\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Bacon\windows\Controller.cpp">
+      <Filter>Source\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Bacon\windows\XInputController.cpp">
       <Filter>Source\Windows</Filter>
     </ClCompile>
   </ItemGroup>
@@ -48,6 +54,9 @@
       <Filter>Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Bacon\windows\Platform.h">
+      <Filter>Source\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Bacon\windows\Controller.h">
       <Filter>Source\Windows</Filter>
     </ClInclude>
   </ItemGroup>
