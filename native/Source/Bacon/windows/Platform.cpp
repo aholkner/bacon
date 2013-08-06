@@ -49,17 +49,9 @@ int Bacon_SetWindowSize(int width, int height)
     return Bacon_Error_None;
 }
 
-
-
-int Bacon_SetWindowFullscreen(int fullscreen)
+static void SetWindowFullscreen(bool fullscreen)
 {
     // http://blogs.msdn.com/b/oldnewthing/archive/2010/04/12/9994016.aspx
-
-    if ((bool)fullscreen == g_Fullscreen)
-        return Bacon_Error_None;
-
-    g_Fullscreen = (bool)fullscreen;
-
     DWORD dwStyle = GetWindowLong(g_hWnd, GWL_STYLE);
     if (fullscreen) 
     {
@@ -86,6 +78,16 @@ int Bacon_SetWindowFullscreen(int fullscreen)
             SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
             SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
     }
+}
+
+int Bacon_SetWindowFullscreen(int fullscreen)
+{
+    if ((bool)fullscreen == g_Fullscreen)
+        return Bacon_Error_None;
+
+    g_Fullscreen = (bool)fullscreen;
+    if (g_hWnd)
+        SetWindowFullscreen((bool)fullscreen);
     return Bacon_Error_None;
 }
 
@@ -185,6 +187,9 @@ static int Platform_CreateWindow()
     if (!g_hWnd)
         return Bacon_Error_Unknown;
     
+    if (g_Fullscreen)
+        SetWindowFullscreen(true);
+
     return Bacon_Error_None;
 }
 
