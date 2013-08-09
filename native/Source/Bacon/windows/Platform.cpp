@@ -332,9 +332,12 @@ int Bacon_Run()
 
 static void OnSize(int width, int height)
 {
-    s_Width = width;
-    s_Height = height;
-    Window_OnSizeChanged(s_Width, s_Height);
+    if (!IsIconic(g_hWnd))
+    {
+        s_Width = width;
+        s_Height = height;
+        Window_OnSizeChanged(s_Width, s_Height);
+    }
 }
 
 static struct {
