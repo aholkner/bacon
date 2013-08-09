@@ -23,46 +23,96 @@ ControllerButtons = native.ControllerButtons
 ControllerAxes = native.ControllerAxes
 Keys = native.Keys
 
-'''Base class for all Bacon games.  Provides empty methods for all Bacon events.
-Subclass Game and override the methods you are interested in (at least on_tick):
+class MouseButton(object):
+    left = 0
+    middle = 1
+    right = 2
 
-    class MyGame(bacon.Game):
-        def on_tick(self):
-            # Update and draw game here.
-            pass
-
-'''
 class Game(object):
-    '''Called once per frame to update and render the game.  You may only call
-    drawing functions within the scope of this method.'''
+    '''Base class for all Bacon games.  An instance of this class is passed to :func:`run`.  Override methods on
+    this class to handle game events such as :func:`on_tick`.  A complete example of a game::
+
+        class MyGame(bacon.Game):
+            def on_tick(self):
+                # Update and draw game here.
+                pass
+
+        # Start the game
+        bacon.run(MyGame())
+
+    '''
+    
     def on_tick(self):
+        '''Called once per frame to update and render the game.  You may only call
+        drawing functions within the scope of this method.'''
         clear(1, 0, 1, 1)
 
-    '''Called when a key on the keyboard is pressed or released.  'key' is a
-    value from the 'Keys' enumeration.  'pressed' is a boolean indicating whether
-    the key was pressed or released.'''
     def on_key(self, key, pressed):
+        '''Called when a key on the keyboard is pressed or released.
+
+        :param key: key code, one of :class:`Keys` enumeration
+        :param pressed: ``True`` if the key was pressed, otherwise ``False``
+        '''
         pass
 
     def on_mouse_button(self, button, pressed):
+        '''Called when a mouse button is pressed or released.
+
+        :param button: button index, of :class:`MouseButton` enumeration
+        :param pressed: ``True`` if the button was pressed, otherwise ``False``
+        '''
         pass
 
     def on_mouse_scroll(self, dx, dy):
+        '''Called when the mouse scroll wheel is scrolled.  Most mice have a scroll wheel that moves in
+        the ``y`` axis only; Apple trackpads and mice support scrolling in ``x`` as well.
+
+        :note: units are aribitrary and not currently consistent across platforms
+
+        :param dx: relative scroll amount along the ``x`` axis
+        :param dy: relative scroll amount along the ``y`` axis
+        '''
         pass
 
     def on_resize(self, width, height):
+        '''Called when size of the window changes.
+
+        :param width: width of the drawable area of the window, in pixels
+        :param height: height of the drawable area of the window, in pixels
+        '''
         pass
 
     def on_controller_connected(self, controller):
+        '''Called when a game controller is connected.
+
+        :param controller: the :class:`Controller` that is now available for polling and events
+        '''
         pass
 
     def on_controller_disconnected(self, controller):
+        '''Called when a game controller is disconnected.  You should use the `controller` parameter only
+        to identify a previously used controller; its properties and values will no longer be available.
+
+        :param controller: the :class:`Controller` that was disconnected
+        '''
         pass
 
     def on_controller_button(self, controller, button, pressed):
+        '''Called when a button on a game controller is pressed or released.
+
+        :param controller: the :class:`Controller` containing the button
+        :param button: button index, of :class:`ControllerButtons` enumeration
+        :param pressed: ``True`` if the button was pressed, otherwise ``False``
+        '''
         pass
 
     def on_controller_axis(self, controller, axis, value):
+        '''Called when an axis on a game controller is moved.
+
+        :param controller: the :class:`Controller` containing the axis
+        :param button: axis index, of :class:`ControllerAxes` enumeration
+        :param value: absolute position of the axis, between ``-1.0`` and ``1.0``
+        '''
         pass
 
 class Shader(object):
@@ -350,7 +400,6 @@ class Voice(object):
         lib.SetVoicePosition(self._handle, position)
     position = property(get_position, set_position)
 
-'''Version of the Bacon dynamic library that was loaded'''
 major_version = c_int()
 minor_version = c_int()
 patch_version = c_int()
@@ -358,10 +407,12 @@ lib.GetVersion(byref(major_version), byref(minor_version), byref(patch_version))
 major_version = major_version.value
 minor_version = minor_version.value
 patch_version = patch_version.value
-version = '%d.%d.%d' % (major_version, minor_version, patch_version)
 
-'''Set of currently pressed keys'''
+version = '%d.%d.%d' % (major_version, minor_version, patch_version)
+'''Version of the Bacon dynamic library that was loaded'''
+
 keys = set()
+'''Set of currently pressed keys'''
 
 def _key_event_handler(key, value):
     if value:
@@ -649,11 +700,11 @@ def _tick_callback():
 
 _game = None
 
-'''Start running the game.  The window is created and shown at this point, and then
-the main event loop is entered.  'game.on_tick' and other event handlers are called
-repeatedly until the game exits.
-'''
 def run(game):
+    '''Start running the game.  The window is created and shown at this point, and then
+    the main event loop is entered.  'game.on_tick' and other event handlers are called
+    repeatedly until the game exits.
+    '''
     global _game
     _game = game
 
