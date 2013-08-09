@@ -262,6 +262,41 @@ void DirectInputController_Update()
     }
 }
 
+static int GetDeviceStringProperty(IDirectInputDevice8* device, const GUID& propertyGuid, char* outBuffer, int* inOutBufferSize)
+{
+    DIPROPSTRING property;
+    ZeroMemory(&property, sizeof(property));
+    property.diph.dwSize = sizeof(property);
+    property.diph.dwHeaderSize = sizeof(property.diph);
+    property.diph.dwHow = DIPH_DEVICE;
+    property.diph.dwObj = 0;
+
+    if (device->GetProperty(propertyGuid, &property.diph) != S_OK)
+        return Bacon_Error_Unknown;
+
+    *inOutBufferSize = WideCharToMultiByte(CP_UTF8, 0, property.wsz, -1, outBuffer, *inOutBufferSize, NULL, NULL);
+    if (!*inOutBufferSize)
+        return Bacon_Error_Unknown;
+
+    return Bacon_Error_None;
+}
+
+static int GetDeviceDwordProperty(IDirectInputDevice8* device, const GUID& propertyGuid, DWORD* outValue)
+{
+    DIPROPDWORD property;
+    ZeroMemory(&property, sizeof(property));
+    property.diph.dwSize = sizeof(property);
+    property.diph.dwHeaderSize = sizeof(property.diph);
+    property.diph.dwHow = DIPH_DEVICE;
+    property.diph.dwObj = 0;
+
+    if (device->GetProperty(propertyGuid, &property.diph) != S_OK)
+        return Bacon_Error_Unknown;
+
+    *outValue = property.dwData;
+    return Bacon_Error_None;
+}
+
 int DirectInputController_GetControllerPropertyInt(int controller, int property, int* outValue)
 {
     if (controller < 0 || controller >= MaxControllerCount)
@@ -276,6 +311,18 @@ int DirectInputController_GetControllerPropertyInt(int controller, int property,
             return s_Controllers[controller].m_SupportedAxesMask;
         case Bacon_Controller_Property_SupportedButtonsMask:
             return s_Controllers[controller].m_SupportedButtonsMask;
+        case Bacon_Controller_Property_VendorId:
+        case Bacon_Controller_Property_ProductId:
+        {
+            DWORD vendorProductId;
+            if (int error = GetDeviceDwordProperty(s_Controllers[controller].m_Device, DIPROP_VIDPID, &vendorProductId))
+                return error;
+            if (property == Bacon_Controller_Property_VendorId)
+                *outValue = LOWORD(vendorProductId);
+            else
+                *outValue = HIWORD(vendorProductId);
+            return Bacon_Error_None;
+        }
     }
 
     return Bacon_Error_InvalidArgument;
@@ -288,6 +335,12 @@ int DirectInputController_GetControllerPropertyString(int controller, int proper
 
     if (!s_Controllers[controller].m_Device)
         return Bacon_Error_InvalidHandle;
+
+    switch (property)
+    {
+    case Bacon_Controller_Property_Name:
+        return GetDeviceStringProperty(s_Controllers[controller].m_Device, DIPROP_INSTANCENAME, outBuffer, inOutBufferSize);
+    }
 
     return Bacon_Error_InvalidArgument;
 }

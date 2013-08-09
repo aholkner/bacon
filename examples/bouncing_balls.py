@@ -11,7 +11,7 @@ ball_image = bacon.Image.load('res/ball.png')
 ball_sound = bacon.Sound('res/ball.wav')
 
 music = bacon.Voice(bacon.Sound('res/PowerChorus2.ogg', stream=True), loop=True)
-music.play()
+#music.play()
 
 class Ball(object):
     width = ball_image.width
@@ -40,7 +40,7 @@ class Ball(object):
     def on_bounce(self):
         pan = self.x / float(bacon.window.width - self.width) * 2 - 1
         pitch = 0.9 + random.random() * 0.2
-        ball_sound.play(gain=0.1, pan=pan, pitch=pitch)
+        #ball_sound.play(gain=0.1, pan=pan, pitch=pitch)
 
 player_controller = None
 
@@ -66,6 +66,9 @@ bacon.on_key = on_key
 def on_controller_connected(controller):
     global player_controller
     player_controller = controller
+    print('product: %s' % controller.name)
+    print('product_id: %d' % controller.product_id)
+    print('vendor_id: %d' % controller.vendor_id)
 bacon.on_controller_connected = on_controller_connected
 
 def on_controller_disconnected(controller):

@@ -87,15 +87,11 @@ enum Bacon_Controller_Axes
 
 enum Bacon_Controller_Properties
 {
-	Bacon_Controller_Property_VendorId,
-	Bacon_Controller_Property_VendorIdSource,
+    Bacon_Controller_Property_SupportedAxesMask,
+    Bacon_Controller_Property_SupportedButtonsMask,
+    Bacon_Controller_Property_VendorId,
 	Bacon_Controller_Property_ProductId,
-	Bacon_Controller_Property_VersionNumber,
-	Bacon_Controller_Property_Manufacturer,
-	Bacon_Controller_Property_Product,
-	Bacon_Controller_Property_SerialNumber,
-	Bacon_Controller_Property_SupportedAxesMask,
-	Bacon_Controller_Property_SupportedButtonsMask,
+	Bacon_Controller_Property_Name,
 };
 
 enum Bacon_Blend
