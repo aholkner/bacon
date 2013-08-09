@@ -2,7 +2,6 @@
 #include "../BaconInternal.h"
 #include "Controller.h"
 
-static const int MaxControllerCount = 4;
 static ControllerProvider s_Controllers[MaxControllerCount];
 
 Bacon_ControllerConnectedEventHandler g_ControllerConnectedHandler = nullptr;
@@ -16,6 +15,12 @@ void Controller_Init()
 
     DirectInputController_Init();
     XInputController_Init();
+}
+
+void Controller_EnumDevices()
+{
+    DirectInputController_EnumDevices();
+    XInputController_EnumDevices();
 }
 
 void Controller_Shutdown()
@@ -46,7 +51,12 @@ int Controller_GetAvailableIndex(int preferredIndex)
 
 void Controller_SetProvider(int controller, ControllerProvider provider)
 {
+    if (s_Controllers[controller] == provider)
+        return;
+
     s_Controllers[controller] = provider;
+    if (g_ControllerConnectedHandler)
+        g_ControllerConnectedHandler(controller, provider != ControllerProvider_None);
 }
 
 int Bacon_SetControllerConnectedEventHandler(Bacon_ControllerConnectedEventHandler handler)

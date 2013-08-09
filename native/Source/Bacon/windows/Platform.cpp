@@ -1,6 +1,7 @@
 #include "../Bacon.h"
 #include "../BaconInternal.h"
 #include "Platform.h"
+#include "Controller.h"
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -262,6 +263,7 @@ int Bacon_Run()
     if (int error = Platform_CreateEGLContext())
         return error;
 
+    Controller_EnumDevices();
     Graphics_InitGL();
 
     ShowWindow(g_hWnd, TRUE);

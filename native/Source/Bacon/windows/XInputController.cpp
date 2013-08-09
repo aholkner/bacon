@@ -10,6 +10,10 @@ void XInputController_Shutdown()
 
 }
 
+void XInputController_EnumDevices()
+{
+}
+
 void XInputController_Update()
 {
 

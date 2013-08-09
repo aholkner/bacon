@@ -73,7 +73,7 @@ int main(int argc, const char * argv[])
 	int voice;
 	error = Bacon_CreateVoice(&voice, sound, Bacon_VoiceFlags_Loop);
 	assert(!error);
-	error = Bacon_PlayVoice(voice);
+	//error = Bacon_PlayVoice(voice);
 	assert(!error);
 
 	error = Bacon_LoadFont(&g_Font, "res/DejaVuSans.ttf");
