@@ -21,6 +21,49 @@ BlendFlags = native.BlendFlags
 ControllerProfiles = native.ControllerProfiles
 ControllerButtons = native.ControllerButtons
 ControllerAxes = native.ControllerAxes
+Keys = native.Keys
+
+'''Base class for all Bacon games.  Provides empty methods for all Bacon events.
+Subclass Game and override the methods you are interested in (at least on_tick):
+
+    class MyGame(bacon.Game):
+        def on_tick(self):
+            # Update and draw game here.
+            pass
+
+'''
+class Game(object):
+    '''Called once per frame to update and render the game.  You may only call
+    drawing functions within the scope of this method.'''
+    def on_tick(self):
+        clear(1, 0, 1, 1)
+
+    '''Called when a key on the keyboard is pressed or released.  'key' is a
+    value from the 'Keys' enumeration.  'pressed' is a boolean indicating whether
+    the key was pressed or released.'''
+    def on_key(self, key, pressed):
+        pass
+
+    def on_mouse_button(self, button, pressed):
+        pass
+
+    def on_mouse_scroll(self, dx, dy):
+        pass
+
+    def on_resize(self, width, height):
+        pass
+
+    def on_controller_connected(self, controller):
+        pass
+
+    def on_controller_disconnected(self, controller):
+        pass
+
+    def on_controller_button(self, controller, button, pressed):
+        pass
+
+    def on_controller_axis(self, controller, axis, value):
+        pass
 
 class Shader(object):
     def __init__(self, vertex_source, fragment_source):
@@ -317,14 +360,6 @@ minor_version = minor_version.value
 patch_version = patch_version.value
 version = '%d.%d.%d' % (major_version, minor_version, patch_version)
 
-'''Event handler for key events.  Set to a function with the signature:
-
-    def on_key(keyCode, value):
-        pass
-
-'''
-on_key = None
-
 '''Set of currently pressed keys'''
 keys = set()
 
@@ -334,22 +369,7 @@ def _key_event_handler(key, value):
     elif key in keys:
         keys.remove(key)
 
-    if on_key:
-        on_key(key, value)
-
-'''Event handler for mouse button events.  Set to a function with the signature:
-
-    def on_mouse_button(button, pressed):
-        pass
-'''
-on_mouse_button = None
-
-'''Event handler for mouse scroll events.  Set to a function with the signature:
-
-    def on_mouse_scroll(dx, dy):
-        pass
-'''
-on_mouse_scroll = None
+    _game.on_key(key, value)
 
 class Mouse(object):
     def __init__(self):
@@ -385,13 +405,10 @@ def _mouse_button_event_handler(button, value):
     else:
         mouse.button_mask &= ~(1 << button)
 
-    if on_mouse_button:
-        on_mouse_button(button, value)
+    _game.on_mouse_button(button, value)
 
 def _mouse_scroll_event_handler(dx, dy):
-    if on_mouse_scroll:
-        on_mouse_scroll(dx, dy)
-
+    _game.on_mouse_scroll(dx, dy)
 
 class Window(object):
     def __init__(self):
@@ -439,13 +456,10 @@ class Window(object):
 
 window = Window()
 
-on_window_resize = None
-
 def _window_resize_event_handler(width, height):
     window._width = width
     window._height = height
-    if on_window_resize:
-        on_window_resize(width, height)
+    _game.on_resize(width, height)
 
 def _get_controller_property_string(controller_index, property):
     buffer = create_string_buffer(256)
@@ -588,26 +602,6 @@ class Controller(object):
     def right_thumb(self):
         return self._buttons & lib.ControllerButtons.RightThumb
 
-'''Event handler for game controller connected:
-
-    def on_controller_connected(controller):
-        pass
-    bacon.on_controller_connected = on_controller_connected
-'''
-on_controller_connected = None
-
-'''Event handler for game controller connected:
-
-    def on_controller_connected(controller):
-        pass
-    bacon.on_controller_connected = on_controller_connected
-'''
-on_controller_disconnected = None
-
-on_controller_button = None
-
-on_controller_axis = None
-
 # Map controller index to controller
 _controllers = {}
 
@@ -622,12 +616,10 @@ def _controller_connected_event_handler(controller_index, connected):
 
     if connected:
         _controllers[controller_index] = controller = Controller(controller_index)
-        if on_controller_connected:
-            on_controller_connected(controller)
+        _game.on_controller_connected(controller)
     else:
         del _controllers[controller_index]
-        if on_controller_disconnected:
-            on_controller_disconnected(controller)
+        _game.on_controller_disconnected(controller)
         
 def _controller_button_event_handler(controller_index, button, pressed):
     try:
@@ -640,8 +632,7 @@ def _controller_button_event_handler(controller_index, button, pressed):
     else:
         controller._buttons &= ~button
 
-    if on_controller_button:
-        on_controller_button(controller, button, pressed)
+    _game.on_controller_button(controller, button, pressed)
 
 def _controller_axis_event_handler(controller_index, axis, value):    
     try:
@@ -650,30 +641,22 @@ def _controller_axis_event_handler(controller_index, axis, value):
         return
 
     controller._axes[axis] = value
-
-    if on_controller_axis:
-        on_controller_axis(controller, axis, value)
-
-
-def _on_tick_default():
-    clear(1, 0, 0, 1)
-    # TODO: useful message
-
-'''Tick callback.  This function must be implemented and is called once per frame;
-it is where your game performs both its update and rendering:
-
-    def on_tick():
-        pass
-    bacon.tick = on_tick
-'''
-on_tick = _on_tick_default
+    _game.on_controller_axis(controller, axis, value)
 
 def _tick_callback():
     mouse._update_position()
-    on_tick()
+    _game.on_tick()
 
-# API
-def run():
+_game = None
+
+'''Start running the game.  The window is created and shown at this point, and then
+the main event loop is entered.  'game.on_tick' and other event handlers are called
+repeatedly until the game exits.
+'''
+def run(game):
+    global _game
+    _game = game
+
     # Window handler
     window_resize_callback_handle = lib.WindowResizeEventHandler(_window_resize_event_handler)
     lib.SetWindowResizeEventHandler(window_resize_callback_handle)
@@ -701,6 +684,7 @@ def run():
     lib.SetTickCallback(tick_callback_handle)
 
     lib.Run()
+    _game = None
 
     lib.SetWindowResizeEventHandler(lib.WindowResizeEventHandler(0))
     lib.SetKeyEventHandler(lib.KeyEventHandler(0))
