@@ -25,6 +25,18 @@ int Bacon_SetWindowSize(int width, int height)
 	return Bacon_Error_None;
 }
 
+int Bacon_SetWindowTitle(const char* title)
+{
+	// TODO
+	return Bacon_Error_None;
+}
+
+int Bacon_SetWindowResizable(int resizable)
+{
+	// TODO
+	return Bacon_Error_None;
+}
+
 int Bacon_SetWindowFullscreen(int fullscreen)
 {
 	g_WindowStartFullscreen = fullscreen;

@@ -323,6 +323,9 @@ void Controller_Shutdown()
 	CFRelease(s_HIDManager);
 }
 
+void Controller_Update()
+{
+}
 
 int Bacon_SetControllerConnectedEventHandler(Bacon_ControllerConnectedEventHandler handler)
 {
@@ -347,12 +350,8 @@ static CFStringRef GetPropertyKey(int property)
 	switch (property)
 	{
 		case Bacon_Controller_Property_VendorId: return CFSTR(kIOHIDVendorIDKey);
-		case Bacon_Controller_Property_VendorIdSource: return CFSTR(kIOHIDVendorIDSourceKey);
 		case Bacon_Controller_Property_ProductId: return CFSTR(kIOHIDProductIDKey);
-		case Bacon_Controller_Property_VersionNumber: return CFSTR(kIOHIDVersionNumberKey);
-		case Bacon_Controller_Property_Manufacturer: return CFSTR(kIOHIDManufacturerKey);
-		case Bacon_Controller_Property_Product: return CFSTR(kIOHIDProductKey);
-		case Bacon_Controller_Property_SerialNumber: return CFSTR(kIOHIDSerialNumberKey);
+		case Bacon_Controller_Property_Name: return CFSTR(kIOHIDProductKey);
 		default: return nullptr;
 	};
 }

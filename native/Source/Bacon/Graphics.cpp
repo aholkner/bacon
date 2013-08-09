@@ -1,6 +1,7 @@
 
 #ifdef __APPLE__
 #include <OpenGL/gl3.h>
+#define GL_BGRA_EXT GL_BGRA
 #else
 #define GL_GLEXT_PROTOTYPES
 #include <GLES2/gl2.h>
@@ -158,8 +159,8 @@ void Graphics_InitGL()
 	
 	// Vertex Array Object
 #if __APPLE__
-	glGenVertexArraysOES(1, &s_Impl->m_VAO);
-	glBindVertexArrayOES(s_Impl->m_VAO);
+	glGenVertexArrays(1, &s_Impl->m_VAO);
+	glBindVertexArray(s_Impl->m_VAO);
 #endif
     glEnableVertexAttribArray(BoundVertexAttribPosition);
 	glVertexAttribPointer(BoundVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
