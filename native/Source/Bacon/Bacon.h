@@ -85,6 +85,13 @@ enum Bacon_Controller_Axes
 	Bacon_Controller_Axis_Misc0 = BIT(8),
 };
 
+enum Bacon_Controller_Profile
+{
+    Bacon_Controller_Profile_Generic,
+    Bacon_Controller_Profile_Standard,
+    Bacon_Controller_Profile_Extended,
+};
+
 enum Bacon_Controller_Properties
 {
     Bacon_Controller_Property_SupportedAxesMask,
@@ -92,6 +99,7 @@ enum Bacon_Controller_Properties
     Bacon_Controller_Property_VendorId,
 	Bacon_Controller_Property_ProductId,
 	Bacon_Controller_Property_Name,
+    Bacon_Controller_Property_Profile,
 };
 
 enum Bacon_Blend

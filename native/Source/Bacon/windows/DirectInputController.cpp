@@ -325,6 +325,8 @@ int DirectInputController_GetControllerPropertyInt(int controller, int property,
                 *outValue = HIWORD(vendorProductId);
             return Bacon_Error_None;
         }
+        case Bacon_Controller_Property_Profile:
+            return Bacon_Controller_Profile_Generic;
     }
 
     return Bacon_Error_InvalidArgument;

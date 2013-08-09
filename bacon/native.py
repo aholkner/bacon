@@ -28,12 +28,18 @@ class SoundFlags(object):
 class VoiceFlags(object):
     loop = 1 << 0
 
+class ControllerProfiles(object):
+    generic = 0
+    standard = 1
+    extended = 2
+
 class ControllerProperties(object):
     supported_axes_mask = 0
     supported_buttons_mask = 1
     vendor_id = 2
     product_id = 3
     name = 4
+    profile = 5
 
 class ControllerButtons(object):
     start = 1 << 0

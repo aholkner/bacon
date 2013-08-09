@@ -66,6 +66,7 @@ bacon.on_key = on_key
 def on_controller_connected(controller):
     global player_controller
     player_controller = controller
+    print('profile: %s' % controller.profile)
     print('product: %s' % controller.name)
     print('product_id: %d' % controller.product_id)
     print('vendor_id: %d' % controller.vendor_id)

@@ -18,6 +18,7 @@ lib = native.load(function_wrapper = _error_wrapper)
 lib.Init()
 
 BlendFlags = native.BlendFlags
+ControllerProfiles = native.ControllerProfiles
 ControllerButtons = native.ControllerButtons
 ControllerAxes = native.ControllerAxes
 
@@ -461,6 +462,7 @@ class Controller(object):
         self.vendor_id = _get_controller_property_int(controller_index, native.ControllerProperties.vendor_id)
         self.product_id = _get_controller_property_int(controller_index, native.ControllerProperties.product_id)
         self.name = _get_controller_property_string(controller_index, native.ControllerProperties.name)
+        self.profile = _get_controller_property_int(controller_index, native.ControllerProperties.profile)
 
     def has_axis(self, axis):
         return (axis & self._supported_axes_mask) != 0
