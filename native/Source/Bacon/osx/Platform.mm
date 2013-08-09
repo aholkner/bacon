@@ -3,7 +3,9 @@
 #include "Platform.h"
 
 NSWindow* g_Window = nil;
+NSString* g_WindowTitle = @"Bacon";
 NSRect g_WindowStartFrame = NSMakeRect(0, 0, 640, 480);
+bool g_WindowResizable = false;
 bool g_WindowStartFullscreen = false;
 bool g_MakeFirstResponder = false;
 
@@ -41,8 +43,7 @@ int Bacon_Run()
     [menubar addItem:appMenuItem];
     [NSApp setMainMenu:menubar];
     id appMenu = [[NSMenu new] autorelease];
-    id appName = @"Bacon";
-    id quitTitle = [@"Quit " stringByAppendingString:appName];
+    id quitTitle = [@"Quit " stringByAppendingString:g_WindowTitle];
     id quitMenuItem = [[[NSMenuItem alloc] initWithTitle:quitTitle
 												  action:@selector(terminate:) keyEquivalent:@"q"] autorelease];
     [appMenu addItem:quitMenuItem];
@@ -54,7 +55,9 @@ int Bacon_Run()
 	[g_View initWithFrame:frame];
 	[g_View setNeedsDisplay:YES];
 	
-	int styleMask = NSTitledWindowMask |  NSClosableWindowMask |NSMiniaturizableWindowMask | NSResizableWindowMask;
+	int styleMask = NSTitledWindowMask |  NSClosableWindowMask |NSMiniaturizableWindowMask;
+	if (g_WindowResizable)
+		styleMask |= NSResizableWindowMask;
 	
     g_Window = [[NSWindow alloc] initWithContentRect:frame
 											styleMask:styleMask
@@ -62,7 +65,7 @@ int Bacon_Run()
 												defer:NO];
 
 //    [window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
-    [g_Window setTitle:appName];
+    [g_Window setTitle:g_WindowTitle];
 	[g_Window setContentView:g_View];
     [g_Window makeKeyAndOrderFront:nil];
 	if (g_WindowStartFullscreen)

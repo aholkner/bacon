@@ -15,6 +15,30 @@
 
 @end
 
+void Window_Create()
+{
+	NSRect frame = g_WindowStartFrame;
+	
+	g_View = [View alloc];
+	[g_View initWithFrame:frame];
+	[g_View setNeedsDisplay:YES];
+	
+	int styleMask = NSTitledWindowMask |  NSClosableWindowMask |NSMiniaturizableWindowMask | NSResizableWindowMask;
+	
+    g_Window = [[NSWindow alloc] initWithContentRect:frame
+										   styleMask:styleMask
+											 backing:NSBackingStoreBuffered
+											   defer:NO];
+	
+	//    [window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
+    [g_Window setTitle:g_WindowTitle];
+	[g_Window setContentView:g_View];
+    [g_Window makeKeyAndOrderFront:nil];
+	if (g_WindowStartFullscreen)
+		[g_View enterFullScreenMode:[NSScreen mainScreen]
+						withOptions:nil];
+}
+
 int Bacon_SetWindowSize(int width, int height)
 {
 	g_WindowStartFrame = NSMakeRect(0, 0, width, height);
@@ -27,13 +51,22 @@ int Bacon_SetWindowSize(int width, int height)
 
 int Bacon_SetWindowTitle(const char* title)
 {
-	// TODO
+	g_WindowTitle = [NSString stringWithUTF8String:title];
+	if (g_Window)
+		[g_Window setTitle:g_WindowTitle];
 	return Bacon_Error_None;
 }
 
 int Bacon_SetWindowResizable(int resizable)
 {
-	// TODO
+	g_WindowResizable = resizable;
+	if (g_Window)
+	{
+		if (resizable)
+			g_Window.styleMask |= NSResizableWindowMask;
+		else
+			g_Window.styleMask &= ~NSResizableWindowMask;
+	}
 	return Bacon_Error_None;
 }
 

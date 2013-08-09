@@ -1,7 +1,9 @@
 #pragma once
 
 extern NSWindow* g_Window;
+extern NSString* g_WindowTitle;
 extern NSRect g_WindowStartFrame;
+extern bool g_WindowResizable;
 extern bool g_WindowStartFullscreen;
 extern bool g_MakeFirstResponder;
 extern NSOpenGLContext* g_Context;
@@ -18,3 +20,5 @@ extern NSOpenGLContext* g_Context;
 @end
 
 extern View* g_View;
+
+void Window_Create();
