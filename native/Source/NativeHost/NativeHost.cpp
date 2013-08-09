@@ -30,10 +30,10 @@ void Tick()
 
 void OnControllerConnected(int controller, int connected)
 {
-	int mask;
-	Bacon_GetControllerPropertyInt(controller, Bacon_Controller_Property_SupportedButtonsMask, &mask);
-	if (!connected)
-		return;
+    if (connected)
+        printf("connected: %d\n", controller);
+    else
+        printf("disconnected: %d\n", controller);
 }
 
 void OnControllerButton(int controller, int button, int value)

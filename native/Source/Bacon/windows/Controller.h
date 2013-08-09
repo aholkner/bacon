@@ -25,6 +25,7 @@ enum ControllerProvider
     ControllerProvider_XInput,
 };
 
+void Controller_RegisterDeviceNotifications();
 void Controller_EnumDevices();
 int Controller_GetAvailableIndex(int preferredIndex);
 void Controller_SetProvider(int controller, ControllerProvider provider);

@@ -58,7 +58,7 @@ static void ReleaseController(int controllerIndex)
     if (controller.m_Device)
     {
         controller.m_Device->Release();
-        controller.m_Device = NULL;
+        ZeroMemory(&s_Controllers[controllerIndex], sizeof(DirectInputController));
         Controller_SetProvider(controllerIndex, ControllerProvider_None);
     }
 }
@@ -88,10 +88,19 @@ static BOOL CALLBACK AddControllerObject(const DIDEVICEOBJECTINSTANCE* instance,
 
 static BOOL CALLBACK OnControllerConnected(const DIDEVICEINSTANCE* instance, void* context)
 {
+    // Already connected?
+    for (int i = 0; i < MaxControllerCount; ++i)
+    {
+        if (IsEqualGUID(instance->guidInstance, s_Controllers[i].m_Guid))
+            return DIENUM_CONTINUE;
+    }
+
+    // Get a controller index for new connection; abandon if exceeds max number of connections
     int controllerIndex = Controller_GetAvailableIndex(0);
     if (controllerIndex == -1)
         return DIENUM_STOP;
 
+    // Open device
     IDirectInputDevice8* device = nullptr;
     if (!CheckError(s_DirectInput->CreateDevice(instance->guidInstance, &device, NULL)))
         goto Error;
@@ -117,6 +126,7 @@ static BOOL CALLBACK OnControllerConnected(const DIDEVICEINSTANCE* instance, voi
     if (!CheckError(device->EnumObjects(AddControllerObject, &s_Controllers[controllerIndex], DIDFT_ABSAXIS | DIDFT_PSHBUTTON | DIDFT_POV)))
         goto Error;
 
+    // This actually marks controller index as in-use by DirectInput
     Controller_SetProvider(controllerIndex, ControllerProvider_DirectInput);
     return DIENUM_CONTINUE;
 
@@ -179,9 +189,9 @@ static int GetDpadButtonMaskForPov(int pov)
 
     // POV is measured in hundredths of a degree clockwise from north
     int north = 0;
-    int south = 180 * 100;
-    int east = 90 * 100;
-    int west = 270 * 100;
+    int south = 180 * DI_DEGREES;
+    int east = 90 * DI_DEGREES;
+    int west = 270 * DI_DEGREES;
 
     int buttons = 0;
     if (pov > west || pov < east)
@@ -234,7 +244,10 @@ void DirectInputController_Update()
             else if (hr != S_FALSE)
             {
                 if (s_DirectInput->GetDeviceStatus(s_Controllers[controller].m_Guid) != S_OK)
+                {
                     OnControllerDisconnected(controller);
+                    continue;
+                }
             }
         }
         s_Controllers[controller].m_Device->GetDeviceState(sizeof(state), &state);

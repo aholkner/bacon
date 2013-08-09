@@ -142,7 +142,11 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         Mouse_SetMousePosition((float)LOWORD(lParam), (float)HIWORD(lParam));
         Mouse_OnMouseScrolled(0.f, (float)HIWORD(wParam) / WHEEL_DELTA);
         return 0;
-        
+
+    case WM_INPUT_DEVICE_CHANGE:
+        Controller_EnumDevices();
+        return 0;
+
     default: 
         return DefWindowProc (hWnd, uMsg, wParam, lParam); 
     } 
@@ -263,6 +267,7 @@ int Bacon_Run()
     if (int error = Platform_CreateEGLContext())
         return error;
 
+    Controller_RegisterDeviceNotifications();
     Controller_EnumDevices();
     Graphics_InitGL();
 

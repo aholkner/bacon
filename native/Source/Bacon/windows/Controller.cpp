@@ -1,6 +1,8 @@
 #include "../Bacon.h"
 #include "../BaconInternal.h"
+#include "Platform.h"
 #include "Controller.h"
+#include <Windows.h>
 
 static ControllerProvider s_Controllers[MaxControllerCount];
 
@@ -17,16 +19,26 @@ void Controller_Init()
     XInputController_Init();
 }
 
-void Controller_EnumDevices()
-{
-    DirectInputController_EnumDevices();
-    XInputController_EnumDevices();
-}
-
 void Controller_Shutdown()
 {
     DirectInputController_Shutdown();
     XInputController_Shutdown();
+}
+
+void Controller_RegisterDeviceNotifications()
+{
+    RAWINPUTDEVICE devices[] = {
+        { 0x1, 0x4, RIDEV_DEVNOTIFY, g_hWnd }, // Generic Desktop : Joystick
+        { 0x1, 0x5, RIDEV_DEVNOTIFY, g_hWnd }, // Generic Desktop : Game Pad
+        { 0x1, 0x8, RIDEV_DEVNOTIFY, g_hWnd }, // Generic Desktop : Multi-axis Controller
+    };
+    RegisterRawInputDevices(devices, BACON_ARRAY_COUNT(devices), sizeof(RAWINPUTDEVICE));
+}
+
+void Controller_EnumDevices()
+{
+    DirectInputController_EnumDevices();
+    XInputController_EnumDevices();
 }
 
 void Controller_Update()
