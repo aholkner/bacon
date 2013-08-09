@@ -150,6 +150,7 @@ void Graphics_Init()
 	ShInitialize();
 	ShBuiltInResources resources;
 	ShInitBuiltInResources(&resources);
+	resources.FragmentPrecisionHigh = 1;
 	s_VertexCompiler = ShConstructCompiler(SH_VERTEX_SHADER, SH_GLES2_SPEC, SH_GLSL_OUTPUT, &resources);
 	s_FragmentCompiler = ShConstructCompiler(SH_FRAGMENT_SHADER, SH_GLES2_SPEC, SH_GLSL_OUTPUT, &resources);
 #endif
@@ -214,7 +215,7 @@ void Graphics_InitGL()
 		 "}\n",
 		 
 		 // Fragment shader
-         "precision mediump float;\n"
+         "precision highp float;\n"
 		 "uniform sampler2D g_Texture0;\n"
 		 "varying vec2 v_TexCoord0;\n"
 		 "varying vec4 v_Color;\n"
