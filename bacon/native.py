@@ -89,7 +89,7 @@ def load(function_wrapper = None):
     if sys.platform == 'win32':
         # Dependent DLLs loaded by Bacon.dll also need to be loaded from this path, use
         # SetDllDirectory to affect the library search path; requires XP SP 1 or Vista.
-        windll.kernel32.SetDllDirectoryA(bytes(os.path.dirname(__file__), 'utf-8'))
+        windll.kernel32.SetDllDirectoryA(os.path.dirname(__file__).encode('utf-8'))
         _lib_path = 'Bacon.dll'
     elif sys.platform == 'darwin':
         _lib_path = os.path.join(os.path.dirname(__file__), 'Bacon.dylib')

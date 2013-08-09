@@ -25,7 +25,7 @@ ControllerAxes = native.ControllerAxes
 class Shader(object):
     def __init__(self, vertex_source, fragment_source):
         handle = c_int()
-        lib.CreateShader(byref(handle), bytes(vertex_source, 'utf-8'), bytes(fragment_source, 'utf-8'))
+        lib.CreateShader(byref(handle), vertex_source.encode('utf-8'), fragment_source.encode('utf-8'))
         self._handle = handle.value
 
 class Image(object):
@@ -48,7 +48,7 @@ class Image(object):
             flags |= native.ImageFlags.discard_bitmap
 
         handle = c_int()
-        lib.LoadImage(byref(handle), bytes(file, 'utf-8'), flags)
+        lib.LoadImage(byref(handle), file.encode('utf-8'), flags)
         handle = handle.value
         
         width = c_int()
@@ -123,7 +123,7 @@ class FontFile(object):
 
     def __init__(self, file):
         handle = c_int()
-        lib.LoadFont(byref(handle), bytes(file, 'utf-8'))
+        lib.LoadFont(byref(handle), file.encode('utf-8'))
         self._handle = handle.value
 
     def unload(self):
@@ -211,7 +211,7 @@ class Sound(object):
             flags |= native.SoundFlags.format_ogg
 
         handle = c_int()
-        lib.LoadSound(byref(handle), bytes(file, 'utf-8'), flags)
+        lib.LoadSound(byref(handle), file.encode('utf-8'), flags)
         self._handle = handle.value
 
     def unload(self):
@@ -419,7 +419,7 @@ class Window(object):
     def get_title(self):
         return self._title
     def set_title(self, title):
-        lib.SetWindowTitle(bytes(title, 'utf-8'))
+        lib.SetWindowTitle(title.encode('utf-8'))
         self._title = title
     title = property(get_title, set_title)
 
