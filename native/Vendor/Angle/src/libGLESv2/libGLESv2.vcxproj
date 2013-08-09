@@ -261,7 +261,9 @@ copy "$(OutDir)libGLESv2.lib" "$(ProjectDir)..\..\lib\$(Configuration)\"
     <ClCompile Include="Program.cpp" />
     <ClCompile Include="ProgramBinary.cpp" />
     <ClCompile Include="Query.cpp" />
-    <ClCompile Include="..\common\RefCountObject.cpp" />
+    <ClCompile Include="..\common\RefCountObject.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="Renderbuffer.cpp" />
     <ClCompile Include="renderer\Blit.cpp" />
     <ClCompile Include="renderer\Fence11.cpp" />
