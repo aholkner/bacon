@@ -21,6 +21,7 @@ BlendFlags = native.BlendFlags
 ControllerProfiles = native.ControllerProfiles
 ControllerButtons = native.ControllerButtons
 ControllerAxes = native.ControllerAxes
+Keys = native.Keys
 
 class Shader(object):
     def __init__(self, vertex_source, fragment_source):

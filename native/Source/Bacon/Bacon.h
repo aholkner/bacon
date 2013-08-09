@@ -182,7 +182,7 @@ enum Keys
 	Key_Underscore = '_',
 	Key_Equals = '=',
 	Key_Question = '?',
-	Key_Tilde,
+	Key_Tilde = '~',
 	Key_Digit0 = '0',
 	Key_Digit1 = '1',
 	Key_Digit2 = '2',

@@ -60,9 +60,9 @@ bacon.on_tick = on_tick
 
 def on_key(key, value):
     if value:
-        if key == ord('f'):
+        if key == bacon.Keys.f:
             bacon.window.fullscreen = not bacon.window.fullscreen
-        if key == ord('g'):
+        if key == bacon.Keys.right:
             bacon.window.width += 50
 bacon.on_key = on_key
 
