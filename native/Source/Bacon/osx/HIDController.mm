@@ -378,16 +378,16 @@ int Bacon_GetControllerPropertyInt(int controller, int property, int* outValue)
 	if (controller < 0 || controller > MaxControllerCount)
 		return Bacon_Error_InvalidHandle;
 	
-
-	if (property == Bacon_Controller_Property_SupportedAxesMask)
+	switch (property)
 	{
-		*outValue = s_Controllers[controller].m_SupportedAxesMask;
-		return Bacon_Error_None;
-	}
-	else if (property == Bacon_Controller_Property_SupportedButtonsMask)
-	{
-		*outValue = s_Controllers[controller].m_SupportedButtonsMask;
-		return Bacon_Error_None;
+		case Bacon_Controller_Property_SupportedAxesMask:
+			*outValue = s_Controllers[controller].m_SupportedAxesMask;
+			return Bacon_Error_None;
+		case Bacon_Controller_Property_SupportedButtonsMask:
+			*outValue = s_Controllers[controller].m_SupportedButtonsMask;
+			return Bacon_Error_None;
+		case Bacon_Controller_Property_Profile:
+			return Bacon_Controller_Profile_Generic;
 	}
 
 	CFTypeRef type;
