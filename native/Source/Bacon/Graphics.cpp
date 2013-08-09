@@ -1,15 +1,24 @@
-
 #ifdef __APPLE__
-#include <OpenGL/gl3.h>
-#define GL_BGRA_EXT GL_BGRA
+	#include <OpenGL/gl3.h>
+
+	#define GL_BGRA_EXT GL_BGRA
+	#define BACON_PLATFORM_OPENGL 1
 #else
-#define GL_GLEXT_PROTOTYPES
-#include <GLES2/gl2.h>
-#include <GLES2/gl2ext.h>
+	#define GL_GLEXT_PROTOTYPES
+	#include <GLES2/gl2.h>
+	#include <GLES2/gl2ext.h>
+
+	#define BACON_PLATFORM_ANGLE 1
 #endif
 
 #include <FreeImage/FreeImage.h>
 #include <vmmlib/vmmlib.hpp>
+
+#if BACON_PLATFORM_OPENGL
+#include <GLSLANG/ShaderLang.h>
+static ShHandle s_VertexCompiler;
+static ShHandle s_FragmentCompiler;
+#endif
 
 #include "Bacon.h"
 #include "BaconInternal.h"
@@ -136,10 +145,24 @@ void Graphics_Init()
 	Bacon_CreateImage(&s_Impl->m_BlankImage, 1, 1);
 	
 	FreeImage_Initialise(TRUE);
+	
+#if BACON_PLATFORM_OPENGL
+	ShInitialize();
+	ShBuiltInResources resources;
+	ShInitBuiltInResources(&resources);
+	s_VertexCompiler = ShConstructCompiler(SH_VERTEX_SHADER, SH_GLES2_SPEC, SH_GLSL_OUTPUT, &resources);
+	s_FragmentCompiler = ShConstructCompiler(SH_FRAGMENT_SHADER, SH_GLES2_SPEC, SH_GLSL_OUTPUT, &resources);
+#endif
 }
 
 void Graphics_Shutdown()
 {
+#if BACON_PLATFORM_OPENGL
+	ShDestruct(s_VertexCompiler);
+	ShDestruct(s_FragmentCompiler);
+	ShFinalize();
+#endif
+	
 	FreeImage_DeInitialise();
 	delete s_Impl;
 }
@@ -191,7 +214,7 @@ void Graphics_InitGL()
 		 "}\n",
 		 
 		 // Fragment shader
-         "precision highp float;\n"
+         "precision mediump float;\n"
 		 "uniform sampler2D g_Texture0;\n"
 		 "varying vec2 v_TexCoord0;\n"
 		 "varying vec4 v_Color;\n"
@@ -267,8 +290,46 @@ int Bacon_CreateShader(int* outHandle, const char* vertexSource, const char* fra
 	return Bacon_Error_None;
 }
 
+#if BACON_PLATFORM_OPENGL
+static bool TranslateShader(GLuint type, const char* source, string& result)
+{
+	int options = SH_OBJECT_CODE;
+	ShHandle compiler = (type == GL_VERTEX_SHADER) ? s_VertexCompiler : s_FragmentCompiler;
+	int compiled = ShCompile(compiler, &source, 1, options);
+	
+	if (!compiled)
+	{
+		size_t logLength;
+		ShGetInfo(compiler, SH_INFO_LOG_LENGTH, &logLength);
+		char* log = new char[logLength];
+		ShGetInfoLog(compiler, log);
+		printf("%s\n", log);
+		delete[] log;
+		
+		return false;
+	}
+
+	size_t codeLength;
+	ShGetInfo(compiler, SH_OBJECT_CODE_LENGTH, &codeLength);
+	result.resize(codeLength);
+	ShGetObjectCode(compiler, &result[0]);
+	
+	printf("GLES2 Source:\n%s\n", source);
+	printf("GLSL Translated Source:\n%s\n", result.c_str());
+	
+	return true;
+}
+#endif
+
 static GLuint CompileShader(GLuint type, const char* source)
 {
+#if BACON_PLATFORM_OPENGL
+	string translatedSource;
+	if (!TranslateShader(type, source, translatedSource))
+		return 0;
+	source = translatedSource.c_str();
+#endif
+	
 	GLuint shader = glCreateShader(type);
 	glShaderSource(shader, 1, &source, nullptr);
 	glCompileShader(shader);
@@ -440,39 +501,42 @@ static bool CreateImageTexture(Image* image)
 	bool ownsData = false;
 	BYTE* data = nullptr;
 	GLuint format = GL_BGRA_EXT;
-	GLuint internalFormat = GL_BGRA_EXT;
+	GLuint internalFormat = GL_RGBA;
 	if (bitmap)
 	{
 		data = FreeImage_GetBits(bitmap);
 		int pitch = FreeImage_GetPitch(bitmap);
 		int bpp = FreeImage_GetBPP(bitmap);
-		/*  TODO: not exposed by Angle
+#if !BACON_PLATFORM_ANGLE
         if (bpp == 24)
 		{
 			format = GL_BGR;
 			internalFormat = GL_RGB;
 		}
-		else*/
+		else
+#endif
         if (bpp == 32)
 		{
 			format = GL_BGRA_EXT;
-			internalFormat = GL_BGRA_EXT;
+			internalFormat = GL_RGBA;
 		}
 		else
 		{
 			format = GL_BGRA_EXT;
-			internalFormat = GL_BGRA_EXT;
+			internalFormat = GL_RGBA;
 
 			ownsData = true;
 			pitch = image->m_Width * 4;
 			data = (BYTE*)malloc(image->m_Height * pitch);
 			FreeImage_ConvertToRawBits(data, bitmap, pitch, 32, 0, 0, 0, FALSE);
 		}
-		
+	
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-
-		//glPixelStorei(GL_UNPACK_ROW_LENGTH, pitch / (bpp / 8));
 	}
+
+#if BACON_PLATFORM_ANGLE
+	internalFormat = format;
+#endif
 	
 	glGenTextures(1, &image->m_Texture);
 	glBindTexture(GL_TEXTURE_2D, image->m_Texture);
@@ -518,6 +582,7 @@ static int BindImage(int handle)
 	}
 	
 	glBindTexture(GL_TEXTURE_2D, image->m_Texture);
+	assert(glGetError() == GL_NO_ERROR);
 	return Bacon_Error_None;
 }
 

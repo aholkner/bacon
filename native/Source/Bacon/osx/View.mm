@@ -23,7 +23,7 @@ static void InitKeyMap();
 		
 		NSOpenGLPixelFormatAttribute attrs[] =
 		{
-			NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
+			NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersionLegacy,
 			NSOpenGLPFADoubleBuffer,
 			NSOpenGLPFADepthSize, 32,
 			0
