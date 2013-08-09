@@ -1,6 +1,8 @@
 #include "Controller.h"
 #include "Platform.h"
 #include "../BaconInternal.h"
+
+#define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 
 #pragma comment(lib, "dinput8.lib")
@@ -209,7 +211,7 @@ static int GetDpadButtonMaskForPov(int pov)
 static void SendDpadEvent(int controller, int button, int changedMask, int stateMask)
 {
     if ((changedMask & button) && g_ControllerButtonHandler)
-        g_ControllerButtonHandler(controller, button, (bool)(stateMask & button));
+        g_ControllerButtonHandler(controller, button, (stateMask & button) != 0);
 }
 
 static void SendDpadEvent(int controller, DIJOYSTATE const& state)

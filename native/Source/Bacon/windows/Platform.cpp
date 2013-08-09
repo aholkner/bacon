@@ -83,12 +83,12 @@ static void SetWindowFullscreen(bool fullscreen)
 
 int Bacon_SetWindowFullscreen(int fullscreen)
 {
-    if ((bool)fullscreen == g_Fullscreen)
+    if ((fullscreen != 0) == g_Fullscreen)
         return Bacon_Error_None;
 
-    g_Fullscreen = (bool)fullscreen;
+    g_Fullscreen = fullscreen != 0;
     if (g_hWnd)
-        SetWindowFullscreen((bool)fullscreen);
+        SetWindowFullscreen(fullscreen != 0);
     return Bacon_Error_None;
 }
 
