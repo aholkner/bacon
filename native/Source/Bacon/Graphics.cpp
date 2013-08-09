@@ -222,7 +222,7 @@ void Graphics_InitGL()
 		 
 		 "void main()\n"
 		 "{"
-         "    gl_FragColor = texture2D(g_Texture0, v_TexCoord0);\n"
+         "    gl_FragColor = v_Color * texture2D(g_Texture0, v_TexCoord0);\n"
 		 "}\n");
 }
 
