@@ -47,43 +47,39 @@ class Ball(object):
 
 player_controller = None
 
-def on_tick():
-    bacon.clear(0, 0, 0, 0)
-    bacon.set_color(1, 1, 1, 1)
-    if player_controller and player_controller.get_button_state(1 << 17):
-        bacon.draw_string(font, player_controller.manufacturer, (player_controller.left_thumb_x + 1) * bacon.window.width / 2, (player_controller.left_thumb_y + 1) * bacon.window.height / 2)
-    dt = 1 / 60.
-    for ball in balls:
-        ball.update(dt)
-        bacon.draw_image(ball_image, ball.x, ball.y)
-bacon.on_tick = on_tick
+class Game(bacon.Game):
 
-def on_key(key, value):
-    if value:
-        if key == bacon.Keys.f:
-            bacon.window.fullscreen = not bacon.window.fullscreen
-        if key == bacon.Keys.right:
-            bacon.window.width += 50
-bacon.on_key = on_key
+    def on_tick(self):
+        bacon.clear(0, 0, 0, 0)
+        bacon.set_color(1, 1, 1, 1)
+        if player_controller and player_controller.get_button_state(1 << 17):
+            bacon.draw_string(font, player_controller.manufacturer, (player_controller.left_thumb_x + 1) * bacon.window.width / 2, (player_controller.left_thumb_y + 1) * bacon.window.height / 2)
+        dt = 1 / 60.
+        for ball in balls:
+            ball.update(dt)
+            bacon.draw_image(ball_image, ball.x, ball.y)
 
-def on_controller_connected(controller):
-    global player_controller
-    player_controller = controller
-    print('profile: %s' % controller.profile)
-    print('product: %s' % controller.name)
-    print('product_id: %d' % controller.product_id)
-    print('vendor_id: %d' % controller.vendor_id)
-bacon.on_controller_connected = on_controller_connected
+    def on_key(self, key, value):
+        if value:
+            if key == bacon.Keys.f:
+                bacon.window.fullscreen = not bacon.window.fullscreen
+            if key == bacon.Keys.right:
+                bacon.window.width += 50
 
-def on_controller_disconnected(controller):
-    global player_controller
-    player_controller = None
-bacon.on_controller_disconnected = on_controller_disconnected
+    def on_controller_connected(self, controller):
+        global player_controller
+        player_controller = controller
+        print('profile: %s' % controller.profile)
+        print('product: %s' % controller.name)
+        print('product_id: %d' % controller.product_id)
+        print('vendor_id: %d' % controller.vendor_id)
 
-
+    def on_controller_disconnected(self, controller):
+        global player_controller
+        player_controller = None
 
 balls = []
 for i in range(100):
     balls.append(Ball())
 
-bacon.run()
+bacon.run(Game())
