@@ -13,6 +13,9 @@ ball_sound = bacon.Sound('res/ball.wav')
 music = bacon.Voice(bacon.Sound('res/PowerChorus2.ogg', stream=True), loop=True)
 #music.play()
 
+bacon.window.resizable = True
+bacon.window.title = 'Bouncing Balls'
+
 class Ball(object):
     width = ball_image.width
     height = ball_image.height

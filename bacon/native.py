@@ -116,6 +116,8 @@ def load(function_wrapper = None):
     SetWindowResizeEventHandler = fn(_lib.Bacon_SetWindowResizeEventHandler, WindowResizeEventHandler)
     GetWindowSize = fn(_lib.Bacon_GetWindowSize, POINTER(c_int), POINTER(c_int))
     SetWindowSize = fn(_lib.Bacon_SetWindowSize, c_int, c_int)
+    SetWindowTitle = fn(_lib.Bacon_SetWindowTitle, c_char_p)
+    SetWindowResizable = fn(_lib.Bacon_SetWindowResizable, c_int)
     SetWindowFullscreen = fn(_lib.Bacon_SetWindowFullscreen, c_int)
 
     CreateShader = fn(_lib.Bacon_CreateShader, POINTER(c_int), c_char_p, c_char_p)

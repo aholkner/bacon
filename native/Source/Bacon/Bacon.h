@@ -255,6 +255,8 @@ extern "C" {
 	BACON_API int Bacon_SetTickCallback(Bacon_TickCallback callback);
 
 	BACON_API int Bacon_SetWindowResizeEventHandler(Bacon_WindowResizeEventHandler handler);
+    BACON_API int Bacon_SetWindowTitle(const char* title);
+    BACON_API int Bacon_SetWindowResizable(int resizable);
 	BACON_API int Bacon_GetWindowSize(int* width, int* height);
 	BACON_API int Bacon_SetWindowSize(int width, int height);
 	BACON_API int Bacon_SetWindowFullscreen(int fullscreen);

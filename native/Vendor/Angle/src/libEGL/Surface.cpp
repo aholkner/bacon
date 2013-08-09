@@ -309,6 +309,11 @@ bool Surface::checkForOutOfDateSwapChain()
     int clientHeight = client.bottom - client.top;
     bool sizeDirty = clientWidth != getWidth() || clientHeight != getHeight();
 
+    // If window is minimized the client size is zero, which will cause an assert when the framebuffer
+    // is recreated.  Ignore size changes to 0
+    if (clientWidth == 0 || clientHeight == 0)
+        return false;
+
     if (mSwapIntervalDirty)
     {
         resetSwapChain(clientWidth, clientHeight);

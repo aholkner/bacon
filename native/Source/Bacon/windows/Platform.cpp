@@ -6,13 +6,18 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
+#include <string>
 #include <unordered_map>
 using namespace std;
 
 HWND g_hWnd = NULL;
 LPCTSTR WndClass = TEXT("BaconWnd");
-int g_Width = 640, g_Height = 480;
-bool g_Fullscreen = false;
+static int s_Width = 640;
+static int s_Height = 480;
+static bool s_Fullscreen = false;
+static bool s_Resizable = false;
+static string s_Title;
+
 static WINDOWPLACEMENT g_SavedWindowPlacement;
 
 EGLDisplay g_Display;
@@ -40,14 +45,22 @@ static void GetWindowFrameSizeForContentSize(int& width, int& height, int window
     
 int Bacon_SetWindowSize(int width, int height)
 {
-    g_Width = width;
-    g_Height = height;
+    s_Width = width;
+    s_Height = height;
     if (g_hWnd)
     {
         GetWindowFrameSizeForContentSize(width, height, GetWindowLong(g_hWnd, GWL_STYLE));
         SetWindowPos(g_hWnd, NULL, 0, 0, width, height, SWP_NOMOVE | SWP_NOOWNERZORDER | SWP_NOZORDER);
     }
     return Bacon_Error_None;
+}
+
+DWORD GetWindowStyle()
+{
+    int style = WS_OVERLAPPEDWINDOW;
+    if (!s_Resizable)
+        style &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
+    return style;
 }
 
 static void SetWindowFullscreen(bool fullscreen)
@@ -73,7 +86,7 @@ static void SetWindowFullscreen(bool fullscreen)
     else 
     {
         SetWindowLong(g_hWnd, GWL_STYLE,
-            dwStyle | WS_OVERLAPPEDWINDOW);
+            dwStyle | GetWindowStyle());
         SetWindowPlacement(g_hWnd, &g_SavedWindowPlacement);
         SetWindowPos(g_hWnd, NULL, 0, 0, 0, 0,
             SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
@@ -81,12 +94,31 @@ static void SetWindowFullscreen(bool fullscreen)
     }
 }
 
+int Bacon_SetWindowTitle(const char* title)
+{
+    s_Title = title;
+    if (g_hWnd)
+        SetWindowText(g_hWnd, title);
+    return Bacon_Error_None;
+}
+
+int Bacon_SetWindowResizable(int resizable)
+{
+    s_Resizable = resizable != 0;
+    if (g_hWnd && !s_Fullscreen)
+    {
+        DWORD style = GetWindowLong(g_hWnd, GWL_STYLE);
+        SetWindowLong(g_hWnd, GWL_STYLE, (style & ~WS_OVERLAPPEDWINDOW) | GetWindowStyle());
+    }
+    return Bacon_Error_None;
+}
+
 int Bacon_SetWindowFullscreen(int fullscreen)
 {
-    if ((fullscreen != 0) == g_Fullscreen)
+    if ((fullscreen != 0) == s_Fullscreen)
         return Bacon_Error_None;
 
-    g_Fullscreen = fullscreen != 0;
+    s_Fullscreen = fullscreen != 0;
     if (g_hWnd)
         SetWindowFullscreen(fullscreen != 0);
     return Bacon_Error_None;
@@ -106,7 +138,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
         if (g_Context)
         {
-            Graphics_BeginFrame(g_Width, g_Height);
+            Graphics_BeginFrame(s_Width, s_Height);
             Bacon_InternalTick();
             Graphics_EndFrame();
 
@@ -169,17 +201,17 @@ static int Platform_CreateWindow()
     if (!RegisterClass (&wndclass) ) 
         return FALSE; 
 
-    wStyle = WS_POPUP | WS_BORDER | WS_SYSMENU | WS_CAPTION | WS_SIZEBOX;
+    wStyle = GetWindowStyle();
 
     // Adjust the window rectangle so that the client area has
     // the correct number of pixels
-    int windowWidth = g_Width;
-    int windowHeight = g_Height;
+    int windowWidth = s_Width;
+    int windowHeight = s_Height;
     GetWindowFrameSizeForContentSize(windowWidth, windowHeight, wStyle);
-
+    
     g_hWnd = CreateWindow(
         WndClass,
-        TEXT("Bacon"),
+        s_Title.c_str(),
         wStyle,
         0,
         0,
@@ -193,7 +225,7 @@ static int Platform_CreateWindow()
     if (!g_hWnd)
         return Bacon_Error_Unknown;
     
-    if (g_Fullscreen)
+    if (s_Fullscreen)
         SetWindowFullscreen(true);
 
     return Bacon_Error_None;
@@ -300,9 +332,9 @@ int Bacon_Run()
 
 static void OnSize(int width, int height)
 {
-    g_Width = width;
-    g_Height = height;
-    Window_OnSizeChanged(g_Width, g_Height);
+    s_Width = width;
+    s_Height = height;
+    Window_OnSizeChanged(s_Width, s_Height);
 }
 
 static struct {

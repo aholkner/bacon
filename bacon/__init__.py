@@ -25,7 +25,7 @@ ControllerAxes = native.ControllerAxes
 class Shader(object):
     def __init__(self, vertex_source, fragment_source):
         handle = c_int()
-        lib.CreateShader(byref(handle), c_char_p(vertex_source), c_char_p(fragment_source))
+        lib.CreateShader(byref(handle), bytes(vertex_source, 'utf-8'), bytes(fragment_source, 'utf-8'))
         self._handle = handle.value
 
 class Image(object):
@@ -397,7 +397,10 @@ class Window(object):
     def __init__(self):
         self._width = -1
         self._height = -1
+        self._resizable = False
         self._fullscreen = False
+
+        self.title = 'Bacon'
 
     def get_width(self):
         return self._width
@@ -412,6 +415,20 @@ class Window(object):
         lib.SetWindowSize(self._width, height)
         self._height = height
     height = property(get_height, set_height)
+
+    def get_title(self):
+        return self._title
+    def set_title(self, title):
+        lib.SetWindowTitle(bytes(title, 'utf-8'))
+        self._title = title
+    title = property(get_title, set_title)
+
+    def is_resizable(self):
+        return self._resizable
+    def set_resizable(self, resizable):
+        lib.SetWindowResizable(resizable)
+        self._resizable = resizable
+    resizable = property(is_resizable, set_resizable)
 
     def is_fullscreen(self):
         return self._fullscreen

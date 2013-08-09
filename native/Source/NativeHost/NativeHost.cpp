@@ -63,7 +63,8 @@ int main(int argc, const char * argv[])
 	Bacon_SetControllerButtonEventHandler(OnControllerButton);
 	Bacon_SetControllerAxisEventHandler(OnControllerAxis);
 	Bacon_SetControllerConnectedEventHandler(OnControllerConnected);
-	
+	Bacon_SetWindowResizable(true);
+
 	int error;
 
 	int sound;
