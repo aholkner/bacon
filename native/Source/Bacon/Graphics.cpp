@@ -583,7 +583,6 @@ static int BindImage(int handle)
 	}
 	
 	glBindTexture(GL_TEXTURE_2D, image->m_Texture);
-	assert(glGetError() == GL_NO_ERROR);
 	return Bacon_Error_None;
 }
 
@@ -770,8 +769,8 @@ int Bacon_SetViewport(int x, int y, int width, int height)
 	
 	glViewport(x, frameBufferHeight - (y + height), width, height);
 	s_Impl->m_Projection = frustumf(0.f, (float)width, (float)height, 0.f, -1.f, 1.f).compute_ortho_matrix();
-	s_Impl->m_CurrentShader = -1; // Invalidate uniform
-	return Bacon_Error_None;
+	
+	return BindShader(s_Impl->m_CurrentShader); // Rebind because projection uniform has changed TODO more lazy
 }
 
 int Bacon_SetShader(int shader)
