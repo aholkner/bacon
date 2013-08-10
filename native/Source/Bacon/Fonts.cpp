@@ -108,37 +108,45 @@ int Bacon_GetGlyph(int handle, float size, int character, int* outImage,
 
 	FT_Load_Char(face, character, FT_LOAD_RENDER | FT_LOAD_COLOR);
 
-	int width = face->glyph->bitmap.width;
-	int height = face->glyph->bitmap.rows;
-	if (Bacon_CreateImage(outImage, width, height))
-		return Bacon_Error_Unknown;
-	
-	int bpp = 0;
-	switch (face->glyph->bitmap.pixel_mode)
+	if (face->glyph->bitmap.width && face->glyph->bitmap.rows)
 	{
-		case FT_PIXEL_MODE_MONO:
-			bpp = 1;
-			break;
-		case FT_PIXEL_MODE_GRAY:
-			bpp = 8;
-			break;
-		case FT_PIXEL_MODE_BGRA:
-			bpp = 32;
-			break;
-		default:
+		int width = face->glyph->bitmap.width;
+		int height = face->glyph->bitmap.rows;
+		if (Bacon_CreateImage(outImage, width, height))
 			return Bacon_Error_Unknown;
+		
+		int bpp = 0;
+		switch (face->glyph->bitmap.pixel_mode)
+		{
+			case FT_PIXEL_MODE_MONO:
+				bpp = 1;
+				break;
+			case FT_PIXEL_MODE_GRAY:
+				bpp = 8;
+				break;
+			case FT_PIXEL_MODE_BGRA:
+				bpp = 32;
+				break;
+			default:
+				return Bacon_Error_Unknown;
+		}
+		
+		FIBITMAP* bmp = FreeImage_ConvertFromRawBits(face->glyph->bitmap.buffer,
+													 width, height, face->glyph->bitmap.pitch, bpp, 0, 0, 0, TRUE);
+		FIBITMAP* bmp32 = FreeImage_ConvertTo32Bits(bmp);
+		FreeImage_SetChannel(bmp32, bmp, FICC_ALPHA);
+		FreeImage_Unload(bmp);
+		Graphics_SetImageBitmap(*outImage, bmp32);
+		
+		*outOffsetX = (float)face->glyph->bitmap_left;
+		*outOffsetY = (float)face->glyph->bitmap_top;
+	}
+	else
+	{
+		*outImage = 0;
 	}
 	
-	FIBITMAP* bmp = FreeImage_ConvertFromRawBits(face->glyph->bitmap.buffer,
-												 width, height, face->glyph->bitmap.pitch, bpp, 0, 0, 0, TRUE);
-	FIBITMAP* bmp32 = FreeImage_ConvertTo32Bits(bmp);
-	FreeImage_SetChannel(bmp32, bmp, FICC_ALPHA);
-	FreeImage_Unload(bmp);
-	Graphics_SetImageBitmap(*outImage, bmp32);
-	
 	*outAdvance = face->glyph->advance.x / 64.f;
-	*outOffsetX = (float)face->glyph->bitmap_left;
-	*outOffsetY = (float)face->glyph->bitmap_top;
 	
 	return Bacon_Error_None;
 }

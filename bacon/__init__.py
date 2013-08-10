@@ -345,11 +345,14 @@ class _FontFile(object):
         lib.GetGlyph(self._handle, size, ord(char), 
             byref(image_handle), byref(offset_x), byref(offset_y), byref(advance))
 
-        width = c_int()
-        height = c_int()
-        lib.GetImageSize(image_handle, byref(width), byref(height))
+        if image_handle.value:
+            width = c_int()
+            height = c_int()
+            lib.GetImageSize(image_handle, byref(width), byref(height))
+            image = Image(width = width.value, height = height.value, handle = image_handle.value)
+        else:
+            image = None
 
-        image = Image(width.value, height.value, _handle = image_handle.value)
         return Glyph(char, image, round(offset_x.value), round(offset_y.value), round(advance.value))
 
     @classmethod
@@ -1261,5 +1264,6 @@ def draw_glyph_layout(glyph_layout, x, y):
     for line in glyph_layout.lines:
         x = start_x
         for glyph in line:
-            draw_image(glyph.image, x + glyph.offset_x, y - glyph.offset_y)
+            if glyph.image:
+                draw_image(glyph.image, x + glyph.offset_x, y - glyph.offset_y)
             x += glyph.advance
