@@ -181,6 +181,8 @@ static void OnDeviceMatched(void* context, IOReturn result, void* sender, IOHIDD
 	
 	// Discover elements
 	s_Controllers[index].m_Device = device;
+	s_Controllers[index].m_SupportedAxesMask = 0;
+	s_Controllers[index].m_SupportedButtonsMask = 0;
 	CFArrayRef elements = IOHIDDeviceCopyMatchingElements(device, nullptr, kIOHIDOptionsTypeNone);
 	CFArrayApplyFunction(elements, CFRangeMake(0, CFArrayGetCount(elements)), AddControllerElement, (void*)(size_t)index);
 	

@@ -758,7 +758,7 @@ def _get_controller_property_string(controller_index, property):
         lib.GetControllerPropertyString(controller_index, property, buffer, byref(length))
     except:
         return None
-    return str(buffer.value, 'utf-8')
+    return buffer.value.decode('utf-8')
 
 def _get_controller_property_int(controller_index, property):
     value = c_int()
@@ -858,36 +858,36 @@ class Controller(object):
     @property
     def left_thumb_x(self):
         '''The absolute X axis value of the left thumb-stick, or the main stick on a joystick.'''
-        return self.get_axis(lib.ControllerAxes.left_thumb_x)
+        return self.get_axis(ControllerAxes.left_thumb_x)
 
     @property
     def left_thumb_y(self):
         '''The absolute Y axis value of the left thumb-stick, or the main stick on a joystick.'''
-        return self.get_axis(lib.ControllerAxes.left_thumb_y)
+        return self.get_axis(ControllerAxes.left_thumb_y)
 
     @property
     def right_thumb_x(self):
         '''The absolute X axis value of the right thumb-stick, or the twist axis on a joystick.'''
-        return self.get_axis(lib.ControllerAxes.right_thumb_x)
+        return self.get_axis(ControllerAxes.right_thumb_x)
 
     @property
     def right_thumb_y(self):
         '''The absolute Y axis value of the right thumb-stick, or the throttle control on a joystick.'''
-        return self.get_axis(lib.ControllerAxes.right_thumb_y)
+        return self.get_axis(ControllerAxes.right_thumb_y)
 
     @property
     def left_trigger(self):
         '''The absolute left trigger value, between 0.0 and 1.0.  Available only on game controllers with the
         ``extended`` profile.
         '''
-        return self.get_axis(lib.ControllerAxes.left_trigger)
+        return self.get_axis(ControllerAxes.left_trigger)
 
     @property
     def right_trigger(self):
         '''The absolute right trigger value, between 0.0 and 1.0.  Available only on game controllers with the
         ``extended`` profile.
         '''
-        return self.get_axis(lib.ControllerAxes.right_trigger)
+        return self.get_axis(ControllerAxes.right_trigger)
 
     # Buttons
 
@@ -896,93 +896,93 @@ class Controller(object):
         '''``True`` if the start button is pressed.  Available only on game controllers with the ``standard`` or 
         ``extended`` profiles.
         '''
-        return self._buttons & lib.ControllerButtons.start
+        return self._buttons & ControllerButtons.start
 
     @property
     def back(self):
         '''``True`` if the back button is pressed.  Available only on the Xbox 360 controller on Windows.'''
-        return self._buttons & lib.ControllerButtons.back
+        return self._buttons & ControllerButtons.back
 
     @property
     def select(self):
         '''``True`` if the select button is pressed.'''
-        return self._buttons & lib.ControllerButtons.select
+        return self._buttons & ControllerButtons.select
 
     @property
     def action_up(self):
         '''``True`` if the up action button ("Y" on Xbox 360) is pressed.  Available only on game controllers with 
         the ``standard`` or ``extended`` profiles.'''
-        return self._buttons & lib.ControllerButtons.action_up
+        return self._buttons & ControllerButtons.action_up
 
     @property
     def action_down(self):
         '''``True`` if the down action button ("A" on Xbox 360) is pressed.  Available only on game controllers with 
         the ``standard`` or ``extended`` profiles.'''
-        return self._buttons & lib.ControllerButtons.action_down
+        return self._buttons & ControllerButtons.action_down
 
     @property
     def action_left(self):
         '''``True`` if the left action button ("X" on Xbox 360) is pressed.  Available only on game controllers with 
         the ``standard`` or ``extended`` profiles.'''
-        return self._buttons & lib.ControllerButtons.action_left
+        return self._buttons & ControllerButtons.action_left
 
     @property
     def action_right(self):
         '''``True`` if the right action button ("B" on Xbox 360) is pressed.  Available only on game controllers with 
         the ``standard`` or ``extended`` profiles.'''
-        return self._buttons & lib.ControllerButtons.action_right
+        return self._buttons & ControllerButtons.action_right
 
     @property
     def dpad_up(self):
         '''``True`` if the up directional pad button is pressed.  The d-pad also corresponds to the POV or hat control
         on a joystick.'''
-        return self._buttons & lib.ControllerButtons.dpad_up
+        return self._buttons & ControllerButtons.dpad_up
 
     @property
     def dpad_down(self):
         '''``True`` if the down directional pad button is pressed.  The d-pad also corresponds to the POV or hat control
         on a joystick.'''
-        return self._buttons & lib.ControllerButtons.dpad_down
+        return self._buttons & ControllerButtons.dpad_down
 
     @property
     def dpad_left(self):
         '''``True`` if the left directional pad button is pressed.  The d-pad also corresponds to the POV or hat control
         on a joystick.'''
-        return self._buttons & lib.ControllerButtons.dpad_left
+        return self._buttons & ControllerButtons.dpad_left
 
     @property
     def dpad_right(self):
         '''``True`` if the right directional pad button is pressed.  The d-pad also corresponds to the POV or hat control
         on a joystick.'''
-        return self._buttons & lib.ControllerButtons.dpad_right
+        return self._buttons & ControllerButtons.dpad_right
 
     @property
     def left_shoulder(self):
         '''``True`` if the left shoulder button is pressed.  Available only on game controllers with the ``standard`` or 
         ``extended`` profiles.
         '''
-        return self._buttons & lib.ControllerButtons.left_shoulder
+        return self._buttons & ControllerButtons.left_shoulder
 
     @property
     def right_shoulder(self):
         '''``True`` if the right shoulder button is pressed.  Available only on game controllers with the ``standard`` or 
         ``extended`` profiles.
         '''
-        return self._buttons & lib.ControllerButtons.right_shoulder
+        return self._buttons & ControllerButtons.right_shoulder
 
     @property
     def left_thumb(self):
         '''``True`` if the left thumb stick is depressed.  Available only on game controllers with the 
         ``extended`` profile.
         '''
-        return self._buttons & lib.ControllerButtons.left_thumb
+        return self._buttons & ControllerButtons.left_thumb
 
     @property
     def right_thumb(self):
         '''``True`` if the right thumb stick is depressed.  Available only on game controllers with the 
         ``extended`` profile.
         '''
-        return self._buttons & lib.ControllerButtons.right_thumb
+        return self._buttons & ControllerButtons.right_thumb
 
 # Map controller index to controller
 _controllers = {}
