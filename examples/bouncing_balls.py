@@ -7,12 +7,11 @@ import bacon
 import random
 
 font = bacon.Font('res/DejaVuSans.ttf', 64)
-print font.metrics.ascent, font.metrics.descent
 ball_image = bacon.Image('res/ball.png')
 ball_sound = bacon.Sound('res/ball.wav')
 
 music = bacon.Voice(bacon.Sound('res/PowerChorus2.ogg', stream=True), loop=True)
-#music.play()
+music.play()
 
 bacon.window.resizable = True
 bacon.window.title = 'Bouncing Balls'
