@@ -29,3 +29,6 @@ debug.txt
 # Distribution
 bacon/Bacon.dylib
 bacon/Bacon.dll
+
+# Built docs
+doc/_build

@@ -3,15 +3,19 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Bacon's documentation!
-=================================
+Bacon Game Engine
+=================
+
+*Bacon* is Python module for making 2D games that will run on Windows and OS X.  It provides functions
+for drawing graphics and playing sounds, and receiving input from the mouse, keyboard and game controllers.
 
 Contents:
 
 .. toctree::
    :maxdepth: 2
 
-
+   quickstart
+   graphics
 
 Indices and tables
 ==================
