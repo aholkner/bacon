@@ -692,7 +692,7 @@ class Window(object):
     The window is constructed automatically when :func:`run` is called.  The :data:`window` singleton
     provides access to the members of this class both before and after ``run`` is called.
 
-    For example, to set up some common window properties for a game:
+    For example, to set up some common window properties for a game::
 
         bacon.window.title = 'Destiny of Swords'
         bacon.window.width = 800
