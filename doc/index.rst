@@ -16,6 +16,10 @@ Contents:
 
    quickstart
    graphics
+   events
+   audio
+   window
+   distribution
 
 Indices and tables
 ==================
