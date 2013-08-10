@@ -719,26 +719,26 @@ class Window(object):
         self._height = height
     height = property(_get_height, _set_height, doc='''Get or set the height of the drawable part of the window, in pixels.''')
 
-    def get_title(self):
+    def _get_title(self):
         return self._title
-    def set_title(self, title):
+    def _set_title(self, title):
         lib.SetWindowTitle(title.encode('utf-8'))
         self._title = title
-    title = property(get_title, set_title, doc='''Get or set the title of the window (a string)''')
+    title = property(_get_title, _set_title, doc='''Get or set the title of the window (a string)''')
 
-    def is_resizable(self):
+    def _is_resizable(self):
         return self._resizable
-    def set_resizable(self, resizable):
+    def _set_resizable(self, resizable):
         lib.SetWindowResizable(resizable)
         self._resizable = resizable
-    resizable = property(is_resizable, set_resizable, doc='''If ``True`` the window can be resized and maximized by the user.  See :func:`Game.on_resize`.''')
+    resizable = property(_is_resizable, _set_resizable, doc='''If ``True`` the window can be resized and maximized by the user.  See :func:`Game.on_resize`.''')
 
-    def is_fullscreen(self):
+    def _is_fullscreen(self):
         return self._fullscreen
-    def set_fullscreen(self, fullscreen):
+    def _set_fullscreen(self, fullscreen):
         lib.SetWindowFullscreen(fullscreen)
         self._fullscreen = fullscreen
-    fullscreen = property(is_fullscreen, set_fullscreen, doc='''Set to ``True`` to make the game fullscreen, ``False`` to play in a window.''')
+    fullscreen = property(_is_fullscreen, _set_fullscreen, doc='''Set to ``True`` to make the game fullscreen, ``False`` to play in a window.''')
 
 #: The singleton :class:`Window` instance.
 window = Window()
