@@ -1,3 +1,5 @@
+.. module:: bacon
+
 Graphics
 --------
 
@@ -7,7 +9,7 @@ While images and fonts can be loaded and queried at any time, the drawing functi
 
 At the beginning of each frame (before doing any other rendering in ``on_tick``), you should clear the screen:
 
-.. autofunction:: bacon.clear
+.. autofunction:: clear
 
 
 Images
@@ -18,14 +20,14 @@ Images can be loaded from most standard file types, for example PNG, BMP, TIFF, 
 .. literalinclude:: ../examples/image.py
     :emphasize-lines: 3,4,9
 
-.. autoclass:: bacon.Image
+.. autoclass:: Image
     :members:
 
 Draw an image with the functions:
 
-.. autofunction:: bacon.draw_image
+.. autofunction:: draw_image
 
-.. autofunction:: bacon.draw_image_region
+.. autofunction:: draw_image_region
 
 Fonts
 =====
@@ -35,7 +37,7 @@ To render text, first load a TrueType or OpenType font at a particular point siz
 .. literalinclude:: ../examples/font.py
     :emphasize-lines: 3,4,9
 
-.. autoclass:: bacon.Font
+.. autoclass:: Font
     :members:
 
 Transform stack
@@ -45,26 +47,26 @@ All drawing commands are transformed by the top matrix in a *transform stack* be
 the top matrix of the transform stack, you affect the position of all subsequent drawing commands.  This can be convenient for rendering
 groups of objects with a parent transform, and is necessary to perform rotations, scales and skews on drawing.
 
-This example shows how the :func:`bacon.rotate` function can be used to rotate an image, using :func:`bacon.translate` to set move
+This example shows how the :func:`rotate` function can be used to rotate an image, using :func:`translate` to set move
 the rotation pivot to the center of the image:
 
 .. literalinclude:: ../examples/transform_rotate.py
     :emphasize-lines: 9,10
 
-.. autofunction:: bacon.translate
-.. autofunction:: bacon.scale
-.. autofunction:: bacon.rotate
+.. autofunction:: translate
+.. autofunction:: scale
+.. autofunction:: rotate
 
 The above functions operate only on the top matrix of the transform stack.  You can save and restore the current transform with 
-:func:`bacon.push_transform` and :func:`bacon.pop_transform`.  The following example shows how the rotation transform does not
+:func:`push_transform` and :func:`pop_transform`.  The following example shows how the rotation transform does not
 affect the text rendered, only the image.
 
 .. literalinclude:: ../examples/transform_push.py
     :emphasize-lines: 11,15
 
-.. autofunction:: bacon.push_transform
-.. autofunction:: bacon.pop_transform
-.. autofunction:: bacon.set_transform
+.. autofunction:: push_transform
+.. autofunction:: pop_transform
+.. autofunction:: set_transform
 
 Color stack
 ===========
@@ -75,15 +77,15 @@ so no tinting is applied.  This example shows the image tinted red by modifying 
 .. literalinclude:: ../examples/color.py
     :emphasize-lines: 8
 
-.. autofunction:: bacon.set_color
-.. autofunction:: bacon.multiply_color
+.. autofunction:: set_color
+.. autofunction:: multiply_color
 
 By changing the alpha (the fourth color component), you can make images and text translucent.
 
 Just like the transform stack, the color stack allows you to save and restore the current color.
 
-.. autofunction:: bacon.push_color
-.. autofunction:: bacon.pop_color
+.. autofunction:: push_color
+.. autofunction:: pop_color
 
 
 Rendering to an image
@@ -96,16 +98,16 @@ special effects.
 .. literalinclude:: ../examples/render_to_image.py
     :emphasize-lines: 21, 29
 
-.. autofunction:: bacon.set_frame_buffer
+.. autofunction:: set_frame_buffer
 
 Shaders
 =======
 
 .. note:: TODO: shader example.
 
-.. autofunction:: bacon.set_shader
+.. autofunction:: set_shader
 
-.. autoclass:: bacon.Shader
+.. autoclass:: Shader
     :members:
 
 Blend modes
@@ -119,8 +121,8 @@ intersect, the color adds to white:
 .. literalinclude:: ../examples/blending.py
     :emphasize-lines: 8
 
-.. autofunction:: bacon.set_blending
+.. autofunction:: set_blending
 
-.. autoclass:: bacon.BlendFlags
+.. autoclass:: BlendFlags
     :members:
     :undoc-members:

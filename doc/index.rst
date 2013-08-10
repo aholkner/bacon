@@ -20,11 +20,11 @@ Contents:
    audio
    window
    distribution
+   keys
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 
