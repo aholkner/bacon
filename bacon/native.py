@@ -2,6 +2,10 @@ from ctypes import *
 import os
 import sys
 
+_mock_native = False
+if 'BACON_MOCK_NATIVE' in os.environ and os.environ['BACON_MOCK_NATIVE']:
+    _mock_native = True
+    
 '''Blend values that can be passed to set_blending'''
 class BlendFlags(object):
     zero = 0
@@ -195,7 +199,6 @@ windows_dlls = [
 osx_dll = 'Bacon.dylib'
 
 def get_dll_dir():
-    import pdb; pdb.set_trace()
     try:
         import pkg_resources
         if sys.platform == 'win32':
@@ -225,9 +228,25 @@ def get_dll_name():
     else:
         raise ValueError('Unsupported platform %s' % sys.platform)
 
+class MockCDLL(object):
+    def __call__(self, *args, **kwargs):
+        return self
+
+    def __getattr__(self, name):
+        return self
+
+def mock_function_wrapper(fn, *args):
+    return fn
+
 def load(function_wrapper = None):    
-    fn = create_fn(function_wrapper)
-    _lib = cdll.LoadLibrary(get_dll_name())
+    if 'BACON_MOCK_NATIVE' in os.environ and os.environ['BACON_MOCK_NATIVE']:
+        _lib = MockCDLL()
+        fn = mock_function_wrapper
+        can_init = False
+    else:
+        _lib = cdll.LoadLibrary(get_dll_name())
+        fn = create_fn(function_wrapper)
+        can_init = True
 
     # Function types
     TickCallback = CFUNCTYPE(None)

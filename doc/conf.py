@@ -241,3 +241,7 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
+
+# Mock out native module
+import os
+os.environ['BACON_MOCK_NATIVE'] = '1'

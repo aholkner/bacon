@@ -1,5 +1,8 @@
-from . import native
+from bacon import native
 from ctypes import *
+import os
+
+_mock_native = native._mock_native
 
 # Convert return codes into exceptions.
 class BaconException(Exception):
@@ -15,16 +18,19 @@ def _error_wrapper(fn):
 lib = native.load(function_wrapper = _error_wrapper)
 
 # Initialize library now
-lib.Init()
+if not _mock_native:
+    lib.Init()
 
-# Expose library version
-major_version = c_int()
-minor_version = c_int()
-patch_version = c_int()
-lib.GetVersion(byref(major_version), byref(minor_version), byref(patch_version))
-major_version = major_version.value     #: Major version number of the Bacon dynamic library that was loaded, as an integer.
-minor_version = minor_version.value     #: Minor version number of the Bacon dynamic library that was loaded, as an integer.
-patch_version = patch_version.value     #: Patch version number of the Bacon dynamic library that was loaded, as an integer.
+    # Expose library version
+    major_version = c_int()
+    minor_version = c_int()
+    patch_version = c_int()
+    lib.GetVersion(byref(major_version), byref(minor_version), byref(patch_version))
+    major_version = major_version.value     #: Major version number of the Bacon dynamic library that was loaded, as an integer.
+    minor_version = minor_version.value     #: Minor version number of the Bacon dynamic library that was loaded, as an integer.
+    patch_version = patch_version.value     #: Patch version number of the Bacon dynamic library that was loaded, as an integer.
+else:
+    major_version, minor_version, patch_version = (0, 1, 0)
 
 #: Version of the Bacon dynamic library that was loaded, in the form ``"major.minor.patch"``.
 version = '%d.%d.%d' % (major_version, minor_version, patch_version)
@@ -706,7 +712,8 @@ class Window(object):
         self._resizable = False
         self._fullscreen = False
 
-        self.title = 'Bacon'
+        if not _mock_native:
+            self.title = 'Bacon'
 
     def _get_width(self):
         return self._width
@@ -1079,35 +1086,45 @@ def run(game):
     
 # Graphics
 
-push_transform = lib.PushTransform
-push_transform.__doc__ = '''push_transform()
-
-Save the current graphics transform by pushing it on the transform stack.  It can be restored by
+if _mock_native:
+    def push_transform():
+        pass
+else:
+    push_transform = lib.PushTransform
+push_transform.__doc__ = '''Save the current graphics transform by pushing it on the transform stack.  It can be restored by
 calling :func:`pop_transform`.
 '''
 
-pop_transform = lib.PopTransform
-pop_transform.__doc__ = '''pop_transform()
-
-Restore a previously saved transform by popping it off the transform stack.
+if _mock_native:
+    def pop_transform():
+        pass
+else:
+    pop_transform = lib.PopTransform
+pop_transform.__doc__ = '''Restore a previously saved transform by popping it off the transform stack.
 '''
 
-translate = lib.Translate
-translate.__doc__ = '''translate(x, y)
-
-Translate the current graphics transform by ``(x, y)`` units.
+if _mock_native:
+    def translate(x, y):
+        pass
+else:
+    translate = lib.Translate
+translate.__doc__ = '''Translate the current graphics transform by ``(x, y)`` units.
 '''
 
-scale = lib.Scale
-scale.__doc__ = '''scale(sx, sy)
-
-Scale the current graphics transform by multiplying through ``(sx, sy)``.
+if _mock_native:
+    def scale(sx, sy):
+        pass
+else:
+    scale = lib.Scale
+scale.__doc__ = '''Scale the current graphics transform by multiplying through ``(sx, sy)``.
 '''
 
-rotate = lib.Rotate
-rotate.__doc__ = '''rotate(radians)
-
-Rotate the current graphics transform by ``radians`` counter-clockwise.
+if _mock_native:
+    def rotate(radians):
+        pass
+else:
+    rotate = lib.Rotate
+rotate.__doc__ = '''Rotate the current graphics transform by ``radians`` counter-clockwise.
 '''
 
 def set_transform(matrix):
@@ -1123,40 +1140,52 @@ def set_transform(matrix):
     '''
     lib.SetTransform((c_float * 16)(*matrix))
 
-push_color = lib.PushColor
-push_color.__doc__ = '''push_color()
-
-Save the current graphics color by pushing it on the color stack.  It can be restored with :func:`pop_color`.
+if _mock_native:
+    def push_color():
+        pass
+else:
+    push_color = lib.PushColor
+push_color.__doc__ = '''Save the current graphics color by pushing it on the color stack.  It can be restored with :func:`pop_color`.
 
 The color stack is cleared at the beginning of each frame, and the default color reset to white.
 '''
 
-pop_color = lib.PopColor
-pop_color.__doc__ = '''pop_color()
-
-Restore a previously saved graphics color by popping it off the color stack.
+if _mock_native:
+    def pop_color():
+        pass
+else:
+    pop_color = lib.PopColor
+pop_color.__doc__ = '''Restore a previously saved graphics color by popping it off the color stack.
 '''
 
-set_color = lib.SetColor
-set_color.__doc__ = '''set_color(r, g, b, a)
-
-Set the current graphics color to the given RGBA values.  Typically each component has a value between
+if _mock_native:
+    def set_color(r, g, b, a):
+        pass
+else:
+    set_color = lib.SetColor
+set_color.__doc__ = '''Set the current graphics color to the given RGBA values.  Typically each component has a value between
 0.0 and 1.0, however out-of-range values are permitted and may be used for special effects with an 
 appropriate shader.
 
 The color is reset to white at the beginning of each frame.
 '''
 
-multiply_color = lib.MultiplyColor
+if _mock_native:
+    def multiply_color(r, g, b, a):
+        pass
+else:
+    multiply_color = lib.MultiplyColor
 multiply_color.__doc__ = '''multiply_color(r, g, b, a)
 
 Multiplies the current graphics color component-wise by the given RGBA values.
 '''
 
-clear = lib.Clear
-clear.__doc__ = '''clear(r, g, b, a)
-
-Clear the current framebuffer to the given RGBA color.  Each color component must be in the range 0.0 to 1.0.
+if _mock_native:
+    def clear(r, g, b, a):
+        pass
+else:
+    clear = lib.Clear
+clear.__doc__ = '''Clear the current framebuffer to the given RGBA color.  Each color component must be in the range 0.0 to 1.0.
 You should clear the default frame buffer at the beginning of each frame.  Failure to do so may cause visual
 artifacts and/or poor performance on some platforms.
 '''
@@ -1172,10 +1201,12 @@ def set_frame_buffer(image):
     ''' 
     lib.SetFrameBuffer(image._handle if image else 0)
 
-set_viewport = lib.SetViewport
-set_viewport.__doc__ = '''set_viewport(x, y, width, height)
-
-Set the current viewport in screen-space.  This affects both the GPU viewport, which provides a screen-space clip,
+if _mock_native:
+    def set_viewport(x, y, width, height):
+        pass
+else:
+    set_viewport = lib.SetViewport
+set_viewport.__doc__ = '''Set the current viewport in screen-space.  This affects both the GPU viewport, which provides a screen-space clip,
 and the projection matrix, which is constructed from the viewport coordinates automatically.
 
 Viewport coordinates are specified in pixel-space with (0, 0) at the upper-left corner.
@@ -1193,10 +1224,12 @@ def set_shader(shader):
     '''
     lib.SetShader(shader._handle)
 
-set_blending = lib.SetBlending
-set_blending.__doc__ = '''set_blending(src_blend, dest_blend)
-
-Set the current graphics blend mode.  All subsequent drawing commands will be rendered with this blend mode.
+if _mock_native:
+    def set_blending(src_blend, dest_blend):
+        pass
+else:
+    set_blending = lib.SetBlending
+set_blending.__doc__ = '''Set the current graphics blend mode.  All subsequent drawing commands will be rendered with this blend mode.
 
 The default blend mode is ``(BlendFlags.one, BlendFlags.one_minus_src_alpha)``, which is appropriate for
 premultiplied alpha.
@@ -1236,10 +1269,12 @@ def draw_image_region(image, x1, y1, x2, y2,
     '''
     lib.DrawImage(image._handle, x1, y1, x2, y2, ix1, iy1, ix2, iy2)
 
-draw_line = lib.DrawLine
-draw_line.__doc__ = '''draw_line(x1, y1, x2, y2)
-
-Draw a line from coordinates ``(x1, y1)`` to ``(x2, y2)``.
+if _mock_native:
+    def draw_line(x1, y1, x2, y2):
+        pass
+else:
+    draw_line = lib.DrawLine
+draw_line.__doc__ = '''Draw a line from coordinates ``(x1, y1)`` to ``(x2, y2)``.
 
 No texture is applied.
 '''
