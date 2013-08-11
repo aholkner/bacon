@@ -15,8 +15,8 @@ you can play a sound as "one-shot" effect by calling :func:`Sound.play`:
 .. autoclass:: Sound
     :members:
 
-Music
-=====
+Music and looping sounds
+========================
 
 Playing looping music, or longer-lasting sound effects like engine sounds, is best done with 
 a :class:`Voice`.  A ``Voice`` is a particular instance of a sound playing.  For example,

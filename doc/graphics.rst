@@ -3,9 +3,11 @@
 Graphics
 --------
 
-Bacon provides functions for loading and drawing images and fonts.  It provides a simple 2D API for this, but under the hood is using current generation GPU APIs, which allows us to use sophisticated effects.
+Bacon provides functions for loading and drawing images and fonts.  It presents a simple 2D API for this, but under the hood is using current generation GPU APIs, which allows you to use sophisticated effects.
 
-While images and fonts can be loaded and queried at any time, the drawing functions can only be called within the scope of your game's :func:`Game.on_tick` method.
+While images and fonts can be loaded and queried at any time, the drawing functions can only be called within the scope of your game's :func:`Game.on_tick` method.  
+
+The coordinate system is top-down, with (0, 0) in the top-left corner.  
 
 At the beginning of each frame (before doing any other rendering in ``on_tick``), you should clear the screen:
 

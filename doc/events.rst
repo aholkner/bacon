@@ -3,8 +3,8 @@
 Events
 ------
 
-You handle events by overriding methods in the :class:`bacon.Game` class.  Typically your game will be structured with a instance of a
-subclass of :class:`bacon.Game`, which overrides all the event methods you wish to handle:
+You handle events by overriding methods in the :class:`Game` class.  Typically your game will be structured with a instance of a
+subclass of :class:`Game`, which overrides all the event methods you wish to handle:
 
 .. autoclass:: Game
 
