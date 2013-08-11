@@ -195,13 +195,14 @@ windows_dlls = [
 osx_dll = 'Bacon.dylib'
 
 def get_dll_dir():
+    import pdb; pdb.set_trace()
     try:
         import pkg_resources
         if sys.platform == 'win32':
             # Extract all DLLs to temporary directory if necessary
-            dll_dir = os.path.dirname(pkg_resources.resource_filename(windows_dlls[0], 'r'))
+            dll_dir = os.path.dirname(pkg_resources.resource_filename('bacon', windows_dlls[0]))
             for dll in windows_dlls[1:]:
-                if os.path.dirname(pkg_resources.resource_filename(dll, 'r')) != dll_dir:
+                if os.path.dirname(pkg_resources.resource_filename('bacon', dll)) != dll_dir:
                     raise ValueError('Supporting DLLs extracted to inconsistent directory')
             return dll_dir
         elif sys.platform == 'darwin':
