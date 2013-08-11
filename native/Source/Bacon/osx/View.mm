@@ -19,6 +19,14 @@ static void InitKeyMap();
 	
     self = [super initWithFrame:frame];
     if (self) {
+		// Accept mouseMoved events
+		NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:[self frame]
+																	options:NSTrackingMouseMoved | NSTrackingActiveInKeyWindow |
+																		NSTrackingInVisibleRect
+																	  owner:self
+																   userInfo:nil];
+		[self addTrackingArea:trackingArea];
+		
 		NSOpenGLPixelFormat *fmt;
 		
 		NSOpenGLPixelFormatAttribute attrs[] =
