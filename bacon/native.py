@@ -2,6 +2,10 @@ from ctypes import *
 import os
 import sys
 
+_mock_native = False
+if 'BACON_MOCK_NATIVE' in os.environ and os.environ['BACON_MOCK_NATIVE']:
+    _mock_native = True
+    
 '''Blend values that can be passed to set_blending'''
 class BlendFlags(object):
     zero = 0
@@ -185,17 +189,64 @@ def create_fn(function_wrapper):
             return f    
     return fn
 
-def load(function_wrapper = None):    
-    fn = create_fn(function_wrapper)
+windows_dlls = [
+    'Bacon.dll',
+    'libEGL.dll',
+    'libGLESv2.dll',
+    'd3dcompiler_46.dll'
+]
 
+osx_dll = 'Bacon.dylib'
+
+def get_dll_dir():
+    try:
+        import pkg_resources
+        if sys.platform == 'win32':
+            # Extract all DLLs to temporary directory if necessary
+            dll_dir = os.path.dirname(pkg_resources.resource_filename('bacon', windows_dlls[0]))
+            for dll in windows_dlls[1:]:
+                if os.path.dirname(pkg_resources.resource_filename('bacon', dll)) != dll_dir:
+                    raise ValueError('Supporting DLLs extracted to inconsistent directory')
+            return dll_dir
+        elif sys.platform == 'darwin':
+            return pkg_resources.resource_filename(osx_dll, 'r')
+        else:
+            raise ValueError('Unsupported platform %s' % sys.platform)
+    except ImportError:
+        # pkg_resources not available, use path of this module
+        return os.path.dirname(__file__)
+                    
+def get_dll_name():
+    dll_dir = get_dll_dir()
     if sys.platform == 'win32':
         # Dependent DLLs loaded by Bacon.dll also need to be loaded from this path, use
         # SetDllDirectory to affect the library search path; requires XP SP 1 or Vista.
-        windll.kernel32.SetDllDirectoryA(os.path.dirname(__file__).encode('utf-8'))
-        _lib_path = 'Bacon.dll'
+        windll.kernel32.SetDllDirectoryA(dll_dir.encode('utf-8'))
+        return 'Bacon.dll'
     elif sys.platform == 'darwin':
-        _lib_path = os.path.join(os.path.dirname(__file__), 'Bacon.dylib')
-    _lib = cdll.LoadLibrary(_lib_path)
+        return os.path.join(dll_dir, osx_dll)
+    else:
+        raise ValueError('Unsupported platform %s' % sys.platform)
+
+class MockCDLL(object):
+    def __call__(self, *args, **kwargs):
+        return self
+
+    def __getattr__(self, name):
+        return self
+
+def mock_function_wrapper(fn, *args):
+    return fn
+
+def load(function_wrapper = None):    
+    if 'BACON_MOCK_NATIVE' in os.environ and os.environ['BACON_MOCK_NATIVE']:
+        _lib = MockCDLL()
+        fn = mock_function_wrapper
+        can_init = False
+    else:
+        _lib = cdll.LoadLibrary(get_dll_name())
+        fn = create_fn(function_wrapper)
+        can_init = True
 
     # Function types
     TickCallback = CFUNCTYPE(None)
