@@ -6,8 +6,8 @@
 Bacon Game Engine
 =================
 
-*Bacon* is Python module for making 2D games that will run on Windows and OS X.  It provides functions
-for drawing graphics and playing sounds, and receiving input from the mouse, keyboard and game controllers.
+*Bacon* is a Python module for making 2D games that run on Windows and OS X.  It provides functions
+for drawing graphics, playing sounds, and receiving input from the mouse, keyboard and game controllers.
 
 Contents:
 

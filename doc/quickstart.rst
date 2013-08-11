@@ -4,7 +4,7 @@ Quick Start
 Getting and installing Bacon
 ============================
 
-The bacon module comprises some Python files and compiled DLLs for your platform.  Ensure the ``bacon`` directory
+The bacon module consists of some Python files and compiled DLLs for your platform.  Ensure the ``bacon`` directory
 is in your ``site-packages`` or alongside your game source.
 
 .. note:: Expand with download links and PIP instructions, etc.
