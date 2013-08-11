@@ -27,8 +27,12 @@ ipch
 debug.txt
 
 # Distribution
+build
+dist
+bacon.egg-info
 bacon/Bacon.dylib
 bacon/Bacon.dll
+MANIFEST
 
 # Built docs
 doc/_build
