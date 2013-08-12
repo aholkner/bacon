@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-version = '0.1.3'
+version = '0.1.4'
 
 windows_dlls = [
     'bacon/Bacon.dll',
