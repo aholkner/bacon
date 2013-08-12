@@ -104,13 +104,14 @@ static void AddControllerButton(int controllerIndex, IOHIDElementRef element)
 	uint32_t page = IOHIDElementGetUsagePage(element);
 	uint32_t usage = IOHIDElementGetUsage(element);
 
+	// Ignore buttons on GD page completely out of range.
+	if (page == 1 && usage > 0x94)
+		return;
+	
 	Controller& controller = s_Controllers[controllerIndex];
 
 	int preferredIndex = GetPreferredButtonIndex(page, usage);
 	int elementIndex = GetAvailableIndex(controller.m_SupportedButtonsMask, preferredIndex, Bacon_Controller_Button_Button1);
-	
-	if (!elementIndex)
-		elementIndex = GetAvailableIndex(controller.m_SupportedButtonsMask, preferredIndex, Bacon_Controller_Button_Start);
 	
 	if (!elementIndex)
 		return;

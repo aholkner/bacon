@@ -3,6 +3,9 @@ import bacon
 # Xbox 360 controller via http://tattiebogle.net OS X driver
 bacon.ControllerMapping.register(0x45e, 0x28e, bacon.ControllerMapping(
     buttons=dict(
+            button3 = 'action_down',
+            button4 = 'action_right',
+            button5 = 'action_left',
             button6 = 'left_shoulder',
             button7 = 'right_shoulder',
             button8 = 'left_thumb',
@@ -13,10 +16,7 @@ bacon.ControllerMapping.register(0x45e, 0x28e, bacon.ControllerMapping(
             button14 = 'dpad_down',
             button15 = 'dpad_left',
             button16 = 'dpad_right',
-            button17 = 'action_down',
-            select = 'action_up',
-            back = 'action_left',
-            start = 'action_right',
+            button17 = 'action_up',
         ),
     axes=dict(
             axis1 = 'right_thumb_x',
