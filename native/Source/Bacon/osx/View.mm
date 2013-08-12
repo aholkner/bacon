@@ -56,6 +56,17 @@ static void InitKeyMap();
 	return m_PixelFormat;
 }
 
+- (void)displayLinkCallback
+{
+	[self setNeedsDisplay:YES];
+	
+	if (g_MakeFirstResponder)
+	{
+		[self.window makeFirstResponder:g_View];
+		g_MakeFirstResponder = false;
+	}
+}
+
 // Graphics
 
 float lastWidth = 0.f, lastHeight = 0.f;

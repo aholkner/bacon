@@ -17,6 +17,8 @@ extern NSOpenGLContext* g_Context;
 	CGLPixelFormatObj m_PixelFormat;
 }
 @property (readonly) CGLPixelFormatObj CGLPixelFormatObj;
+
+- (void)displayLinkCallback;
 @end
 
 extern View* g_View;

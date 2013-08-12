@@ -17,16 +17,7 @@ CGLPixelFormatObj g_PixelFormat;
 
 static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* now, const CVTimeStamp* outputTime, CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext)
 {
-	NSAutoreleasePool* pool = [NSAutoreleasePool new];
-	[g_View setNeedsDisplay:YES];
-	
-	if (g_MakeFirstResponder)
-	{
-		[g_View.window makeFirstResponder:g_View];
-		g_MakeFirstResponder = false;
-	}
-
-	[pool release];
+	[g_View performSelectorOnMainThread:@selector(displayLinkCallback) withObject:Nil waitUntilDone:NO];
     return kCVReturnSuccess;
 }
 
