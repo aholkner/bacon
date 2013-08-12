@@ -5,14 +5,78 @@ import os
 _mock_native = native._mock_native
 
 # Convert return codes into exceptions.
-class BaconException(Exception):
+class BaconError(Exception):
+    def __init__(self, error_code):
+        self.error_code = error_code
+
+    def __repr__(self):
+        return '%s(%d)' % (self.__class__.__name__, self.error_code)
+
+    _error_classes = {}
+
+    @classmethod
+    def _register_error_class(cls, error_code, error_class):
+        cls._error_classes[error_code] = error_class
+
+    @classmethod
+    def _from_error_code(cls, error_code):
+        try:
+            error_class = cls._error_classes[error_code]
+        except KeyError:
+            error_class = BaconError
+        return error_class(error_code)
+
+def error_code(error_code):
+    def wrap(cls):
+        BaconError._register_error_class(error_code, cls)
+        return cls
+    return wrap
+
+@error_code(native.ErrorCodes.unknown)
+class UnknownError(BaconError):
+    pass
+
+@error_code(native.ErrorCodes.invalid_argument)
+class InvalidArgumentError(BaconError):
+    pass
+
+@error_code(native.ErrorCodes.invalid_handle)
+class InvalidHandleError(BaconError):
+    pass
+
+@error_code(native.ErrorCodes.stack_underflow)
+class StackUnderflowError(BaconError):
+    pass
+
+@error_code(native.ErrorCodes.unsupported_format)
+class UnsupportedFormatError(BaconError):
+    pass
+
+@error_code(native.ErrorCodes.shader_compile_error)
+class ShaderCompileError(BaconError):
+    pass
+
+@error_code(native.ErrorCodes.shader_link_error)
+class ShaderLinkError(BaconError):
+    pass
+
+@error_code(native.ErrorCodes.not_rendering)
+class NotRenderingError(BaconError):
+    pass
+
+@error_code(native.ErrorCodes.invalid_font_size)
+class InvalidFontSizeError(BaconError):
+    pass
+
+@error_code(native.ErrorCodes.not_looping)
+class NotLoopingError(BaconError):
     pass
 
 def _error_wrapper(fn):
     def f(*args):
         result = fn(*args)
-        if result != 0:
-            raise BaconException(result) # TODO: format error
+        if result != native.ErrorCodes.none:
+            raise BaconError._from_error_code(result)
     return f
 
 lib = native.load(function_wrapper = _error_wrapper)

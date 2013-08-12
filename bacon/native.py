@@ -69,6 +69,20 @@ def flags(cls):
 
     return cls    
 
+@enum
+class ErrorCodes(object):
+    none = 0
+    unknown = 1
+    invalid_argument = 2
+    invalid_handle = 3
+    stack_underflow = 4
+    unsupported_format = 5
+    shader_compile_error = 6
+    shader_link_error = 7
+    not_rendering = 8
+    invalid_font_size = 9
+    not_looping = 10
+
 '''Blend values that can be passed to set_blending'''
 @enum
 class BlendFlags(object):
