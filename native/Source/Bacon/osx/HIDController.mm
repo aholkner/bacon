@@ -1,12 +1,13 @@
 #include "../Bacon.h"
 #include "../BaconInternal.h"
 
-#include <unordered_map>
+#include <tr1/unordered_map>
 
 #include <IOKit/IOKitLib.h>
 #include <IOKit/hid/IOHIDLib.h>
 
 using namespace std;
+using namespace std::tr1;
 
 static Bacon_ControllerConnectedEventHandler s_ConnectedHandler = nullptr;
 static Bacon_ControllerButtonEventHandler s_ButtonHandler = nullptr;
