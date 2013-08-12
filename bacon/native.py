@@ -13,6 +13,7 @@ def enum(cls):
         if key[0] != '_':
             names[getattr(cls, key)] = key
     cls.__names = names
+    
     @classmethod
     def tostring(cls, value):
         try:
@@ -20,6 +21,14 @@ def enum(cls):
         except KeyError:
             return str(value)
     cls.tostring = tostring
+
+    @classmethod
+    def parse(cls, name):
+        try:
+            return getattr(cls, name)
+        except KeyError:
+            return int(name)
+    cls.parse = parse
     return cls
 
 def flags(cls):
@@ -28,6 +37,7 @@ def flags(cls):
         if key[0] != '_':
             names[getattr(cls, key)] = key
     cls.__names = names
+
     @classmethod
     def tostring(cls, value):
         if not value:
@@ -45,6 +55,18 @@ def flags(cls):
             value &= 0x7fffffff
         return ' | '.join(items)
     cls.tostring = tostring
+
+    @classmethod
+    def parse(cls, names):
+        try:
+            v = 0
+            for name in names.split('|'):
+                v |= getattr(cls, name.strip())
+            return v
+        except KeyError:
+            return int(names)
+    cls.parse = parse
+
     return cls    
 
 '''Blend values that can be passed to set_blending'''
@@ -126,8 +148,6 @@ class ControllerButtons(object):
     button15 = 1 << 29
     button16 = 1 << 30
     button17 = 1 << 31
-    button18 = 1 << 32
-    
 
 @flags
 class ControllerAxes(object):
@@ -336,7 +356,7 @@ def load(function_wrapper = None):
     MouseButtonEventHandler = CFUNCTYPE(None, c_int, c_int)
     MouseScrollEventHandler = CFUNCTYPE(None, c_float, c_float)
     ControllerConnectedEventHandler = CFUNCTYPE(None, c_int, c_int)
-    ControllerButtonEventHandler = CFUNCTYPE(None, c_int, c_int, c_int)
+    ControllerButtonEventHandler = CFUNCTYPE(None, c_int, c_uint, c_int)
     ControllerAxisEventHandler = CFUNCTYPE(None, c_int, c_int, c_float)
     VoiceCallback = CFUNCTYPE(None)
 

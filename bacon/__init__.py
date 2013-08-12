@@ -810,6 +810,10 @@ class Controller(object):
         #: OS X and iOS, this is the GameController SDK, which supports a limited range of new devices.
         self.profile = _get_controller_property_int(controller_index, native.ControllerProperties.profile)
 
+        self.mapping = ControllerMapping.get(self)
+        if self.mapping:
+            self.profile = self.mapping.profile
+
     @property
     def controller_index(self):
         '''The index of the controller, between 0 and 4 (read-only).  Typically this is assigned in the order the
@@ -987,6 +991,37 @@ class Controller(object):
         '''
         return self._buttons & ControllerButtons.right_thumb
 
+class ControllerMapping(object):
+    # Registry of (vendor_id, product_id) tuples to ControllerMapping
+    _registry = {}
+
+    @classmethod
+    def register(cls, vendor_id, product_id, mapping):
+        cls._registry[(vendor_id, product_id)] = mapping
+
+    @classmethod
+    def get(cls, controller):
+        try:
+            return cls._registry[(controller.vendor_id, controller.product_id)]
+        except KeyError:
+            return None
+
+    def __init__(self, buttons={}, axes={}, profile=ControllerProfiles.generic):
+        self.buttons = {}
+        for k, v in buttons.items():
+            k = ControllerButtons.parse(k)
+            v = ControllerButtons.parse(v)
+            self.buttons[k] = v
+        self.axes = {}
+        for k, v in axes.items():
+            k = ControllerAxes.parse(k)
+            v = ControllerAxes.parse(v)
+            self.axes[k] = v
+        self.profile = ControllerProfiles.parse(profile)
+
+# Import known controller mappings
+import bacon.controllers
+
 # Map controller index to controller
 _controllers = {}
 
@@ -1012,6 +1047,12 @@ def _controller_button_event_handler(controller_index, button, pressed):
     except KeyError:
         return
 
+    if controller.mapping:
+        try:
+            button = controller.mapping.buttons[button]
+        except KeyError:
+            pass
+
     if pressed:
         controller._buttons |= button
     else:
@@ -1024,6 +1065,12 @@ def _controller_axis_event_handler(controller_index, axis, value):
         controller = _controllers[controller_index]
     except KeyError:
         return
+
+    if controller.mapping:
+        try:
+            axis = controller.mapping.axes[axis]
+        except KeyError:
+            pass
 
     controller._axes[axis] = value
     _game.on_controller_axis(controller, axis, value)

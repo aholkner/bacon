@@ -22,6 +22,8 @@ class Game(bacon.Game):
     def on_controller_connected(self, controller):
         self.controller = controller
         print('Controller %d connected: %s' % (controller.controller_index, controller.name))
+        print('  Vendor ID: %x' % controller.vendor_id)
+        print('  Product ID: %x' % controller.product_id)
 
     def on_controller_disconnected(self, controller):
         print('Controller %d disconnected' % (controller.controller_index))

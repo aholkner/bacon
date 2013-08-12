@@ -110,6 +110,9 @@ static void AddControllerButton(int controllerIndex, IOHIDElementRef element)
 	int elementIndex = GetAvailableIndex(controller.m_SupportedButtonsMask, preferredIndex, Bacon_Controller_Button_Button1);
 	
 	if (!elementIndex)
+		elementIndex = GetAvailableIndex(controller.m_SupportedButtonsMask, preferredIndex, Bacon_Controller_Button_Start);
+	
+	if (!elementIndex)
 		return;
 	
 	controller.m_Elements[element] = { ControllerElementType_Button, elementIndex, 0, 1 };
