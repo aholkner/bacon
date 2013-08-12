@@ -1,4 +1,5 @@
 from ctypes import *
+import math
 import os
 import sys
 
@@ -14,7 +15,10 @@ def enum(cls):
     cls.__names = names
     @classmethod
     def tostring(cls, value):
-        return cls.__names[value]
+        try:
+            return cls.__names[value]
+        except KeyError:
+            return str(value)
     cls.tostring = tostring
     return cls
 
@@ -32,9 +36,13 @@ def flags(cls):
         bit = 1
         while value:
             if value & 1:
-                items.append(cls.__names[bit])
+                try:
+                    items.append(cls.__names[bit])
+                except KeyError:
+                    items.append('(1 << %d)' % math.log(bit, 2))
             bit <<= 1
             value >>= 1
+            value &= 0x7fffffff
         return ' | '.join(items)
     cls.tostring = tostring
     return cls    
