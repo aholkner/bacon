@@ -1349,7 +1349,7 @@ def set_shader(shader):
 
     :param shader: a :class:`Shader` to render with
     '''
-    lib.SetShader(shader._handle)
+    lib.SetShader(shader._handle if shader else 0)
 
 if _mock_native:
     def set_blending(src_blend, dest_blend):
