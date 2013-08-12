@@ -15,6 +15,8 @@ Minimum Requirements
 
 OS X 10.6 or later.
 
+* For Xbox 360 controller, user must install a driver: http://tattiebogle.net/index.php/ProjectRoot/Xbox360Controller/OsxDriver#toc1
+
 .. note:: TODO: determine minimum Windows version; tested on Windows 7.
 
 Example game

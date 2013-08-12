@@ -6,7 +6,41 @@ _mock_native = False
 if 'BACON_MOCK_NATIVE' in os.environ and os.environ['BACON_MOCK_NATIVE']:
     _mock_native = True
     
+def enum(cls):
+    names = {}
+    for key in dir(cls):
+        if key[0] != '_':
+            names[getattr(cls, key)] = key
+    cls.__names = names
+    @classmethod
+    def tostring(cls, value):
+        return cls.__names[value]
+    cls.tostring = tostring
+    return cls
+
+def flags(cls):
+    names = {}
+    for key in dir(cls):
+        if key[0] != '_':
+            names[getattr(cls, key)] = key
+    cls.__names = names
+    @classmethod
+    def tostring(cls, value):
+        if not value:
+            return '0'
+        items = []
+        bit = 1
+        while value:
+            if value & 1:
+                items.append(cls.__names[bit])
+            bit <<= 1
+            value >>= 1
+        return ' | '.join(items)
+    cls.tostring = tostring
+    return cls    
+
 '''Blend values that can be passed to set_blending'''
+@enum
 class BlendFlags(object):
     zero = 0
     one = 1
@@ -19,24 +53,29 @@ class BlendFlags(object):
     dst_alpha = 8
     one_minus_dst_alpha = 9
 
+@flags
 class ImageFlags(object):
     premultiply_alpha = 1 << 0
     discard_bitmap = 1 << 1
 
+@flags
 class SoundFlags(object):
     stream = 1 << 0
 
     format_wav = 1 << 16
     format_ogg = 2 << 16
 
+@flags
 class VoiceFlags(object):
     loop = 1 << 0
 
+@enum
 class ControllerProfiles(object):
     generic = 0
     standard = 1
     extended = 2
 
+@enum
 class ControllerProperties(object):
     supported_axes_mask = 0
     supported_buttons_mask = 1
@@ -45,6 +84,7 @@ class ControllerProperties(object):
     name = 4
     profile = 5
 
+@flags
 class ControllerButtons(object):
     start = 1 << 0
     back = 1 << 1
@@ -62,7 +102,24 @@ class ControllerButtons(object):
     left_thumb = 1 << 13
     right_thumb = 1 << 14
     misc0 = 1 << 16
+    misc1 = 1 << 18
+    misc2 = 1 << 19
+    misc3 = 1 << 20
+    misc4 = 1 << 21
+    misc5 = 1 << 22
+    misc6 = 1 << 23
+    misc7 = 1 << 24
+    misc8 = 1 << 25
+    misc9 = 1 << 26
+    misc10 = 1 << 27
+    misc11 = 1 << 28
+    misc12 = 1 << 29
+    misc13 = 1 << 30
+    misc14 = 1 << 31
+    misc15 = 1 << 32
+    
 
+@flags
 class ControllerAxes(object):
     left_thumb_x = 1 << 0
     left_thumb_y = 1 << 1
@@ -71,7 +128,13 @@ class ControllerAxes(object):
     left_trigger = 1 << 4
     right_trigger = 1 << 5
     misc0 = 1 << 8
+    misc1 = 1 << 9
+    misc2 = 1 << 10
+    misc3 = 1 << 11
+    misc4 = 1 << 12
+    misc5 = 1 << 13
     
+@enum
 class Keys(object):
     none            = 0
     space           = ord(' ')
@@ -174,6 +237,12 @@ class Keys(object):
     numpad_add      = 0x100 + 43
     numpad_enter    = 0x100 + 44
     numpad_period   = 0x100 + 45
+
+@enum
+class MouseButtons(object):
+    left = 0
+    middle = 1
+    right = 2
 
 def create_fn(function_wrapper):
     import ctypes

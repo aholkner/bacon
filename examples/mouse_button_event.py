@@ -5,6 +5,6 @@ class Game(bacon.Game):
         bacon.clear(0, 0, 0, 1)
 
     def on_mouse_button(self, button, pressed):
-        print('mouse button %d was %s' % (button, 'pressed' if pressed else 'released'))
+        print('bacon.MouseButtons.%s was %s' % (bacon.MouseButtons.tostring(button), 'pressed' if pressed else 'released'))
 
 bacon.run(Game())

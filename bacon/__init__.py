@@ -40,11 +40,7 @@ ControllerProfiles = native.ControllerProfiles
 ControllerButtons = native.ControllerButtons
 ControllerAxes = native.ControllerAxes
 Keys = native.Keys
-
-class MouseButtons(object):
-    left = 0
-    middle = 1
-    right = 2
+MouseButtons = native.MouseButtons
 
 class Game(object):
     '''Base class for all Bacon games.  An instance of this class is passed to :func:`run`.  Override methods on

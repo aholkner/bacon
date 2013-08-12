@@ -5,6 +5,6 @@ class Game(bacon.Game):
         bacon.clear(0, 0, 0, 1)
 
     def on_key(self, key, pressed):
-        print('key %d was %s' % (key, 'pressed' if pressed else 'released'))
+        print('bacon.Keys.%s was %s' % (bacon.Keys.tostring(key), 'pressed' if pressed else 'released'))
 
 bacon.run(Game())
