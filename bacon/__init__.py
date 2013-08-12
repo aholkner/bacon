@@ -1081,8 +1081,13 @@ def _controller_axis_event_handler(controller_index, axis, value):
 
         try:
             dead_zone = controller.mapping.dead_zones[axis]
-            if value > -dead_zone and value < dead_zone:
+            if value < -dead_zone:
+                value = (value + dead_zone) / (1.0 - dead_zone)
+            elif value > dead_zone:
+                value = (value - dead_zone) / (1.0 - dead_zone)
+            else:
                 value = 0.0
+            
         except KeyError:
             pass
 
