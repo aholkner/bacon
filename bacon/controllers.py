@@ -24,5 +24,13 @@ bacon.ControllerMapping.register(0x45e, 0x28e, bacon.ControllerMapping(
             right_thumb_y = 'right_trigger',
             right_thumb_x = 'left_trigger',
         ),
+    dead_zones=dict(
+            left_thumb_x = 7849.0 / 65535.0,
+            right_thumb_x = 7849.0 / 65535.0,
+            left_thumb_y = 8689.0 / 65535.0,
+            right_thumb_y = 8689.0 / 65535.0,
+            left_trigger = 30.0 / 255.0,
+            right_trigger = 30.0 / 255.0
+        ),
     profile='extended'
 ))

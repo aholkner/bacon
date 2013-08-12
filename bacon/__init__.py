@@ -788,6 +788,9 @@ class Controller(object):
         self._supported_axes_mask = _get_controller_property_int(controller_index, native.ControllerProperties.supported_axes_mask)
         self._supported_buttons_mask = _get_controller_property_int(controller_index, native.ControllerProperties.supported_buttons_mask)
 
+        for bit in range(16):
+            self._axes[1 << bit] = 0.0
+
         #: A numeric vendor ID that can be used to identify the type of device, when combined with the :attr:`product_id`.
         self.vendor_id = _get_controller_property_int(controller_index, native.ControllerProperties.vendor_id)
 
@@ -1006,7 +1009,7 @@ class ControllerMapping(object):
         except KeyError:
             return None
 
-    def __init__(self, buttons={}, axes={}, profile=ControllerProfiles.generic):
+    def __init__(self, buttons={}, axes={}, dead_zones={}, profile=ControllerProfiles.generic):
         self.buttons = {}
         for k, v in buttons.items():
             k = ControllerButtons.parse(k)
@@ -1017,6 +1020,10 @@ class ControllerMapping(object):
             k = ControllerAxes.parse(k)
             v = ControllerAxes.parse(v)
             self.axes[k] = v
+        self.dead_zones = {}
+        for k, v in dead_zones.items():
+            k = ControllerAxes.parse(k)
+            self.dead_zones[k] = float(v)
         self.profile = ControllerProfiles.parse(profile)
 
 # Import known controller mappings
@@ -1072,8 +1079,16 @@ def _controller_axis_event_handler(controller_index, axis, value):
         except KeyError:
             pass
 
-    controller._axes[axis] = value
-    _game.on_controller_axis(controller, axis, value)
+        try:
+            dead_zone = controller.mapping.dead_zones[axis]
+            if value > -dead_zone and value < dead_zone:
+                value = 0.0
+        except KeyError:
+            pass
+
+    if controller._axes[axis] != value:
+        controller._axes[axis] = value
+        _game.on_controller_axis(controller, axis, value)
 
 def _tick_callback():
     mouse._update_position()
