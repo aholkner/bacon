@@ -5260,6 +5260,7 @@
 					../../Vendor/Angle/include,
 					../../Vendor/Angle/src,
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -5274,6 +5275,7 @@
 					../../Vendor/Angle/include,
 					../../Vendor/Angle/src,
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -5353,6 +5355,7 @@
 				FA867DF717B48A010027B6E4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		FAE5DF2217A53D5F008013E5 /* Build configuration list for PBXNativeTarget "NativeHost" */ = {
 			isa = XCConfigurationList;
