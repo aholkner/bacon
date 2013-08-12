@@ -260,8 +260,20 @@ static void OnValueChanged(void* context, IOReturn result, void* sender, IOHIDVa
 		else if (e.m_Type == ControllerElementType_Axis)
 		{
 			if (s_AxisHandler)
-				s_AxisHandler(controllerIndex, e.m_Index,
-							  2.f * (valueInt - e.m_MinValue) / (float)(e.m_MaxValue - e.m_MinValue) - 1.f);
+			{
+				if (e.m_MinValue >= 0)
+				{
+					// Map [0, 1]
+					s_AxisHandler(controllerIndex, e.m_Index,
+								  (valueInt - e.m_MinValue) / (float)(e.m_MaxValue - e.m_MinValue));
+				}
+				else
+				{
+					// Map [-1, 1]
+					s_AxisHandler(controllerIndex, e.m_Index,
+								  2.f * (valueInt - e.m_MinValue) / (float)(e.m_MaxValue - e.m_MinValue) - 1.f);
+				}
+			}
 		}
 		else if (e.m_Type == ControllerElementType_Hatswitch)
 		{
