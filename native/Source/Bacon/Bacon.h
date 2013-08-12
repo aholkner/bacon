@@ -12,7 +12,7 @@
 
 #define BACON_VERSION_MAJOR 0
 #define BACON_VERSION_MINOR 1
-#define BACON_VERSION_PATCH 5
+#define BACON_VERSION_PATCH 6
 
 typedef void (*Bacon_TickCallback)();
 typedef void (*Bacon_WindowResizeEventHandler)(int width, int height);
