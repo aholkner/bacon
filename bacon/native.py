@@ -101,22 +101,24 @@ class ControllerButtons(object):
     right_shoulder = 1 << 12
     left_thumb = 1 << 13
     right_thumb = 1 << 14
-    misc0 = 1 << 16
-    misc1 = 1 << 18
-    misc2 = 1 << 19
-    misc3 = 1 << 20
-    misc4 = 1 << 21
-    misc5 = 1 << 22
-    misc6 = 1 << 23
-    misc7 = 1 << 24
-    misc8 = 1 << 25
-    misc9 = 1 << 26
-    misc10 = 1 << 27
-    misc11 = 1 << 28
-    misc12 = 1 << 29
-    misc13 = 1 << 30
-    misc14 = 1 << 31
-    misc15 = 1 << 32
+    button1 = 1 << 15
+    button2 = 1 << 16
+    button3 = 1 << 17
+    button4 = 1 << 18
+    button5 = 1 << 19
+    button6 = 1 << 20
+    button7 = 1 << 21
+    button8 = 1 << 22
+    button9 = 1 << 23
+    button10 = 1 << 24
+    button11 = 1 << 25
+    button12 = 1 << 26
+    button13 = 1 << 27
+    button14 = 1 << 28
+    button15 = 1 << 29
+    button16 = 1 << 30
+    button17 = 1 << 31
+    button18 = 1 << 32
     
 
 @flags
@@ -127,12 +129,14 @@ class ControllerAxes(object):
     right_thumb_y = 1 << 3
     left_trigger = 1 << 4
     right_trigger = 1 << 5
-    misc0 = 1 << 8
-    misc1 = 1 << 9
-    misc2 = 1 << 10
-    misc3 = 1 << 11
-    misc4 = 1 << 12
-    misc5 = 1 << 13
+    axis1 = 1 << 8
+    axis2 = 1 << 9
+    axis3 = 1 << 10
+    axis4 = 1 << 11
+    axis5 = 1 << 12
+    axis6 = 1 << 13
+    axis7 = 1 << 14
+    axis8 = 1 << 15
     
 @enum
 class Keys(object):

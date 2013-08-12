@@ -67,9 +67,9 @@ static int GetPreferredButtonIndex(uint32_t page, uint32_t usage)
 	}
 	else if (page == kHIDPage_Button)
 	{
-		return Bacon_Controller_Button_Misc0 << usage;
+		return Bacon_Controller_Button_Button1 << usage;
 	}
-	return Bacon_Controller_Button_Misc0;
+	return Bacon_Controller_Button_Button1;
 }
 
 static int GetPreferredAxisIndex(uint32_t page, uint32_t usage)
@@ -84,7 +84,7 @@ static int GetPreferredAxisIndex(uint32_t page, uint32_t usage)
 			case kHIDUsage_GD_Rz: return Bacon_Controller_Axis_RightThumbY;
 		}
 	}
-	return Bacon_Controller_Axis_Misc0;
+	return Bacon_Controller_Axis_Axis1;
 }
 
 static int GetAvailableIndex(int mask, int preferredIndex, int miscIndex)
@@ -107,7 +107,7 @@ static void AddControllerButton(int controllerIndex, IOHIDElementRef element)
 	Controller& controller = s_Controllers[controllerIndex];
 
 	int preferredIndex = GetPreferredButtonIndex(page, usage);
-	int elementIndex = GetAvailableIndex(controller.m_SupportedButtonsMask, preferredIndex, Bacon_Controller_Button_Misc0);
+	int elementIndex = GetAvailableIndex(controller.m_SupportedButtonsMask, preferredIndex, Bacon_Controller_Button_Button1);
 	
 	if (!elementIndex)
 		return;
@@ -136,7 +136,7 @@ static void AddControllerAxis(int controllerIndex, IOHIDElementRef element)
 	}
 	
 	int preferredIndex = GetPreferredAxisIndex(page, usage);
-	int elementIndex = GetAvailableIndex(controller.m_SupportedAxesMask, preferredIndex, Bacon_Controller_Axis_Misc0);
+	int elementIndex = GetAvailableIndex(controller.m_SupportedAxesMask, preferredIndex, Bacon_Controller_Axis_Axis1);
 	
 	if (!elementIndex)
 		return;

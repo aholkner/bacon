@@ -68,7 +68,7 @@ enum Bacon_Controller_Buttons
 	Bacon_Controller_Button_LeftThumb = BIT(13),
 	Bacon_Controller_Button_RightThumb = BIT(14),
 	
-	Bacon_Controller_Button_Misc0 = BIT(16),
+	Bacon_Controller_Button_Button1 = BIT(15),
 };
 
 enum Bacon_Controller_Axes
@@ -82,7 +82,7 @@ enum Bacon_Controller_Axes
 	Bacon_Controller_Axis_LeftTrigger = BIT(4),
 	Bacon_Controller_Axis_RightTrigger = BIT(5),
 	
-	Bacon_Controller_Axis_Misc0 = BIT(8),
+	Bacon_Controller_Axis_Axis1 = BIT(8),
 };
 
 enum Bacon_Controller_Profile
