@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-version = '0.1.4'
+version = '0.1.5'
 
 windows_dlls = [
     'bacon/Bacon.dll',
@@ -16,7 +16,7 @@ osx_dlls = [
 
 setup(name='bacon',
       description='Bacon Game Engine',
-      long_description=open('README.md', 'r').read(),
+      long_description=open('README', 'r').read(),
       license='MIT',
       classifiers=[
         'Development Status :: 2 - Pre-Alpha',
