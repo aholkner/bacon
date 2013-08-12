@@ -87,7 +87,6 @@ namespace {
 	{
         GLuint m_VBO;
         GLuint m_IBO;
-        GLuint m_VAO;
 		
 		int m_FrameBufferWidth;
 		int m_FrameBufferHeight;
@@ -128,7 +127,6 @@ void Graphics_Init()
 	s_Impl = new Impl;
     s_Impl->m_VBO = 0;
     s_Impl->m_IBO = 0;
-    s_Impl->m_VAO = 0;
 	s_Impl->m_Images.Reserve(256);
 	s_Impl->m_Shaders.Reserve(16);
 	s_Impl->m_Vertices.reserve(8096);
@@ -182,10 +180,6 @@ void Graphics_InitGL()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_Impl->m_IBO);
 	
 	// Vertex Array Object
-#if __APPLE__
-	glGenVertexArrays(1, &s_Impl->m_VAO);
-	glBindVertexArray(s_Impl->m_VAO);
-#endif
     glEnableVertexAttribArray(BoundVertexAttribPosition);
 	glVertexAttribPointer(BoundVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	glEnableVertexAttribArray(BoundVertexAttribTexCoord0);
