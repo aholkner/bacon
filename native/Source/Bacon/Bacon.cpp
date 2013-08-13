@@ -5,6 +5,7 @@ static Bacon_TickCallback s_TickCallback;
 
 int Bacon_Init()
 {
+	Window_Init();
 	Keyboard_Init();
 	Mouse_Init();
 	Graphics_Init();
@@ -22,6 +23,7 @@ int Bacon_Shutdown()
 	Graphics_Shutdown();
 	Mouse_Shutdown();
 	Keyboard_Shutdown();
+	Window_Shutdown();
 	return Bacon_Error_None;
 }
 

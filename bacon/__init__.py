@@ -773,6 +773,11 @@ class Window(object):
         self._fullscreen = False
 
         if not _mock_native:
+            width = c_int()
+            height = c_int()
+            lib.GetWindowSize(byref(width), byref(height))
+            self._width = width.value
+            self._height = height.value
             self.title = 'Bacon'
 
     def _get_width(self):

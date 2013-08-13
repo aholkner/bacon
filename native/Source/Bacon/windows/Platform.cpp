@@ -12,8 +12,8 @@ using namespace std;
 
 HWND g_hWnd = NULL;
 LPCTSTR WndClass = TEXT("BaconWnd");
-static int s_Width = 640;
-static int s_Height = 480;
+static int s_Width = -1;
+static int s_Height = -1;
 static bool s_Fullscreen = false;
 static bool s_Resizable = false;
 static string s_Title;

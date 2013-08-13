@@ -2,7 +2,16 @@
 #include "BaconInternal.h"
 
 static Bacon_WindowResizeEventHandler s_ResizeHandler = nullptr;
-static int s_Width = -1, s_Height = -1;
+static int s_Width = 640, s_Height = 480;
+
+void Window_Init()
+{
+    Bacon_SetWindowSize(s_Width, s_Height);
+}
+
+void Window_Shutdown()
+{
+}
 
 void Window_OnSizeChanged(int width, int height)
 {

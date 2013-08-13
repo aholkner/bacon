@@ -35,4 +35,6 @@ void Mouse_SetMousePosition(float x, float y);
 void Mouse_SetMouseButtonPressed(int button, bool value);
 void Mouse_OnMouseScrolled(float dx, float dy);
 
+void Window_Init();
+void Window_Shutdown();
 void Window_OnSizeChanged(int width, int height);
