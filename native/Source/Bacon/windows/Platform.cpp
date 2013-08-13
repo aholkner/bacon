@@ -151,6 +151,8 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(0);             
         break; 
 
+    case WM_SYSKEYDOWN:
+    case WM_SYSKEYUP:
     case WM_KEYDOWN:
     case WM_KEYUP:
         OnKey(hWnd, uMsg, wParam, lParam);
@@ -372,8 +374,13 @@ static struct {
     { 'Z', Key_Z },
     { VK_OEM_COMMA, Key_Comma },
     { VK_OEM_PERIOD, Key_Period },
+    { VK_OEM_1, Key_Semicolon },
     { VK_OEM_2, Key_Slash },
     { VK_OEM_3, Key_Backtick },
+    { VK_OEM_4, Key_LeftBracket },
+    { VK_OEM_5, Key_Backslash },
+    { VK_OEM_6, Key_RightBracket },
+    { VK_OEM_7, Key_Quote },
     { '0', Key_Digit0 },
     { '1', Key_Digit1 },
     { '2', Key_Digit2 },
@@ -384,6 +391,7 @@ static struct {
     { '7', Key_Digit7 },
     { '8', Key_Digit8 },
     { '9', Key_Digit9 },
+    { VK_ESCAPE, Key_Escape },
     { VK_SPACE, Key_Space },
     { VK_LEFT, Key_Left },
     { VK_RIGHT, Key_Right },
@@ -391,8 +399,13 @@ static struct {
     { VK_DOWN, Key_Down },
     { VK_RETURN, Key_Enter },
     { VK_CONTROL, Key_Ctrl },
+    { VK_LCONTROL, Key_Ctrl },
+    { VK_RCONTROL, Key_Ctrl },
     { VK_SHIFT, Key_Shift },
-    //{ , Key_Alt },
+    { VK_LSHIFT, Key_Shift },
+    { VK_RSHIFT, Key_Shift },
+    { VK_LMENU, Key_Alt },
+    { VK_RMENU, Key_Alt },
     { VK_TAB, Key_Tab },
     { VK_INSERT, Key_Insert },
     { VK_DELETE, Key_Delete },
@@ -444,7 +457,7 @@ static void OnKey(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     if (uMsg == WM_KEYDOWN && (lParam & BIT(30)))
         return;
 
-    bool pressed = uMsg == WM_KEYDOWN;
+    bool pressed = uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN;
     UINT vkey = MapVirtualKey((lParam >> 16) & 0xff, MAPVK_VSC_TO_VK_EX);
     auto it = s_KeyMap.find(vkey);
     if (it != s_KeyMap.end())

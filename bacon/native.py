@@ -213,6 +213,8 @@ class Keys(object):
     comma           = ord(',')
     period          = ord('.')
     slash           = ord('/')
+    quote           = ord("'")
+    semicolon       = ord(';')
     backtick        = ord('`')
     left_paren      = ord('(')
     right_paren     = ord(')')
