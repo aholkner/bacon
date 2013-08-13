@@ -328,5 +328,5 @@ static void InitKeyMap()
 		s_CharMap[entry.m_Char] = entry.m_KeyCode;
 	
 	for (auto& entry : s_VKeyCodeMapEntries)
-		s_CharMap[entry.m_VKey] = entry.m_KeyCode;
+		s_VKeyCodeMap[entry.m_VKey] = entry.m_KeyCode;
 }
