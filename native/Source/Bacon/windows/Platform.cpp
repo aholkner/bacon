@@ -372,6 +372,8 @@ static struct {
     { 'X', Key_X },
     { 'Y', Key_Y },
     { 'Z', Key_Z },
+    { VK_OEM_MINUS, Key_Minus },
+    { VK_OEM_PLUS, Key_Plus },
     { VK_OEM_COMMA, Key_Comma },
     { VK_OEM_PERIOD, Key_Period },
     { VK_OEM_1, Key_Semicolon },
@@ -440,7 +442,6 @@ static struct {
     { VK_MULTIPLY, Key_NumPadMul },
     { VK_SUBTRACT, Key_NumPadSub },
     { VK_ADD, Key_NumPadAdd },
-    //{ VK_, Key_NumPadEnter },
     { VK_DECIMAL, Key_NumPadPeriod }
 };
 
@@ -458,8 +459,12 @@ static void OnKey(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         return;
 
     bool pressed = uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN;
-    UINT vkey = MapVirtualKey((lParam >> 16) & 0xff, MAPVK_VSC_TO_VK_EX);
-    auto it = s_KeyMap.find(vkey);
+    auto it = s_KeyMap.find(wParam);
+    if (it == s_KeyMap.end())
+    {
+        UINT vkey = MapVirtualKey((lParam >> 16) & 0xff, MAPVK_VSC_TO_VK_EX);
+        it = s_KeyMap.find(vkey);
+    }
     if (it != s_KeyMap.end())
         Keyboard_SetKeyState(it->second, pressed);
 }
