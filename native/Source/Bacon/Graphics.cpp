@@ -171,7 +171,7 @@ void Graphics_InitGL()
     Bacon_Log(Bacon_LogLevel_Info, "GL_VENDOR: %s", glGetString(GL_VENDOR));
     Bacon_Log(Bacon_LogLevel_Info, "GL_RENDERER: %s", glGetString(GL_RENDERER));
     Bacon_Log(Bacon_LogLevel_Info, "GL_SHADING_LANGUAGE_VERSION: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
-    Bacon_Log(Bacon_LogLevel_Info, "GL_EXTENSIONS: %s", glGetString(GL_EXTENSIONS));
+    Bacon_Log(Bacon_LogLevel_Info, "GL_EXTENSIONS: %s", glGetString(GL_EXTENSIONS)); // TODO this is being truncated by logging
 
 	// Constant state
 	glDisable(GL_CULL_FACE);

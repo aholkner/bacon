@@ -21,6 +21,13 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     return kCVReturnSuccess;
 }
 
+static void LogSystemInfo()
+{
+	NSProcessInfo* pi = [NSProcessInfo processInfo];
+	Bacon_Log(Bacon_LogLevel_Info, "OS X %s", pi.operatingSystemVersionString.UTF8String);
+	Bacon_Log(Bacon_LogLevel_Info, "Number of processors: %d", pi.processorCount);
+}
+
 int Bacon_Run()
 {
 	// Minimal Cocoa startup
@@ -28,6 +35,8 @@ int Bacon_Run()
 	NSAutoreleasePool* pool = [NSAutoreleasePool new];
     [BaconApplication sharedApplication];
 
+	LogSystemInfo();
+	
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
     id menubar = [[NSMenu new] autorelease];
     id appMenuItem = [[NSMenuItem new] autorelease];
