@@ -10,6 +10,7 @@ static Bacon_TickCallback s_TickCallback = nullptr;
 
 int Bacon_Init()
 {
+    Bacon_Log(Bacon_LogLevel_Info, "Bacon %d.%d.%d", BACON_VERSION_MAJOR, BACON_VERSION_MINOR, BACON_VERSION_PATCH);
 	Window_Init();
 	Keyboard_Init();
 	Mouse_Init();

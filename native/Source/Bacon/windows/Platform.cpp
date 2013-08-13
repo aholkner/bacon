@@ -290,9 +290,48 @@ static int Platform_CreateEGLContext()
     return Bacon_Error_None;
 }
 
+static void LogVersionInfo()
+{
+    OSVERSIONINFO info;
+    ZeroMemory(&info, sizeof(OSVERSIONINFO));
+    info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    if (GetVersionEx(&info))
+    {
+        Bacon_Log(Bacon_LogLevel_Info, "Windows %d.%d.%d %s", 
+            info.dwMajorVersion,
+            info.dwMinorVersion,
+            info.dwBuildNumber,
+            info.szCSDVersion);
+    }
+
+    typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO);
+    typedef BOOL (WINAPI *PGPI)(DWORD, DWORD, DWORD, DWORD, PDWORD);
+
+    SYSTEM_INFO si;
+    ZeroMemory(&si, sizeof(SYSTEM_INFO));
+    PGNSI pGNSI = (PGNSI)GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "GetNativeSystemInfo");
+    if (NULL != pGNSI)
+        pGNSI(&si);
+    else 
+        GetSystemInfo(&si);
+
+    const char* archName = "Unknown";
+    switch (si.wProcessorArchitecture)
+    {
+        case PROCESSOR_ARCHITECTURE_AMD64: archName = "x64"; break;
+        case PROCESSOR_ARCHITECTURE_ARM: archName = "ARM"; break;
+        case PROCESSOR_ARCHITECTURE_IA64: archName = "IA64"; break;
+        case PROCESSOR_ARCHITECTURE_INTEL: archName = "x86"; break;
+    }
+
+    Bacon_Log(Bacon_LogLevel_Info, "Architecture: %s", archName);
+    Bacon_Log(Bacon_LogLevel_Info, "Number of processors: %u", si.dwNumberOfProcessors); 
+}
+
 int Bacon_Run()
 {
     AllocConsole();
+    LogVersionInfo();
     InitKeyMap();
 
     if (int error = Platform_CreateWindow())
