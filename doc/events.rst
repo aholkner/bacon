@@ -32,6 +32,11 @@ the game.
 
 .. automethod:: Game.on_tick
 
+In order to keep animations playing back at a constant speed independent of the framerate, refer to
+:data:`timestep`:
+
+.. autodata:: timestep
+
 Keyboard
 ========
 

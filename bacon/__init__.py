@@ -1,6 +1,7 @@
 from bacon import native
 from ctypes import *
 import os
+import time
 
 _mock_native = native._mock_native
 
@@ -1190,8 +1191,16 @@ def _controller_axis_event_handler(controller_index, axis, value):
         controller._axes[axis] = value
         _game.on_controller_axis(controller, axis, value)
 
+#: Number of seconds since the last frame.  This is a convenience value for timing animations.
+timestep = 0.0
+
 def _first_tick_callback():
     global _tick_callback_handle
+    global _last_frame_time
+    global timestep
+
+    _last_frame_time = time.time()
+    timestep = 0.0
 
     _tick_callback_handle = lib.TickCallback(_tick_callback)
     lib.SetTickCallback(_tick_callback_handle)
@@ -1200,6 +1209,13 @@ def _first_tick_callback():
     _tick_callback()
 
 def _tick_callback():
+    global _last_frame_time
+    global timestep
+
+    now_time = time.time()
+    timestep = now_time - _last_frame_time
+    _last_frame_time = now_time
+
     mouse._update_position()
     _game.on_tick()
 

@@ -54,9 +54,8 @@ class Game(bacon.Game):
         bacon.set_color(1, 1, 1, 1)
         if player_controller and player_controller.get_button_state(1 << 17):
             bacon.draw_string(font, player_controller.manufacturer, (player_controller.left_thumb_x + 1) * bacon.window.width / 2, (player_controller.left_thumb_y + 1) * bacon.window.height / 2)
-        dt = 1 / 60.
         for ball in balls:
-            ball.update(dt)
+            ball.update(bacon.timestep)
             bacon.draw_image(ball_image, ball.x, ball.y)
 
     def on_key(self, key, value):
