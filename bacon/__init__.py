@@ -119,6 +119,11 @@ class Game(object):
         bacon.run(MyGame())
 
     '''
+
+    def on_init(self):
+        '''Called once when the game starts.  You can use this to do any initialization that
+        requires the graphics device to have been initialized; for example, rendering to a texture.'''
+        pass
     
     def on_tick(self):
         '''Called once per frame to update and render the game.  You may only call
@@ -1185,6 +1190,15 @@ def _controller_axis_event_handler(controller_index, axis, value):
         controller._axes[axis] = value
         _game.on_controller_axis(controller, axis, value)
 
+def _first_tick_callback():
+    global _tick_callback_handle
+
+    _tick_callback_handle = lib.TickCallback(_tick_callback)
+    lib.SetTickCallback(_tick_callback_handle)
+
+    _game.on_init()
+    _tick_callback()
+
 def _tick_callback():
     mouse._update_position()
     _game.on_tick()
@@ -1197,6 +1211,7 @@ def run(game):
     repeatedly until the game exits.
     '''
     global _game
+    global _tick_callback_handle
     _game = game
 
     # Window handler
@@ -1222,11 +1237,12 @@ def run(game):
     lib.SetControllerAxisEventHandler(controller_axis_handle)
 
     # Tick handler
-    tick_callback_handle = lib.TickCallback(_tick_callback)
-    lib.SetTickCallback(tick_callback_handle)
+    _tick_callback_handle = lib.TickCallback(_first_tick_callback)
+    lib.SetTickCallback(_tick_callback_handle)
 
     lib.Run()
     _game = None
+    _tick_callback_handle = None
 
     lib.SetWindowResizeEventHandler(lib.WindowResizeEventHandler(0))
     lib.SetKeyEventHandler(lib.KeyEventHandler(0))
