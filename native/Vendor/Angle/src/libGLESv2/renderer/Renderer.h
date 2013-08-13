@@ -17,17 +17,14 @@
 #define ANGLE_COMPILE_OPTIMIZATION_LEVEL D3DCOMPILE_OPTIMIZATION_LEVEL3
 #endif
 
-const int versionWindowsVista = MAKEWORD(0x00, 0x06);
-const int versionWindows7 = MAKEWORD(0x01, 0x06);
-
-// Return the version of the operating system in a format suitable for ordering
-// comparison.
-inline int getComparableOSVersion()
+inline bool IsVistaOrLater()
 {
-    DWORD version = GetVersion();
-    int majorVersion = LOBYTE(LOWORD(version));
-    int minorVersion = HIBYTE(LOWORD(version));
-    return MAKEWORD(minorVersion, majorVersion);
+    OSVERSIONINFO info;
+    ZeroMemory(&info, sizeof(OSVERSIONINFO));
+    info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    if (GetVersionEx(&info))
+        return info.dwMajorVersion >= 6;
+    return false;
 }
 
 namespace egl

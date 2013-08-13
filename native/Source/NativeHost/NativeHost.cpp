@@ -56,9 +56,15 @@ void OnKey(int key, int value)
     }
 }
 
+void OnLogMessage(int level, const char* message)
+{
+    printf("%d: %s\n", level, message);
+}
+
 int main(int argc, const char * argv[])
 {
 	Bacon_Init();
+    Bacon_SetLogCallback(OnLogMessage);
     Bacon_SetKeyEventHandler(OnKey);
 	Bacon_SetControllerButtonEventHandler(OnControllerButton);
 	Bacon_SetControllerAxisEventHandler(OnControllerAxis);

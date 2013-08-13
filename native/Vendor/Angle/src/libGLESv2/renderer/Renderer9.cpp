@@ -266,7 +266,7 @@ EGLint Renderer9::initialize()
     mSupportsNonPower2Textures = !(mDeviceCaps.TextureCaps & D3DPTEXTURECAPS_POW2) &&
         !(mDeviceCaps.TextureCaps & D3DPTEXTURECAPS_CUBEMAP_POW2) &&
         !(mDeviceCaps.TextureCaps & D3DPTEXTURECAPS_NONPOW2CONDITIONAL) &&
-        !(getComparableOSVersion() < versionWindowsVista && mAdapterIdentifier.VendorId == VENDOR_ID_AMD);
+        !(!IsVistaOrLater() && mAdapterIdentifier.VendorId == VENDOR_ID_AMD);
 
     // Must support a minimum of 2:1 anisotropy for max anisotropy to be considered supported, per the spec
     mSupportsTextureFilterAnisotropy = ((mDeviceCaps.RasterCaps & D3DPRASTERCAPS_ANISOTROPY) && (mDeviceCaps.MaxAnisotropy >= 2));

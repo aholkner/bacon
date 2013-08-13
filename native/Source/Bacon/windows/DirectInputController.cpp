@@ -37,8 +37,8 @@ static struct AxisMapEntry
     { GUID_XAxis, Bacon_Controller_Axis_LeftThumbX },
     { GUID_YAxis, Bacon_Controller_Axis_LeftThumbY },
     { GUID_ZAxis, Bacon_Controller_Axis_RightThumbX },
-    { GUID_RxAxis, Bacon_Controller_Axis_Misc0 },
-    { GUID_RyAxis, Bacon_Controller_Axis_Misc0 },
+    { GUID_RxAxis, Bacon_Controller_Axis_Axis1 },
+    { GUID_RyAxis, Bacon_Controller_Axis_Axis1 },
     { GUID_RzAxis, Bacon_Controller_Axis_RightThumbY },
 };
 
@@ -91,7 +91,7 @@ static BOOL CALLBACK AddControllerObject(const DIDEVICEOBJECTINSTANCE* instance,
             controller.m_SupportedAxesMask |= axis;
     }
     else if (instance->wUsagePage == 0x9) // Button
-        controller.m_SupportedButtonsMask |= (Bacon_Controller_Button_Misc0 << instance->wUsage);
+        controller.m_SupportedButtonsMask |= (Bacon_Controller_Button_Button1 << instance->wUsage);
 
     return DIENUM_CONTINUE;
 }
@@ -305,7 +305,7 @@ static void SendButtonEvent(int controller, int button, DIJOYSTATE const& state)
     {
         s_Controllers[controller].m_State.rgbButtons[button] = state.rgbButtons[button];
         if (g_ControllerButtonHandler)
-            g_ControllerButtonHandler(controller, Bacon_Controller_Button_Misc0 << button, state.rgbButtons[button]);
+            g_ControllerButtonHandler(controller, Bacon_Controller_Button_Button1 << button, state.rgbButtons[button]);
     }
 }
 

@@ -12,8 +12,8 @@ using namespace std;
 
 HWND g_hWnd = NULL;
 LPCTSTR WndClass = TEXT("BaconWnd");
-static int s_Width = 640;
-static int s_Height = 480;
+static int s_Width = -1;
+static int s_Height = -1;
 static bool s_Fullscreen = false;
 static bool s_Resizable = false;
 static string s_Title;
@@ -151,6 +151,8 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(0);             
         break; 
 
+    case WM_SYSKEYDOWN:
+    case WM_SYSKEYUP:
     case WM_KEYDOWN:
     case WM_KEYUP:
         OnKey(hWnd, uMsg, wParam, lParam);
@@ -288,9 +290,48 @@ static int Platform_CreateEGLContext()
     return Bacon_Error_None;
 }
 
+static void LogVersionInfo()
+{
+    OSVERSIONINFO info;
+    ZeroMemory(&info, sizeof(OSVERSIONINFO));
+    info.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    if (GetVersionEx(&info))
+    {
+        Bacon_Log(Bacon_LogLevel_Info, "Windows %d.%d.%d %s", 
+            info.dwMajorVersion,
+            info.dwMinorVersion,
+            info.dwBuildNumber,
+            info.szCSDVersion);
+    }
+
+    typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO);
+    typedef BOOL (WINAPI *PGPI)(DWORD, DWORD, DWORD, DWORD, PDWORD);
+
+    SYSTEM_INFO si;
+    ZeroMemory(&si, sizeof(SYSTEM_INFO));
+    PGNSI pGNSI = (PGNSI)GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "GetNativeSystemInfo");
+    if (NULL != pGNSI)
+        pGNSI(&si);
+    else 
+        GetSystemInfo(&si);
+
+    const char* archName = "Unknown";
+    switch (si.wProcessorArchitecture)
+    {
+        case PROCESSOR_ARCHITECTURE_AMD64: archName = "x64"; break;
+        case PROCESSOR_ARCHITECTURE_ARM: archName = "ARM"; break;
+        case PROCESSOR_ARCHITECTURE_IA64: archName = "IA64"; break;
+        case PROCESSOR_ARCHITECTURE_INTEL: archName = "x86"; break;
+    }
+
+    Bacon_Log(Bacon_LogLevel_Info, "Architecture: %s", archName);
+    Bacon_Log(Bacon_LogLevel_Info, "Number of processors: %u", si.dwNumberOfProcessors); 
+}
+
 int Bacon_Run()
 {
     AllocConsole();
+    LogVersionInfo();
     InitKeyMap();
 
     if (int error = Platform_CreateWindow())
@@ -370,10 +411,17 @@ static struct {
     { 'X', Key_X },
     { 'Y', Key_Y },
     { 'Z', Key_Z },
+    { VK_OEM_MINUS, Key_Minus },
+    { VK_OEM_PLUS, Key_Plus },
     { VK_OEM_COMMA, Key_Comma },
     { VK_OEM_PERIOD, Key_Period },
+    { VK_OEM_1, Key_Semicolon },
     { VK_OEM_2, Key_Slash },
     { VK_OEM_3, Key_Backtick },
+    { VK_OEM_4, Key_LeftBracket },
+    { VK_OEM_5, Key_Backslash },
+    { VK_OEM_6, Key_RightBracket },
+    { VK_OEM_7, Key_Quote },
     { '0', Key_Digit0 },
     { '1', Key_Digit1 },
     { '2', Key_Digit2 },
@@ -384,6 +432,7 @@ static struct {
     { '7', Key_Digit7 },
     { '8', Key_Digit8 },
     { '9', Key_Digit9 },
+    { VK_ESCAPE, Key_Escape },
     { VK_SPACE, Key_Space },
     { VK_LEFT, Key_Left },
     { VK_RIGHT, Key_Right },
@@ -391,8 +440,13 @@ static struct {
     { VK_DOWN, Key_Down },
     { VK_RETURN, Key_Enter },
     { VK_CONTROL, Key_Ctrl },
+    { VK_LCONTROL, Key_Ctrl },
+    { VK_RCONTROL, Key_Ctrl },
     { VK_SHIFT, Key_Shift },
-    //{ , Key_Alt },
+    { VK_LSHIFT, Key_Shift },
+    { VK_RSHIFT, Key_Shift },
+    { VK_LMENU, Key_Alt },
+    { VK_RMENU, Key_Alt },
     { VK_TAB, Key_Tab },
     { VK_INSERT, Key_Insert },
     { VK_DELETE, Key_Delete },
@@ -427,7 +481,6 @@ static struct {
     { VK_MULTIPLY, Key_NumPadMul },
     { VK_SUBTRACT, Key_NumPadSub },
     { VK_ADD, Key_NumPadAdd },
-    //{ VK_, Key_NumPadEnter },
     { VK_DECIMAL, Key_NumPadPeriod }
 };
 
@@ -444,9 +497,13 @@ static void OnKey(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     if (uMsg == WM_KEYDOWN && (lParam & BIT(30)))
         return;
 
-    bool pressed = uMsg == WM_KEYDOWN;
-    UINT vkey = MapVirtualKey((lParam >> 16) & 0xff, MAPVK_VSC_TO_VK_EX);
-    auto it = s_KeyMap.find(vkey);
+    bool pressed = uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN;
+    auto it = s_KeyMap.find(wParam);
+    if (it == s_KeyMap.end())
+    {
+        UINT vkey = MapVirtualKey((lParam >> 16) & 0xff, MAPVK_VSC_TO_VK_EX);
+        it = s_KeyMap.find(vkey);
+    }
     if (it != s_KeyMap.end())
         Keyboard_SetKeyState(it->second, pressed);
 }

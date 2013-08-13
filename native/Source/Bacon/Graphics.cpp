@@ -168,6 +168,11 @@ void Graphics_Shutdown()
 
 void Graphics_InitGL()
 {
+    Bacon_Log(Bacon_LogLevel_Info, "GL_VENDOR: %s", glGetString(GL_VENDOR));
+    Bacon_Log(Bacon_LogLevel_Info, "GL_RENDERER: %s", glGetString(GL_RENDERER));
+    Bacon_Log(Bacon_LogLevel_Info, "GL_SHADING_LANGUAGE_VERSION: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
+    Bacon_Log(Bacon_LogLevel_Info, "GL_EXTENSIONS: %s", glGetString(GL_EXTENSIONS));
+
 	// Constant state
 	glDisable(GL_CULL_FACE);
 
@@ -298,7 +303,7 @@ static bool TranslateShader(GLuint type, const char* source, string& result)
 		ShGetInfo(compiler, SH_INFO_LOG_LENGTH, &logLength);
 		char* log = new char[logLength];
 		ShGetInfoLog(compiler, log);
-		printf("%s\n", log);
+        Bacon_Log(Bacon_LogLevel_Error, "Shader translate error: %s", log);
 		delete[] log;
 		
 		return false;
@@ -309,8 +314,8 @@ static bool TranslateShader(GLuint type, const char* source, string& result)
 	result.resize(codeLength);
 	ShGetObjectCode(compiler, &result[0]);
 	
-	printf("GLES2 Source:\n%s\n", source);
-	printf("GLSL Translated Source:\n%s\n", result.c_str());
+    Bacon_Log(Bacon_LogLevel_Trace, "GLES2 Source:\n%s", source);
+    Bacon_Log(Bacon_LogLevel_Trace, "GLSL Translated Source:\n%s", result.c_str());
 	
 	return true;
 }
@@ -337,10 +342,8 @@ static GLuint CompileShader(GLuint type, const char* source)
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
 		char* log = new char[logLength];
 		glGetShaderInfoLog(shader, logLength, &logLength, &log[0]);
-		printf("Shader compile error:\n");
-		printf("%s\n", log);
-		printf("Source:\n");
-		printf("%s\n", source);
+        Bacon_Log(Bacon_LogLevel_Error, "Shader compile error:\n%s", log);
+        Bacon_Log(Bacon_LogLevel_Error, "Shader source was:\n%s", source);
 		delete[] log;
 		return 0;
 	}
@@ -376,12 +379,9 @@ static int CompileShader(Shader* shader)
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
 		char* log = new char[logLength];
 		glGetProgramInfoLog(program, logLength, &logLength, &log[0]);
-		printf("Shader link error:\n");
-		printf("%s\n", log);
-		printf("Vertex shader source:\n");
-		printf("%s\n", shader->m_VertexSource.c_str());
-		printf("Fragment shader source:\n");
-		printf("%s\n", shader->m_FragmentSource.c_str());
+		Bacon_Log(Bacon_LogLevel_Error, "Shader link error:\n%s", log);
+		Bacon_Log(Bacon_LogLevel_Error, "Vertex shader source:\n%s", shader->m_VertexSource.c_str());
+		Bacon_Log(Bacon_LogLevel_Error, "Fragment shader source:\n%s", shader->m_FragmentSource.c_str());
 		delete[] log;
 		return Bacon_Error_ShaderLinkError;
 	}

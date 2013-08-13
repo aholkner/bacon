@@ -1,6 +1,10 @@
 from bacon import native
 from ctypes import *
 import os
+import logging
+import time
+
+logger = logging.getLogger(__name__)
 
 _mock_native = native._mock_native
 
@@ -81,8 +85,25 @@ def _error_wrapper(fn):
 
 lib = native.load(function_wrapper = _error_wrapper)
 
+_log_level_map = {
+    native.LogLevels.trace: logging.DEBUG,
+    native.LogLevels.info: logging.INFO,
+    native.LogLevels.warning: logging.WARNING,
+    native.LogLevels.error: logging.ERROR,
+    native.LogLevels.fatal: logging.FATAL,
+}
+
+def _log_callback(level, message):
+    try:
+        _log_level_map[level]
+    except KeyError:
+        level = logging.ERROR
+    logger.log(level, message.decode('utf-8'))
+
 # Initialize library now
 if not _mock_native:
+    _log_callback_handle = lib.LogCallback(_log_callback)
+    lib.SetLogCallback(_log_callback_handle)
     lib.Init()
 
     # Expose library version
@@ -119,6 +140,11 @@ class Game(object):
         bacon.run(MyGame())
 
     '''
+
+    def on_init(self):
+        '''Called once when the game starts.  You can use this to do any initialization that
+        requires the graphics device to have been initialized; for example, rendering to a texture.'''
+        pass
     
     def on_tick(self):
         '''Called once per frame to update and render the game.  You may only call
@@ -773,6 +799,11 @@ class Window(object):
         self._fullscreen = False
 
         if not _mock_native:
+            width = c_int()
+            height = c_int()
+            lib.GetWindowSize(byref(width), byref(height))
+            self._width = width.value
+            self._height = height.value
             self.title = 'Bacon'
 
     def _get_width(self):
@@ -1180,7 +1211,31 @@ def _controller_axis_event_handler(controller_index, axis, value):
         controller._axes[axis] = value
         _game.on_controller_axis(controller, axis, value)
 
+#: Number of seconds since the last frame.  This is a convenience value for timing animations.
+timestep = 0.0
+
+def _first_tick_callback():
+    global _tick_callback_handle
+    global _last_frame_time
+    global timestep
+
+    _last_frame_time = time.time()
+    timestep = 0.0
+
+    _tick_callback_handle = lib.TickCallback(_tick_callback)
+    lib.SetTickCallback(_tick_callback_handle)
+
+    _game.on_init()
+    _tick_callback()
+
 def _tick_callback():
+    global _last_frame_time
+    global timestep
+
+    now_time = time.time()
+    timestep = now_time - _last_frame_time
+    _last_frame_time = now_time
+
     mouse._update_position()
     _game.on_tick()
 
@@ -1192,6 +1247,7 @@ def run(game):
     repeatedly until the game exits.
     '''
     global _game
+    global _tick_callback_handle
     _game = game
 
     # Window handler
@@ -1217,11 +1273,12 @@ def run(game):
     lib.SetControllerAxisEventHandler(controller_axis_handle)
 
     # Tick handler
-    tick_callback_handle = lib.TickCallback(_tick_callback)
-    lib.SetTickCallback(tick_callback_handle)
+    _tick_callback_handle = lib.TickCallback(_first_tick_callback)
+    lib.SetTickCallback(_tick_callback_handle)
 
     lib.Run()
     _game = None
+    _tick_callback_handle = None
 
     lib.SetWindowResizeEventHandler(lib.WindowResizeEventHandler(0))
     lib.SetKeyEventHandler(lib.KeyEventHandler(0))

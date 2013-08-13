@@ -11,13 +11,31 @@ subclass of :class:`Game`, which overrides all the event methods you wish to han
 Bacon also stores the state of all input devices; so for example, you can query whether a particular key is pressed or not at any
 point in your program, without having to handle the event.
 
-Frame Tick
-==========
+Game events
+===========
+
+Initialization
+^^^^^^^^^^^^^^
+
+Before any frame tick events but after the graphics device is initialized, the game receives a 
+single call to :func:`Game.on_init`.  Overriding this is not usually necessary as most initialization
+can be done outside of the Game class.  However, the event exists for convenience or to initialize
+framebuffers.
+
+.. automethod:: Game.on_init
+
+Frame tick
+^^^^^^^^^^
 
 Every frame Bacon sends the :func:`Game.on_tick` event.  You must override this method, as it is the only way to update and render
 the game.
 
 .. automethod:: Game.on_tick
+
+In order to keep animations playing back at a constant speed independent of the framerate, refer to
+:data:`timestep`:
+
+.. autodata:: timestep
 
 Keyboard
 ========
