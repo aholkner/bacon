@@ -1,7 +1,10 @@
 from bacon import native
 from ctypes import *
 import os
+import logging
 import time
+
+logger = logging.getLogger(__name__)
 
 _mock_native = native._mock_native
 
@@ -82,8 +85,25 @@ def _error_wrapper(fn):
 
 lib = native.load(function_wrapper = _error_wrapper)
 
+_log_level_map = {
+    native.LogLevels.trace: logging.DEBUG,
+    native.LogLevels.info: logging.INFO,
+    native.LogLevels.warning: logging.WARNING,
+    native.LogLevels.error: logging.ERROR,
+    native.LogLevels.fatal: logging.FATAL,
+}
+
+def _log_callback(level, message):
+    try:
+        _log_level_map[level]
+    except KeyError:
+        level = logging.ERROR
+    logger.log(level, message.decode('utf-8'))
+
 # Initialize library now
 if not _mock_native:
+    _log_callback_handle = lib.LogCallback(_log_callback)
+    lib.SetLogCallback(_log_callback_handle)
     lib.Init()
 
     # Expose library version

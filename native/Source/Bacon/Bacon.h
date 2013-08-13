@@ -14,6 +14,7 @@
 #define BACON_VERSION_MINOR 1
 #define BACON_VERSION_PATCH 6
 
+typedef void (*Bacon_LogCallback)(int level, const char* message);
 typedef void (*Bacon_TickCallback)();
 typedef void (*Bacon_WindowResizeEventHandler)(int width, int height);
 typedef void (*Bacon_KeyEventHandler)(int key, int pressed);
@@ -39,6 +40,16 @@ enum Bacon_Error
 	Bacon_Error_NotRendering,
 	Bacon_Error_InvalidFontSize,
 	Bacon_Error_NotLooping
+};
+
+enum Bacon_LogLevel
+{
+    Bacon_LogLevel_Trace,
+    Bacon_LogLevel_Info,
+    Bacon_LogLevel_Warning,
+    Bacon_LogLevel_Error,
+    Bacon_LogLevel_Fatal,
+    Bacon_LogLevel_Disable
 };
 
 enum Bacon_Controller_Buttons
@@ -253,6 +264,10 @@ extern "C" {
 	BACON_API int Bacon_Init();
 	BACON_API int Bacon_Run();
 	BACON_API int Bacon_Shutdown();
+
+    BACON_API int Bacon_SetLogCallback(Bacon_LogCallback callback);
+    BACON_API int Bacon_SetLogLevel(int level);
+
 	BACON_API int Bacon_InternalTick();
 	BACON_API int Bacon_SetTickCallback(Bacon_TickCallback callback);
 

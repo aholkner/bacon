@@ -83,6 +83,15 @@ class ErrorCodes(object):
     invalid_font_size = 9
     not_looping = 10
 
+@enum
+class LogLevels(object):
+    trace = 0,
+    info = 1,
+    warning = 2,
+    error = 3,
+    fatal = 4,
+    disable = 5
+
 '''Blend values that can be passed to set_blending'''
 @enum
 class BlendFlags(object):
@@ -366,6 +375,7 @@ def load(function_wrapper = None):
         can_init = True
 
     # Function types
+    LogCallback = CFUNCTYPE(None, c_int, c_char_p)
     TickCallback = CFUNCTYPE(None)
     WindowResizeEventHandler = CFUNCTYPE(None, c_int, c_int)
     KeyEventHandler = CFUNCTYPE(None, c_int, c_int)
@@ -381,6 +391,8 @@ def load(function_wrapper = None):
     Run = fn(_lib.Bacon_Run)
     GetVersion = fn(_lib.Bacon_GetVersion, POINTER(c_int), POINTER(c_int), POINTER(c_int))
     Shutdown = fn(_lib.Bacon_Shutdown)
+    SetLogCallback = fn(_lib.Bacon_SetLogCallback, LogCallback)
+    SetLogLevel = fn(_lib.Bacon_SetLogLevel, c_int)
     SetTickCallback = fn(_lib.Bacon_SetTickCallback, TickCallback)
 
     SetWindowResizeEventHandler = fn(_lib.Bacon_SetWindowResizeEventHandler, WindowResizeEventHandler)

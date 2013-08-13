@@ -3,6 +3,8 @@
 #define BACON_ARRAY_COUNT(x) \
     (sizeof(x) / sizeof(x[0]))
 
+void Bacon_Log(Bacon_LogLevel level, const char* message, ...);
+
 void Audio_Init();
 void Audio_Shutdown();
 void Audio_Update();
