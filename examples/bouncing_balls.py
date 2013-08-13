@@ -1,7 +1,9 @@
 import os
 import random
 import sys
-sys.path.append('..')
+
+import logging
+logging.basicConfig(level=logging.INFO)
 
 import bacon
 import random

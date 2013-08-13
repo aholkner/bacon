@@ -95,7 +95,7 @@ _log_level_map = {
 
 def _log_callback(level, message):
     try:
-        _log_level_map[level]
+        level = _log_level_map[level]
     except KeyError:
         level = logging.ERROR
     logger.log(level, message.decode('utf-8'))

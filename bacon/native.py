@@ -85,11 +85,11 @@ class ErrorCodes(object):
 
 @enum
 class LogLevels(object):
-    trace = 0,
-    info = 1,
-    warning = 2,
-    error = 3,
-    fatal = 4,
+    trace = 0
+    info = 1
+    warning = 2
+    error = 3
+    fatal = 4
     disable = 5
 
 '''Blend values that can be passed to set_blending'''
