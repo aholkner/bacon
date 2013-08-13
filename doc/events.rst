@@ -86,6 +86,29 @@ buttons and axes on the controller instance itself.
 	:members:
 	:undoc-members:
 
+Game Controller Button and Axis Mapping
+=======================================
+
+Unfortunately there is no prescribed standard for game controllers when it comes to the naming of their buttons, thumbsticks and
+triggers.  Bacon attempts to unify all game controllers into one of a small number of predefined *profiles*:
+
 .. autoclass:: ControllerProfiles
 	:members:
 	:undoc-members:
+
+Developing a game that can use the *generic* profile is quite difficult, and usually requires a setup step where the user maps
+each button and axis on their controller to a game action.  Using the *standard* or *extended* profiles is easy, however; once
+you've checked that the profiler matches the required profile, start reading the named inputs (such as :attr:`Controller.dpad_left`).
+
+In order to support these profiles, a :class:`ControllerMapping` must be provided that maps between the generic inputs (such as :attr:`ControllerButtons.button1`) to the profile inputs.  Bacon is distributed with some well-known controllers such as the Xbox 360 controller
+mappings built-in, but you can also provide your own.
+
+To supply a new mapping, call :func:`ControllerMapping.register` with the vendor an product IDs of the controller you are describing,
+and a :class:`ControllerMapping` that describes the mapping.  For example, here is the built-in mapping for the Xbox 360 controller
+used on OS X:
+
+.. literalinclude:: ../bacon/controllers.py
+	:lines: 4-36
+
+.. autoclass:: ControllerMapping
+	:members:

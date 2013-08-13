@@ -1059,15 +1059,36 @@ class Controller(object):
         return self._buttons & ControllerButtons.right_thumb
 
 class ControllerMapping(object):
+    '''Map buttons and axes on a device controller to game button and axes.  Typically used to map generic
+    inputs to semantic inputs associated with a controller profile.
+
+    :param buttons: dictionary mapping button to button, each key and value is either a string or enum from :class:`GameControllerButtons`
+    :param axes: dictionary mapping axis to axis, each key and value is either a string or enum from :class:`GameControllerAxes`
+    :param dead_zones: dictionary mapping axis to its dead zone.  Axis input is rescaled to zero out +/- the dead zone.
+    :param profile: the mapped profile, a string or enum from :class:`GameControllerProfiles`
+    '''
+
     # Registry of (vendor_id, product_id) tuples to ControllerMapping
     _registry = {}
 
     @classmethod
     def register(cls, vendor_id, product_id, mapping):
+        '''Register a mapping for controllers with the given vendor and product IDs.  The mapping will
+        replace any existing mapping for these IDs for controllers not yet connected.
+
+        :param vendor_id: the vendor ID of the controller, as reported by :attr:`Controller.vendor_id`
+        :param product_id: the vendor ID of the controller, as reported by :attr:`Controller.product_id`
+        :param mapping: a :class:`ControllerMapping` to apply
+        '''
         cls._registry[(vendor_id, product_id)] = mapping
 
     @classmethod
     def get(cls, controller):
+        '''Find a mapping that can apply to the given controller.  Returns None if unsuccessful.
+
+        :param controller: :class:`Controller` to look up
+        :return: :class:`ControllerMapping`
+        '''
         try:
             return cls._registry[(controller.vendor_id, controller.product_id)]
         except KeyError:
