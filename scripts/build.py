@@ -109,7 +109,7 @@ def get_build_files():
 
     osx_files = ['Bacon.dylib']
 
-    if sys.platform == 'windows':
+    if sys.platform == 'win32':
         files = windows_files
         alt_files = osx_files
     elif sys.platform == 'darwin':
