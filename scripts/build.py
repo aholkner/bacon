@@ -112,7 +112,7 @@ def build():
 
 def publish():
     print('Publishing to PyPI')
-
+    subprocess.call(['python', 'setup.py', 'sdist', '--formats=zip', 'upload'], cwd=base_dir)
 
 def get_build_files():
     if sys.platform == 'win32':
@@ -143,6 +143,9 @@ def get_native_version():
     patch = re.match('.*#define BACON_VERSION_PATCH ([0-9]+).*', src, re.DOTALL).groups(1)[0]
     return '%s.%s.%s' % (major, minor, patch)
 
+def tag(version):
+    subprocess.call(['git', 'tag', '-a', 'v%s' % version, 'Release %s' % version], shell=True)
+
 if __name__ == '__main__':
     version = get_version()
     native_version = get_native_version()
@@ -162,6 +165,7 @@ if __name__ == '__main__':
 
     if download_build_files(version, commit, alt_files):
         publish()
+        tag(version)
 
 
 
