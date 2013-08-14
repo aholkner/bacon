@@ -1,10 +1,14 @@
-from dropbox import client, rest
-import git
-import sys
 import os
+import sys
+base_dir = os.path.join(os.path.dirname(__file__), '..')
+sys.path.insert(0, base_dir)
+
+import setup
+import git
 import subprocess
 
-base_dir = os.path.join(os.path.dirname(__file__), '..')
+from dropbox import client, rest
+
 
 # Dropbox auth details are not checked in, you must create
 # them locally according to your Dropbox developer account.
@@ -69,19 +73,20 @@ def build_windows():
         ],
         cwd=os.path.join(base_dir, 'native/Projects/VisualStudio'))
 
-def share_build_files(commit, files, alt_files):
+def share_build_files(version, commit, files, alt_files):
     package_dir = os.path.join(base_dir, 'bacon')
     print('Connecting to dropbox')
     dropbox = Dropbox()
+    share_path = '/bacon-%s/%s/' % (version, commit)
     print('Copying local build files to dropbox...')
     for file in files:
         print(file)
-        dropbox.put(package_dir, '/%s/%s' % (commit, file))
+        dropbox.put(os.path.join(package_dir, file), share_path + file)
 
     print('Copying alternative platform files from dropbox...')
     try:
         for file in alt_files:
-            dropbox.get('/%s/%s' (commit, file), package_dir)
+            dropbox.get(share_path + file, os.path.join(package_dir, file))
     except rest.ErrorResponse:
         print('...not found, finished build')
         return False
@@ -100,36 +105,45 @@ def publish():
     print('Publishing to PyPI')
 
 def get_build_files():
-    windows_files = [
-            'Bacon.dll', 
-            'libGLESv2.dll',
-            'libEGL.dll',
-            'd3dcompiler_46.dll'
-        ]
-
-    osx_files = ['Bacon.dylib']
-
     if sys.platform == 'win32':
-        files = windows_files
-        alt_files = osx_files
+        files = setup.windows_dlls
+        alt_files = setup.osx_dlls
     elif sys.platform == 'darwin':
-        files = osx_files
-        alt_files = windows_files
+        files = setup.osx_dlls
+        alt_files = setup.windows_dlls
     else:
         raise Exception('Unsupported platform %s' % sys.platform)
 
-    return files, alt_filse
+    return files, alt_files
 
 def get_master_commit():
     repo = git.Repo(base_dir)
-    if repo.is_dirty:
-        raise Exception('Git repo is dirty')
+    #if repo.is_dirty:
+    #    raise Exception('Git repo is dirty')
     return repo.commit('master').id
 
+def get_version():
+    return setup.version
+
+def get_native_version():
+    import re
+    src = open(os.path.join(base_dir, 'native/Source/Bacon/Bacon.h'), 'r').read()
+    major = re.match('.*#define BACON_VERSION_MAJOR ([0-9]+).*', src, re.DOTALL).groups(1)[0]
+    minor = re.match('.*#define BACON_VERSION_MINOR ([0-9]+).*', src, re.DOTALL).groups(1)[0]
+    patch = re.match('.*#define BACON_VERSION_PATCH ([0-9]+).*', src, re.DOTALL).groups(1)[0]
+    return '%s.%s.%s' % (major, minor, patch)
+
 if __name__ == '__main__':
+    version = get_version()
+    native_version = get_native_version()
+    if version != native_version:
+        raise Exception('Native version does not match setup.py (%s vs %s)' % (native_version, version))
+
     commit = get_master_commit()
 
-    print('Building %s', commit)
+    print('Version %s' % version)
+    print('Commit %s' % commit)
+    import time; time.sleep(1)
     build()
 
     files, alt_files = get_build_files()
