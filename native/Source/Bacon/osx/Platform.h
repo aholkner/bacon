@@ -8,7 +8,7 @@ extern bool g_WindowStartFullscreen;
 extern bool g_MakeFirstResponder;
 extern NSOpenGLContext* g_Context;
 
-@interface BaconApplication : NSApplication
+@interface BaconApplication : NSApplication<NSApplicationDelegate>
 { }
 @end
 

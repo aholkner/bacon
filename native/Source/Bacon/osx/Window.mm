@@ -13,6 +13,11 @@
 		[super sendEvent:anEvent];
 }
 
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender
+{
+    return YES;
+}
+
 @end
 
 void Window_Create()

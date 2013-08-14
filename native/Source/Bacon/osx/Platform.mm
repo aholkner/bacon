@@ -34,7 +34,8 @@ int Bacon_Run()
 	// http://www.cocoawithlove.com/2010/09/minimalist-cocoa-programming.html
 	NSAutoreleasePool* pool = [NSAutoreleasePool new];
     [BaconApplication sharedApplication];
-
+	[BaconApplication sharedApplication].delegate = (BaconApplication*)[BaconApplication sharedApplication];
+	
 	LogSystemInfo();
 	
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
