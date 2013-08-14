@@ -22,6 +22,7 @@ ipch
 *.lib
 *.exp
 *.vcxproj.user
+*.sln.cache
 
 # Debug logs
 debug.txt
@@ -36,3 +37,6 @@ MANIFEST
 
 # Built docs
 doc/_build
+
+# Auth
+scripts/build_auth.*
