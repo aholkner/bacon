@@ -1,4 +1,6 @@
+import distutils
 from distutils.core import setup
+import os
 
 version = '0.1.8'
 
@@ -38,6 +40,6 @@ if __name__ == '__main__':
           url='https://github.com/aholkner/bacon',
           packages=['bacon'],
           data_files=[
-            ('bacon', windows_dlls + osx_dlls),
+            (os.path.join(distutils.sysconfig.get_python_lib(), 'bacon'), windows_dlls + osx_dlls),
           ],
     )
