@@ -56,7 +56,8 @@ class Dropbox(object):
         to_file = open(dest_path, 'wb')
         to_file.write(f.read())
         to_file.close()
-
+dropbox = Dropbox()
+    
 def build_osx():
     subprocess.call([
         'xcodebuild', 
@@ -73,16 +74,16 @@ def build_windows():
         ],
         cwd=os.path.join(base_dir, 'native/Projects/VisualStudio'))
 
-def share_build_files(version, commit, files, alt_files):
-    print('Connecting to dropbox')
-    dropbox = Dropbox()
+def publish_build_files(version, commit, files):
     share_path = '/bacon-%s/%s/' % (version, commit)
     print('Copying local build files to dropbox...')
     for file in files:
         print(file)
         dropbox.put(os.path.join(base_dir, file), share_path + file)
 
+def download_build_files(version, commit, alt_files):
     print('Copying alternative platform files from dropbox...')
+    share_path = '/bacon-%s/%s/' % (version, commit)
     try:
         for file in alt_files:
             dropbox.get(share_path + file, os.path.join(base_dir, file))
@@ -90,6 +91,15 @@ def share_build_files(version, commit, files, alt_files):
         print('...not found, finished build')
         return False
 
+    return True
+
+def has_build_files(version, commit, files):
+    share_path = '/bacon-%s/%s/' % (version, commit)
+    try:
+        for file in alt_files:
+            dropbox.get(share_path + file, os.path.join(base_dir, file))
+    except rest.ErrorResponse:
+        return False
     return True
 
 def build():
@@ -102,6 +112,7 @@ def build():
 
 def publish():
     print('Publishing to PyPI')
+
 
 def get_build_files():
     if sys.platform == 'win32':
@@ -143,10 +154,13 @@ if __name__ == '__main__':
     print('Version %s' % version)
     print('Commit %s' % commit)
     import time; time.sleep(1)
-    build()
 
     files, alt_files = get_build_files()
-    if share_build_files(version, commit, files, alt_files):
+    if not has_build_files(version, commit, files):
+        build()
+        publish_build_files(version, commit, files)
+
+    if download_build_files(version, commit, alt_files):
         publish()
 
 
