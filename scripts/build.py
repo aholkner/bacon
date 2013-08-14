@@ -74,19 +74,18 @@ def build_windows():
         cwd=os.path.join(base_dir, 'native/Projects/VisualStudio'))
 
 def share_build_files(version, commit, files, alt_files):
-    package_dir = os.path.join(base_dir, 'bacon')
     print('Connecting to dropbox')
     dropbox = Dropbox()
     share_path = '/bacon-%s/%s/' % (version, commit)
     print('Copying local build files to dropbox...')
     for file in files:
         print(file)
-        dropbox.put(os.path.join(package_dir, file), share_path + file)
+        dropbox.put(os.path.join(base_dir, file), share_path + file)
 
     print('Copying alternative platform files from dropbox...')
     try:
         for file in alt_files:
-            dropbox.get(share_path + file, os.path.join(package_dir, file))
+            dropbox.get(share_path + file, os.path.join(base_dir, file))
     except rest.ErrorResponse:
         print('...not found, finished build')
         return False
@@ -118,8 +117,8 @@ def get_build_files():
 
 def get_master_commit():
     repo = git.Repo(base_dir)
-    #if repo.is_dirty:
-    #    raise Exception('Git repo is dirty')
+    if repo.is_dirty:
+        raise Exception('Git repo is dirty')
     return repo.commit('master').id
 
 def get_version():
@@ -147,7 +146,7 @@ if __name__ == '__main__':
     build()
 
     files, alt_files = get_build_files()
-    if share_build_files(commit, files, alt_files):
+    if share_build_files(version, commit, files, alt_files):
         publish()
 
 
