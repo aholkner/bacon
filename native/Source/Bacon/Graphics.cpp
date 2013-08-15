@@ -72,15 +72,39 @@ namespace {
 		GLuint m_FrameBuffer;
 	};
 	
+	struct ShaderUniform
+	{
+		ShaderUniform()
+		: m_Id(0)
+		, m_ValueDirty(true)
+		{ }
+		
+		GLuint m_Id;
+		GLuint m_TextureUnit;
+		int m_ArrayCount;
+		ShDataType m_Type;
+		string m_Name;
+		bool m_IsSystemUniform;
+		
+		bool m_ValueDirty;
+		vector<char> m_Value;
+	};
+	
 	struct Shader
 	{
 		string m_VertexSource;
 		string m_FragmentSource;
-		
-		bool m_HasError;
+
+		vector<ShaderUniform> m_Uniforms;
+		vector<int> m_TextureUnits;
+
 		GLuint m_Program;
 		GLuint m_UniformProjection;
 		GLuint m_UniformTexture0;
+
+		int m_SystemUniformsVersion;
+		bool m_UniformValuesDirty;
+		bool m_HasError;
 	};
 		
 	struct Impl
@@ -106,8 +130,10 @@ namespace {
 		GLuint m_CurrentMode;
 		float m_CurrentZ;
 		int m_CurrentShader;
-		int m_CurrentImage;
 		int m_CurrentFrameBuffer;
+		int m_CurrentTextureUnits[16];
+		
+		int m_SystemUniformsVersion;
 		
 		mat4f m_Projection;
 		
@@ -133,25 +159,30 @@ void Graphics_Init()
 	s_Impl->m_Indices.reserve(32768);
 	s_Impl->m_IsInFrame = false;
 	s_Impl->m_CurrentZ = 0.f;
-	s_Impl->m_CurrentImage = -1;
+	for (int i = 0; i < BACON_ARRAY_COUNT(s_Impl->m_CurrentTextureUnits); ++i)
+		s_Impl->m_CurrentTextureUnits[i] = -1;
 	s_Impl->m_CurrentFrameBuffer = -1;
 	s_Impl->m_CurrentShader = -1;
 	s_Impl->m_CurrentMode = GL_TRIANGLES;
 	s_Impl->m_ColorStack.push_back(vec4f::ONE);
 	s_Impl->m_TransformStack.push_back(mat4f::IDENTITY);
+	s_Impl->m_SystemUniformsVersion = 0;
 	
 	Bacon_CreateImage(&s_Impl->m_BlankImage, 1, 1);
 	
 	FreeImage_Initialise(TRUE);
 	
-#if BACON_PLATFORM_OPENGL
 	ShInitialize();
 	ShBuiltInResources resources;
 	ShInitBuiltInResources(&resources);
 	resources.FragmentPrecisionHigh = 1;
-	s_VertexCompiler = ShConstructCompiler(SH_VERTEX_SHADER, SH_GLES2_SPEC, SH_GLSL_OUTPUT, &resources);
-	s_FragmentCompiler = ShConstructCompiler(SH_FRAGMENT_SHADER, SH_GLES2_SPEC, SH_GLSL_OUTPUT, &resources);
+#if BACON_PLATFORM_OPENGL
+	ShShaderOutput output = SH_GLSL_OUTPUT;
+#else
+	ShShaderOutput output = SH_ESSL_OUTPUT;
 #endif
+	s_VertexCompiler = ShConstructCompiler(SH_VERTEX_SHADER, SH_GLES2_SPEC, output, &resources);
+	s_FragmentCompiler = ShConstructCompiler(SH_FRAGMENT_SHADER, SH_GLES2_SPEC, output, &resources);
 }
 
 void Graphics_Shutdown()
@@ -272,30 +303,64 @@ void Graphics_EndFrame()
 
 // Shaders
 
-int Bacon_CreateShader(int* outHandle, const char* vertexSource, const char* fragmentSource)
+static int GetShaderUniformSize(ShaderUniform const& uniform)
 {
-	if (!outHandle || !vertexSource || !fragmentSource)
-		return Bacon_Error_InvalidArgument;
-	
-	*outHandle = s_Impl->m_Shaders.Alloc();
-	Shader* shader = s_Impl->m_Shaders.Get(*outHandle);
-	shader->m_Program = 0;
-	shader->m_UniformProjection = 0;
-	shader->m_VertexSource = vertexSource;
-	shader->m_FragmentSource = fragmentSource;
-	
-	if (!s_Impl->m_CurrentShader)
-		s_Impl->m_CurrentShader = *outHandle;
-	
-	return Bacon_Error_None;
+	int size = 0;
+	switch (uniform.m_Type)
+	{
+		case SH_NONE:
+			size = 0;
+			break;
+		case SH_BOOL:
+		case SH_INT:
+		case SH_FLOAT:
+			size = 4;
+			break;
+		case SH_BOOL_VEC2:
+		case SH_INT_VEC2:
+		case SH_FLOAT_VEC2:
+			size = 4 * 2;
+			break;
+		case SH_BOOL_VEC3:
+		case SH_INT_VEC3:
+		case SH_FLOAT_VEC3:
+			size = 4 * 3;
+			break;
+		case SH_BOOL_VEC4:
+		case SH_INT_VEC4:
+		case SH_FLOAT_VEC4:
+			size = 4 * 4;
+			break;
+		case SH_SAMPLER_2D:
+		case SH_SAMPLER_2D_RECT_ARB:
+		case SH_SAMPLER_CUBE:
+		case SH_SAMPLER_EXTERNAL_OES:
+			size = 4;
+			break;
+		case SH_FLOAT_MAT2:
+			size = 4 * 2 * 2;
+			break;
+		case SH_FLOAT_MAT3:
+			size = 4 * 3 * 3;
+			break;
+		case SH_FLOAT_MAT4:
+			size = 4 * 4 * 4;
+			break;
+	}
+	return size * uniform.m_ArrayCount;
 }
 
-#if BACON_PLATFORM_OPENGL
-static bool TranslateShader(GLuint type, const char* source, string& result)
+static bool TranslateShader(Shader* shader, GLuint type, string& source)
 {
-	int options = SH_OBJECT_CODE;
+	int options = SH_ATTRIBUTES_UNIFORMS;
+	
+#if BACON_PLATFORM_OPENGL
+	options |= SH_OBJECT_CODE;
+#endif
+	
 	ShHandle compiler = (type == GL_VERTEX_SHADER) ? s_VertexCompiler : s_FragmentCompiler;
-	int compiled = ShCompile(compiler, &source, 1, options);
+	const char* sourcePtr = source.c_str();
+	int compiled = ShCompile(compiler, &sourcePtr, 1, options);
 	
 	if (!compiled)
 	{
@@ -308,28 +373,146 @@ static bool TranslateShader(GLuint type, const char* source, string& result)
 		
 		return false;
 	}
+	
+#if BACON_PLATFORM_OPENGL
+    Bacon_Log(Bacon_LogLevel_Trace, "GLES2 Source:\n%s", source.c_str());
 
 	size_t codeLength;
 	ShGetInfo(compiler, SH_OBJECT_CODE_LENGTH, &codeLength);
-	result.resize(codeLength);
-	ShGetObjectCode(compiler, &result[0]);
+	source.resize(codeLength);
+	ShGetObjectCode(compiler, &source[0]);
 	
-    Bacon_Log(Bacon_LogLevel_Trace, "GLES2 Source:\n%s", source);
-    Bacon_Log(Bacon_LogLevel_Trace, "GLSL Translated Source:\n%s", result.c_str());
+    Bacon_Log(Bacon_LogLevel_Trace, "GLSL Translated Source:\n%s", source.c_str());
+#endif
+	
+	size_t uniformNameSize;
+	ShGetInfo(compiler, SH_ACTIVE_UNIFORM_MAX_LENGTH, &uniformNameSize);
+	
+	size_t activeUniforms;
+	ShGetInfo(compiler, SH_ACTIVE_UNIFORMS, &activeUniforms);
+	shader->m_Uniforms.reserve(shader->m_Uniforms.size() + activeUniforms);
+	for (size_t i = 0; i < activeUniforms; ++i)
+	{
+		shader->m_Uniforms.push_back(ShaderUniform());
+		ShaderUniform& shaderUniform = shader->m_Uniforms.back();
+		shaderUniform.m_Name.resize(uniformNameSize);
+		size_t nameLength;
+		ShGetActiveUniform(compiler, (int)i, &nameLength, &shaderUniform.m_ArrayCount, &shaderUniform.m_Type, &shaderUniform.m_Name[0], nullptr);
+		shaderUniform.m_Name.resize(nameLength);
+		if (shaderUniform.m_Name == "g_Projection" ||
+			shaderUniform.m_Name == "g_Texture0")
+		{
+			shaderUniform.m_IsSystemUniform = true;
+			shaderUniform.m_ValueDirty = false;
+		}
+		else
+		{
+			shaderUniform.m_IsSystemUniform = false;
+			shaderUniform.m_ValueDirty = true;
+			shaderUniform.m_Value.resize(GetShaderUniformSize(shaderUniform));
+		}
+	}
 	
 	return true;
 }
-#endif
+
+int Bacon_CreateShader(int* outHandle, const char* vertexSource, const char* fragmentSource)
+{
+	if (!outHandle || !vertexSource || !fragmentSource)
+		return Bacon_Error_InvalidArgument;
+	
+	*outHandle = s_Impl->m_Shaders.Alloc();
+	Shader* shader = s_Impl->m_Shaders.Get(*outHandle);
+	shader->m_Program = 0;
+	shader->m_UniformProjection = 0;
+	shader->m_VertexSource = vertexSource;
+	shader->m_FragmentSource = fragmentSource;
+	shader->m_SystemUniformsVersion = -1;
+	
+	if (!TranslateShader(shader, GL_VERTEX_SHADER, shader->m_VertexSource))
+	{
+		s_Impl->m_Shaders.Free(*outHandle);
+		return Bacon_Error_ShaderCompileError;
+	}
+	
+	if (!TranslateShader(shader, GL_FRAGMENT_SHADER, shader->m_FragmentSource))
+	{
+		s_Impl->m_Shaders.Free(*outHandle);
+		return Bacon_Error_ShaderCompileError;
+	}
+
+	// Assign texture units to sampler uniforms
+	int textureUnit = 1;
+	for (auto& uniform : shader->m_Uniforms)
+	{
+		if (uniform.m_Type == SH_SAMPLER_2D)
+		{
+			uniform.m_TextureUnit = textureUnit++;
+			shader->m_TextureUnits.push_back(0);
+		}
+		else
+		{
+			uniform.m_TextureUnit = -1;
+		}
+	}
+
+	if (!s_Impl->m_CurrentShader)
+		s_Impl->m_CurrentShader = *outHandle;
+	
+	return Bacon_Error_None;
+}
+
+int Bacon_EnumShaderUniforms(int handle, Bacon_EnumShaderUniformsCallback callback, void* arg)
+{
+	Shader* shader = s_Impl->m_Shaders.Get(handle);
+	if (!shader)
+		return Bacon_Error_InvalidHandle;
+	
+	for (int i = 0; i < shader->m_Uniforms.size(); ++i)
+	{
+		ShaderUniform& uniform = shader->m_Uniforms[i];
+		if (!uniform.m_IsSystemUniform)
+			callback(handle, i, uniform.m_Name.c_str(), uniform.m_Type, uniform.m_ArrayCount, arg);
+	}
+	
+	return Bacon_Error_None;
+}
+
+int Bacon_SetShaderUniform(int handle, int uniform, const void* value, int size)
+{
+	if (handle == s_Impl->m_CurrentShader)
+		Bacon_Flush();
+	
+	Shader* shader = s_Impl->m_Shaders.Get(handle);
+	if (!shader)
+		return Bacon_Error_InvalidHandle;
+
+	if (uniform < 0 || uniform >= shader->m_Uniforms.size())
+		return Bacon_Error_InvalidHandle;
+	
+	ShaderUniform& shaderUniform = shader->m_Uniforms[uniform];
+	if (shaderUniform.m_Value.size() != size)
+		return Bacon_Error_InvalidArgument;
+	
+	if (shaderUniform.m_IsSystemUniform)
+		return Bacon_Error_InvalidArgument;
+	
+	if (shaderUniform.m_TextureUnit != -1)
+	{
+		shader->m_TextureUnits[shaderUniform.m_TextureUnit] = *(int*)value;
+	}
+	else
+	{
+		memcpy(&shaderUniform.m_Value[0], value, size);
+		shaderUniform.m_ValueDirty = true;
+		shader->m_UniformValuesDirty = true;
+	}
+	return Bacon_Error_None;
+}
+
 
 static GLuint CompileShader(GLuint type, const char* source)
 {
-#if BACON_PLATFORM_OPENGL
-	string translatedSource;
-	if (!TranslateShader(type, source, translatedSource))
-		return 0;
-	source = translatedSource.c_str();
-#endif
-	
 	GLuint shader = glCreateShader(type);
 	glShaderSource(shader, 1, &source, nullptr);
 	glCompileShader(shader);
@@ -390,15 +573,20 @@ static int CompileShader(Shader* shader)
 	shader->m_Program = program;
 	shader->m_UniformProjection = glGetUniformLocation(program, UniformProjection);
 	shader->m_UniformTexture0 = glGetUniformLocation(program, UniformTexture0);
+	glUniform1i(shader->m_UniformTexture0, 0);
+	
+	for (auto& uniform : shader->m_Uniforms)
+	{
+		uniform.m_Id = glGetUniformLocation(program, uniform.m_Name.c_str());
+		if (uniform.m_Type == SH_SAMPLER_2D)
+			glUniform1i(uniform.m_Id, uniform.m_TextureUnit);
+	}
 	
 	return Bacon_Error_None;
 }
 
 static int BindShader(int handle)
 {
-	if (!handle)
-		handle = s_Impl->m_DefaultShader;
-	
 	Shader* shader = s_Impl->m_Shaders.Get(handle);
 	if (!shader)
 		return Bacon_Error_InvalidHandle;
@@ -411,9 +599,98 @@ static int BindShader(int handle)
 	else
 		glUseProgram(shader->m_Program);
 	
-	glUniformMatrix4fv(shader->m_UniformProjection, 1, GL_FALSE, s_Impl->m_Projection);
-	glUniform1i(shader->m_UniformTexture0, 0);
 	return Bacon_Error_None;
+}
+
+static int BindImage(int handle);
+
+static void BindShaderUniforms()
+{
+	Shader* shader = s_Impl->m_Shaders.Get(s_Impl->m_CurrentShader);
+	
+	if (shader->m_SystemUniformsVersion != s_Impl->m_SystemUniformsVersion)
+	{
+		glUniformMatrix4fv(shader->m_UniformProjection, 1, GL_FALSE, s_Impl->m_Projection);
+		shader->m_SystemUniformsVersion = s_Impl->m_SystemUniformsVersion;
+	}
+	
+	if (!shader->m_UniformValuesDirty)
+		return;
+	
+	for (auto& uniform : shader->m_Uniforms)
+	{
+		if (!uniform.m_ValueDirty)
+			continue;
+		
+		if (uniform.m_IsSystemUniform)
+			continue;
+		
+		switch (uniform.m_Type)
+		{
+			case SH_NONE:
+				break;
+			case SH_BOOL:
+			case SH_INT:
+				glUniform1iv(uniform.m_Id, uniform.m_ArrayCount, (GLint*)&uniform.m_Value[0]);
+				break;
+			case SH_BOOL_VEC2:
+			case SH_INT_VEC2:
+				glUniform2iv(uniform.m_Id, uniform.m_ArrayCount, (GLint*)&uniform.m_Value[0]);
+				break;
+			case SH_BOOL_VEC3:
+			case SH_INT_VEC3:
+				glUniform3iv(uniform.m_Id, uniform.m_ArrayCount, (GLint*)&uniform.m_Value[0]);
+				break;
+			case SH_BOOL_VEC4:
+			case SH_INT_VEC4:
+				glUniform4iv(uniform.m_Id, uniform.m_ArrayCount, (GLint*)&uniform.m_Value[0]);
+				break;
+			case SH_FLOAT:
+				glUniform1fv(uniform.m_Id, uniform.m_ArrayCount, (GLfloat*)&uniform.m_Value[0]);
+				break;
+			case SH_FLOAT_VEC2:
+				glUniform2fv(uniform.m_Id, uniform.m_ArrayCount, (GLfloat*)&uniform.m_Value[0]);
+				break;
+			case SH_FLOAT_VEC3:
+				glUniform3fv(uniform.m_Id, uniform.m_ArrayCount, (GLfloat*)&uniform.m_Value[0]);
+				break;
+			case SH_FLOAT_VEC4:
+				glUniform4fv(uniform.m_Id, uniform.m_ArrayCount, (GLfloat*)&uniform.m_Value[0]);
+				break;
+			case SH_FLOAT_MAT2:
+				glUniformMatrix2fv(uniform.m_Id, uniform.m_ArrayCount, GL_FALSE, (GLfloat*)&uniform.m_Value[0]);
+				break;
+			case SH_FLOAT_MAT3:
+				glUniformMatrix3fv(uniform.m_Id, uniform.m_ArrayCount, GL_FALSE, (GLfloat*)&uniform.m_Value[0]);
+				break;
+			case SH_FLOAT_MAT4:
+				glUniformMatrix4fv(uniform.m_Id, uniform.m_ArrayCount, GL_FALSE, (GLfloat*)&uniform.m_Value[0]);
+				break;
+			case SH_SAMPLER_2D:
+			case SH_SAMPLER_2D_RECT_ARB:
+			case SH_SAMPLER_CUBE:
+			case SH_SAMPLER_EXTERNAL_OES:
+				break;
+		}
+		uniform.m_ValueDirty = false;
+	}
+	
+	shader->m_UniformValuesDirty = false;
+}
+
+static void BindShaderTextureUnits()
+{
+	Shader* shader = s_Impl->m_Shaders.Get(s_Impl->m_CurrentShader);
+
+	for (int i = 1; i < shader->m_TextureUnits.size(); ++i)
+	{
+		if (s_Impl->m_CurrentTextureUnits[i] != shader->m_TextureUnits[i])
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+			BindImage(shader->m_TextureUnits[i]);
+			s_Impl->m_CurrentTextureUnits[i] = shader->m_TextureUnits[i];
+		}
+	}
 }
 
 // Images
@@ -764,12 +1041,19 @@ int Bacon_SetViewport(int x, int y, int width, int height)
 	glViewport(x, frameBufferHeight - (y + height), width, height);
 	s_Impl->m_Projection = frustumf(0.f, (float)width, (float)height, 0.f, -1.f, 1.f).compute_ortho_matrix();
 	
-	return BindShader(s_Impl->m_CurrentShader); // Rebind because projection uniform has changed TODO more lazy
+	// Invalidate system shader uniform values
+	++s_Impl->m_SystemUniformsVersion;
+	
+	return Bacon_Error_None;
 }
 
 int Bacon_SetShader(int shader)
 {
 	REQUIRE_GL();
+	
+	if (!shader)
+		shader = s_Impl->m_DefaultShader;
+
 	if (s_Impl->m_CurrentShader == shader)
 		return Bacon_Error_None;
 	
@@ -893,11 +1177,12 @@ int Bacon_DrawImageRegion(int handle, float x1, float y1, float x2, float y2,
 
 inline void SetCurrentImage(int image)
 {
-	if (image != s_Impl->m_CurrentImage)
+	if (image != s_Impl->m_CurrentTextureUnits[0])
 	{
 		Bacon_Flush();
+		glActiveTexture(GL_TEXTURE0);
 		BindImage(image);
-		s_Impl->m_CurrentImage = image;
+		s_Impl->m_CurrentTextureUnits[0] = image;
 	}
 }
 
@@ -967,6 +1252,9 @@ int Bacon_Flush()
 
 	if (s_Impl->m_Indices.empty())
 		return Bacon_Error_None;
+	
+	BindShaderUniforms();
+	BindShaderTextureUnits();
 	
 	glBindBuffer(GL_ARRAY_BUFFER, s_Impl->m_VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * s_Impl->m_Vertices.size(), &s_Impl->m_Vertices[0], GL_DYNAMIC_DRAW);

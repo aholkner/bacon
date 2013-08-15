@@ -268,6 +268,43 @@ class Shader(object):
         lib.CreateShader(byref(handle), vertex_source.encode('utf-8'), fragment_source.encode('utf-8'))
         self._handle = handle.value
 
+        self.uniforms = {}
+
+        enum_uniform_callback = lib.EnumShaderUniformsCallback(self._on_enum_uniform)
+        lib.EnumShaderUniforms(handle, enum_uniform_callback, None)
+
+    def _on_enum_uniform(self, shader, uniform, name, type, array_count, arg):
+        self.uniforms[name] = ShaderUniform(self, uniform, name.decode('utf-8'), type, array_count)
+
+_shader_uniform_native_types = {
+    native.ShaderUniformType.float_: c_float,
+}
+
+class ShaderUniform(object):
+    def __init__(self, shader, uniform, name, type, array_count):
+        self._shader_handle = shader._handle
+        self._uniform_handle = uniform
+        self.name = name
+        self.type = type
+        self.array_count = array_count
+        self._value = None
+
+        try:
+            self._native_converter = _shader_uniform_native_types[type]
+        except:
+            pass
+        
+    def __repr__(self):
+        return 'ShaderUniform(%d, %s, %s, %d)' % (self._shader_handle, self.name, native.ShaderUniformType.tostring(self.type), self.array_count)
+
+    def _get_value(self):
+        return self._value
+    def _set_value(self, value):
+        self._value = value
+        native_value = self._native_converter(value)
+        lib.SetShaderUniform(self._shader_handle, self._uniform_handle, byref(native_value), sizeof(native_value))
+    value = property(_get_value, _set_value)
+
 class Image(object):
     '''An image that can be passed to :func:`draw_image` and other rendering functions.
 

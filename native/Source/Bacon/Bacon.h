@@ -24,6 +24,7 @@ typedef void (*Bacon_ControllerConnectedEventHandler)(int controller, int connec
 typedef void (*Bacon_ControllerButtonEventHandler)(int controller, int button, int pressed);
 typedef void (*Bacon_ControllerAxisEventHandler)(int controller, int axis, float value);
 typedef void (*Bacon_VoiceCallback)();
+typedef void (*Bacon_EnumShaderUniformsCallback)(int shader, int uniform, const char* name, int type, int arrayCount, void* arg);
 
 #define BIT(x) (1 << x)
 
@@ -131,6 +132,31 @@ enum Bacon_ImageFlags
 {
 	Bacon_ImageFlags_PremultiplyAlpha = 1 << 0,
 	Bacon_ImageFlags_DiscardBitmap = 1 << 1
+};
+
+enum Bacon_ShaderUniformTypes
+{
+	// Values must match ShDataType in ShaderLang.h
+	Bacon_ShaderUniformType_None           = 0,
+	Bacon_ShaderUniformType_Int            = 0x1404,
+	Bacon_ShaderUniformType_Float          = 0x1406,
+	Bacon_ShaderUniformType_Float_Vec2     = 0x8B50,
+	Bacon_ShaderUniformType_Float_Vec3     = 0x8B51,
+	Bacon_ShaderUniformType_Float_Vec4     = 0x8B52,
+	Bacon_ShaderUniformType_Int_Vec2       = 0x8B53,
+	Bacon_ShaderUniformType_Int_Vec3       = 0x8B54,
+	Bacon_ShaderUniformType_Int_Vec4       = 0x8B55,
+	Bacon_ShaderUniformType_Bool           = 0x8B56,
+	Bacon_ShaderUniformType_Bool_Vec2      = 0x8B57,
+	Bacon_ShaderUniformType_Bool_Vec3      = 0x8B58,
+	Bacon_ShaderUniformType_Bool_Vec4      = 0x8B59,
+	Bacon_ShaderUniformType_Float_Mat2     = 0x8B5A,
+	Bacon_ShaderUniformType_Float_Mat3     = 0x8B5B,
+	Bacon_ShaderUniformType_Float_Mat4     = 0x8B5C,
+	Bacon_ShaderUniformType_Sampler_2D     = 0x8B5E,
+	Bacon_ShaderUniformType_Sampler_Cube   = 0x8B60,
+	Bacon_ShaderUniformType_Sampler_2D_Rect = 0x8B63,
+	Bacon_ShaderUniformType_Sampler_External = 0x8D66
 };
 
 enum Bacon_SoundFlags
@@ -279,6 +305,9 @@ extern "C" {
 	BACON_API int Bacon_SetWindowFullscreen(int fullscreen);
 	
 	BACON_API int Bacon_CreateShader(int* outHandle, const char* vertexSource, const char* fragmentSource);
+	BACON_API int Bacon_EnumShaderUniforms(int handle, Bacon_EnumShaderUniformsCallback callback, void* arg);
+	BACON_API int Bacon_SetShaderUniform(int handle, int uniform, const void* value, int size);
+
 	BACON_API int Bacon_CreateImage(int* outHandle, int width, int height);
 	BACON_API int Bacon_LoadImage(int* outHandle, const char* path, int flags);
 	BACON_API int Bacon_UnloadImage(int handle);

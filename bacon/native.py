@@ -111,6 +111,29 @@ class ImageFlags(object):
     premultiply_alpha = 1 << 0
     discard_bitmap = 1 << 1
 
+@enum
+class ShaderUniformType(object):
+    none            = 0
+    int_            = 0x1404
+    float_          = 0x1406
+    vec2            = 0x8B50
+    vec3            = 0x8B51
+    vec4            = 0x8B52
+    ivec2           = 0x8B53
+    ivec3           = 0x8B54
+    ivec4           = 0x8B55
+    bool_           = 0x8B56
+    vec2            = 0x8B57
+    vec3            = 0x8B58
+    vec4            = 0x8B59
+    mat2            = 0x8B5A
+    mat3            = 0x8B5B
+    mat4            = 0x8B5C
+    sampler2D       = 0x8B5E
+    samplerCube     = 0x8B60
+    sampler2DRect   = 0x8B63
+    samplerExternal = 0x8D66
+
 @flags
 class SoundFlags(object):
     stream = 1 << 0
@@ -385,6 +408,7 @@ def load(function_wrapper = None):
     ControllerButtonEventHandler = CFUNCTYPE(None, c_int, c_uint, c_int)
     ControllerAxisEventHandler = CFUNCTYPE(None, c_int, c_int, c_float)
     VoiceCallback = CFUNCTYPE(None)
+    EnumShaderUniformsCallback = CFUNCTYPE(None, c_int, c_int, c_char_p, c_int, c_int, c_void_p)
 
     # Functions
     Init = fn(_lib.Bacon_Init)
@@ -403,6 +427,9 @@ def load(function_wrapper = None):
     SetWindowFullscreen = fn(_lib.Bacon_SetWindowFullscreen, c_int)
 
     CreateShader = fn(_lib.Bacon_CreateShader, POINTER(c_int), c_char_p, c_char_p)
+    EnumShaderUniforms = fn(_lib.Bacon_EnumShaderUniforms, c_int, EnumShaderUniformsCallback, c_void_p)
+    SetShaderUniform = fn(_lib.Bacon_SetShaderUniform, c_int, c_int, c_void_p, c_int)
+
     CreateImage = fn(_lib.Bacon_CreateImage, POINTER(c_int), c_int, c_int)
     LoadImage = fn(_lib.Bacon_LoadImage, POINTER(c_int), c_char_p, c_int)
     UnloadImage = fn(_lib.Bacon_UnloadImage, c_int)
