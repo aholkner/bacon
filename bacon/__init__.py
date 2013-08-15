@@ -278,6 +278,7 @@ class Shader(object):
 
 _shader_uniform_native_types = {
     native.ShaderUniformType.float_: c_float,
+    native.ShaderUniformType.sampler2D : lambda image : c_int(image._handle)
 }
 
 class ShaderUniform(object):

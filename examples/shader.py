@@ -1,3 +1,6 @@
+import logging
+logging.basicConfig(level=logging.WARN)
+
 import bacon
 
 shader = bacon.Shader(vertex_source=
@@ -25,6 +28,7 @@ shader = bacon.Shader(vertex_source=
     precision highp float;
     
     uniform sampler2D g_Texture0;
+    uniform sampler2D mask;
     uniform float brightness;
     
     varying vec2 v_TexCoord0;
@@ -32,19 +36,24 @@ shader = bacon.Shader(vertex_source=
 
     void main()
     {
-        gl_FragColor = brightness * v_Color * texture2D(g_Texture0, v_TexCoord0);
+        gl_FragColor = v_Color * texture2D(g_Texture0, v_TexCoord0) * texture2D(mask, v_TexCoord0);
     }
     """)
 
 brightness = shader.uniforms['brightness']
+shader.uniforms['mask'].value = bacon.Image('res/ball.png')
 kitten = bacon.Image('res/kitten.png')
 
 class Game(bacon.Game):
     def on_tick(self):
         bacon.clear(0, 0, 0, 1)
         bacon.set_shader(shader)
-        brightness.value = bacon.mouse.x / float(bacon.window.width)
+        #brightness.value = bacon.mouse.x / float(bacon.window.width)
         bacon.draw_image(kitten, 0, 0)
+
+    def on_key(self, key, pressed):
+        shader.uniforms['mask'].value = bacon.Image('res/PngSuite.png')
+        
 
 
 bacon.run(Game())

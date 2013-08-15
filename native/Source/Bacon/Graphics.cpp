@@ -79,7 +79,7 @@ namespace {
 		, m_ValueDirty(true)
 		{ }
 		
-		GLuint m_Id;
+		GLint m_Id;
 		GLuint m_TextureUnit;
 		int m_ArrayCount;
 		ShDataType m_Type;
@@ -442,7 +442,7 @@ int Bacon_CreateShader(int* outHandle, const char* vertexSource, const char* fra
 	}
 
 	// Assign texture units to sampler uniforms
-	int textureUnit = 1;
+	int textureUnit = 0;
 	for (auto& uniform : shader->m_Uniforms)
 	{
 		if (uniform.m_Type == SH_SAMPLER_2D)
@@ -573,12 +573,15 @@ static int CompileShader(Shader* shader)
 	shader->m_Program = program;
 	shader->m_UniformProjection = glGetUniformLocation(program, UniformProjection);
 	shader->m_UniformTexture0 = glGetUniformLocation(program, UniformTexture0);
-	glUniform1i(shader->m_UniformTexture0, 0);
 	
+	glUseProgram(program);
+	glUniform1i(shader->m_UniformTexture0, 0);
 	for (auto& uniform : shader->m_Uniforms)
 	{
 		uniform.m_Id = glGetUniformLocation(program, uniform.m_Name.c_str());
-		if (uniform.m_Type == SH_SAMPLER_2D)
+		if (uniform.m_Id < 0)
+			Bacon_Log(Bacon_LogLevel_Warning, "Shader uniform \"%s\" is not used", uniform.m_Name.c_str());
+		if (uniform.m_TextureUnit != -1)
 			glUniform1i(uniform.m_Id, uniform.m_TextureUnit);
 	}
 	
