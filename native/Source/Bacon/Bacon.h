@@ -40,7 +40,8 @@ enum Bacon_Error
 	Bacon_Error_ShaderLinkError,
 	Bacon_Error_NotRendering,
 	Bacon_Error_InvalidFontSize,
-	Bacon_Error_NotLooping
+	Bacon_Error_NotLooping,
+    Bacon_Error_Running
 };
 
 enum Bacon_LogLevel
@@ -289,6 +290,7 @@ extern "C" {
 	BACON_API int Bacon_GetVersion(int* major, int* minor, int* patch);
 	BACON_API int Bacon_Init();
 	BACON_API int Bacon_Run();
+    BACON_API int Bacon_Stop();
 	BACON_API int Bacon_Shutdown();
 
     BACON_API int Bacon_SetLogCallback(Bacon_LogCallback callback);

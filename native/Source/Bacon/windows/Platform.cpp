@@ -31,6 +31,14 @@ static void OnSize(int width, int height);
 static void OnKey(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 static void OnMouseButton(HWND hWnd, UINT uMsg, WPARAM wParam, short x, short y);
 
+void Platform_Init()
+{
+}
+
+void Platform_Shutdown()
+{
+}
+
 static void GetWindowFrameSizeForContentSize(int& width, int& height, int windowStyle)
 {
     RECT windowRect;
@@ -328,7 +336,7 @@ static void LogVersionInfo()
     Bacon_Log(Bacon_LogLevel_Info, "Number of processors: %u", si.dwNumberOfProcessors); 
 }
 
-int Bacon_Run()
+int Platform_Run()
 {
     AllocConsole();
     LogVersionInfo();
@@ -369,6 +377,11 @@ int Bacon_Run()
     }
 
     return Bacon_Error_None;
+}
+
+void Platform_Stop()
+{
+    PostQuitMessage(0);
 }
 
 static void OnSize(int width, int height)

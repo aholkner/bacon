@@ -1368,8 +1368,14 @@ def _first_tick_callback():
     _tick_callback_handle = lib.TickCallback(_tick_callback)
     lib.SetTickCallback(_tick_callback_handle)
 
-    _game.on_init()
-    _tick_callback()
+    # Exceptions on startup (either during on_init or the first on_tick) stop the
+    # game loop immediately, since they're likely to be showstoppers.
+    try:
+        _game.on_init()
+        _tick_callback()
+    except:
+        lib.Stop()
+        raise
 
 def _tick_callback():
     global _last_frame_time
@@ -1432,6 +1438,11 @@ def run(game):
     lib.SetControllerAxisEventHandler(lib.ControllerAxisEventHandler(0))
     lib.SetTickCallback(lib.TickCallback(0))
     
+def quit():
+    '''Stop the game loop and exit the application before the next :func:`on_tick` is called.
+    '''
+    lib.Stop()
+
 # Graphics
 
 if _mock_native:

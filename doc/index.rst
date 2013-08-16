@@ -12,7 +12,7 @@ for drawing graphics, playing sounds, and receiving input from the mouse, keyboa
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
    quickstart
    graphics

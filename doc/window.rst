@@ -1,5 +1,14 @@
 .. module:: bacon
 
+Game
+^^^^
+
+Starting and stopping
+---------------------
+
+.. autofunction:: run
+.. autofunction:: quit
+
 Customizing the display
 -----------------------
 

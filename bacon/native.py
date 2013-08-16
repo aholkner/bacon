@@ -413,6 +413,7 @@ def load(function_wrapper = None):
     # Functions
     Init = fn(_lib.Bacon_Init)
     Run = fn(_lib.Bacon_Run)
+    Stop = fn(_lib.Bacon_Stop)
     GetVersion = fn(_lib.Bacon_GetVersion, POINTER(c_int), POINTER(c_int), POINTER(c_int))
     Shutdown = fn(_lib.Bacon_Shutdown)
     SetLogCallback = fn(_lib.Bacon_SetLogCallback, LogCallback)

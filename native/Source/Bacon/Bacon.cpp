@@ -8,8 +8,19 @@ static int s_LogLevel = Bacon_LogLevel_Info;
 static Bacon_LogCallback s_LogCallback = nullptr;
 static Bacon_TickCallback s_TickCallback = nullptr;
 
+enum RunningState
+{
+    RunningState_None,
+    RunningState_Running,
+    RunningState_Stopping,
+};
+static RunningState s_RunningState = RunningState_None;
+
 int Bacon_Init()
 {
+    if (s_RunningState != RunningState_None)
+        return Bacon_Error_Running;
+
     Bacon_Log(Bacon_LogLevel_Info, "Bacon %d.%d.%d", BACON_VERSION_MAJOR, BACON_VERSION_MINOR, BACON_VERSION_PATCH);
 	Window_Init();
 	Keyboard_Init();
@@ -18,11 +29,16 @@ int Bacon_Init()
 	Fonts_Init();
 	Audio_Init();
 	Controller_Init();
+    Platform_Init();
 	return Bacon_Error_None;
 }
 
 int Bacon_Shutdown()
 {
+    if (s_RunningState != RunningState_None)
+        return Bacon_Error_Running;
+
+    Platform_Shutdown();
 	Controller_Shutdown();
 	Audio_Shutdown();
 	Fonts_Shutdown();
@@ -33,8 +49,30 @@ int Bacon_Shutdown()
 	return Bacon_Error_None;
 }
 
+int Bacon_Run()
+{
+    if (s_RunningState != RunningState_None)
+        return Bacon_Error_Running;
+
+    s_RunningState = RunningState_Running;
+    int result = Platform_Run();
+    s_RunningState = RunningState_None;
+
+    return result;
+}
+
+int Bacon_Stop()
+{
+    s_RunningState = RunningState_Stopping;
+    Platform_Stop();
+    return Bacon_Error_None;
+}
+
 int Bacon_InternalTick()
 {
+    if (s_RunningState != RunningState_Running)
+        return Bacon_Error_None;
+
 	Audio_Update();
     Controller_Update();
 	
