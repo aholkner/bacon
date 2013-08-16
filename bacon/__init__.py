@@ -366,7 +366,7 @@ class ShaderUniform(object):
 
             value = ((0, 1), (2, 3), (4, 5))
 
-        '''
+        ''')
 
     @property
     def name(self):
@@ -374,6 +374,7 @@ class ShaderUniform(object):
 
         :type: ``str``
         '''
+        return self._name
 
     @property
     def type(self):
@@ -381,6 +382,7 @@ class ShaderUniform(object):
 
         :type: an enumeration of :class:`ShaderUniformType`
         '''
+        return self._type
 
     @property
     def array_count(self):
@@ -388,6 +390,7 @@ class ShaderUniform(object):
 
         :type: ``int``
         '''
+        return self._array_count
 
 class Image(object):
     '''An image that can be passed to :func:`draw_image` and other rendering functions.

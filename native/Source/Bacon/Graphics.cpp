@@ -13,12 +13,7 @@
 
 #include <FreeImage/FreeImage.h>
 #include <vmmlib/vmmlib.hpp>
-
-#if BACON_PLATFORM_OPENGL
 #include <GLSLANG/ShaderLang.h>
-static ShHandle s_VertexCompiler;
-static ShHandle s_FragmentCompiler;
-#endif
 
 #include "Bacon.h"
 #include "BaconInternal.h"
@@ -142,6 +137,9 @@ namespace {
 	};
 	static Impl* s_Impl = nullptr;
 	
+    static ShHandle s_VertexCompiler;
+    static ShHandle s_FragmentCompiler;
+
 }
 
 #define REQUIRE_GL() \
@@ -178,8 +176,8 @@ void Graphics_Init()
 	resources.FragmentPrecisionHigh = 1;
 #if BACON_PLATFORM_OPENGL
 	ShShaderOutput output = SH_GLSL_OUTPUT;
-#else
-	ShShaderOutput output = SH_ESSL_OUTPUT;
+#else if WIN32
+	ShShaderOutput output = SH_HLSL9_OUTPUT;
 #endif
 	s_VertexCompiler = ShConstructCompiler(SH_VERTEX_SHADER, SH_GLES2_SPEC, output, &resources);
 	s_FragmentCompiler = ShConstructCompiler(SH_FRAGMENT_SHADER, SH_GLES2_SPEC, output, &resources);

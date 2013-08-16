@@ -45,7 +45,6 @@ shader = bacon.Shader(vertex_source=
         gl_FragColor = color;
     }
     """)
-
 brightness = shader.uniforms['brightness']
 contrast = shader.uniforms['contrast']
 
