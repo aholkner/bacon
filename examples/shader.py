@@ -54,7 +54,7 @@ class Game(bacon.Game):
     def on_tick(self):
         bacon.clear(0, 0, 0, 1)
         bacon.set_shader(shader)
-        brightness.value = bacon.mouse.y / float(bacon.window.width)
+        brightness.value = bacon.mouse.y / float(bacon.window.height)
         contrast.value = bacon.mouse.x / float(bacon.window.width)
         bacon.draw_image(kitten, 0, 0)
 

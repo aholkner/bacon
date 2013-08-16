@@ -266,6 +266,9 @@ class Shader(object):
     :param fragment_source: string of source code for the fragment shader
     '''
     def __init__(self, vertex_source, fragment_source):
+        self._vertex_source = vertex_source
+        self._fragment_source = fragment_source
+
         handle = c_int()
         lib.CreateShader(byref(handle), vertex_source.encode('utf-8'), fragment_source.encode('utf-8'))
         self._handle = handle.value
@@ -285,9 +288,25 @@ class Shader(object):
     def uniforms(self):
         '''Map of shader uniforms available on this shader.
 
-        :return: read-only dictionary of string to :class:`ShaderUniform`
+        :type: read-only dictionary of string to :class:`ShaderUniform`
         '''
         return self._uniforms
+
+    @property
+    def vertex_source(self):
+        '''Get the vertex shader source
+
+        :type: ``str``
+        '''
+        return self._vertex_source
+
+    @property
+    def fragment_source(self):
+        '''Get the fragment shader source
+
+        :type: ``str``
+        '''
+        return self._fragment_source
 
 class _ShaderUniformNativeType(object):
     def __init__(self, ctype, converter=None):

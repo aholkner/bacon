@@ -108,7 +108,7 @@ Shaders
 Shaders are small programs that run on the GPU to modify the drawing commands.  The shader is written in OpenGL-ES Shading
 Language 2.0, and is supplied as two strings: one for the vertex program and one for the fragment program.  The following
 example demonstrates a shader that adjusts the brightness and contrast of the image depending on the mouse position within
-the window::
+the window:
 
 .. literalinclude:: ../examples/shader.py
 
@@ -130,10 +130,10 @@ map as shown in the example above.
 .. autoclass:: Shader
     :members:
 
-.. autoclass::ShaderUniform
+.. autoclass:: ShaderUniform
     :members:
 
-.. autoclass::ShaderUniformType
+.. autoclass:: ShaderUniformType
     :members:
     :undoc-members:
 
