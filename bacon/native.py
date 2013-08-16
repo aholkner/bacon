@@ -123,9 +123,9 @@ class ShaderUniformType(object):
     ivec3           = 0x8B54
     ivec4           = 0x8B55
     bool_           = 0x8B56
-    vec2            = 0x8B57
-    vec3            = 0x8B58
-    vec4            = 0x8B59
+    bvec2           = 0x8B57
+    bvec3           = 0x8B58
+    bvec4           = 0x8B59
     mat2            = 0x8B5A
     mat3            = 0x8B5B
     mat4            = 0x8B5C

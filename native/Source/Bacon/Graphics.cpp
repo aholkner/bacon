@@ -399,6 +399,12 @@ static bool TranslateShader(Shader* shader, GLuint type, string& source)
 		size_t nameLength;
 		ShGetActiveUniform(compiler, (int)i, &nameLength, &shaderUniform.m_ArrayCount, &shaderUniform.m_Type, &shaderUniform.m_Name[0], nullptr);
 		shaderUniform.m_Name.resize(nameLength);
+		
+		// Uniform arrays are named, e.g. "textures[0]", strip the suffix to make it "textures"
+		size_t bracketPos = shaderUniform.m_Name.find('[');
+		if (bracketPos != string::npos)
+			shaderUniform.m_Name.resize(bracketPos);
+		
 		if (shaderUniform.m_Name == "g_Projection" ||
 			shaderUniform.m_Name == "g_Texture0")
 		{
@@ -447,8 +453,12 @@ int Bacon_CreateShader(int* outHandle, const char* vertexSource, const char* fra
 	{
 		if (uniform.m_Type == SH_SAMPLER_2D)
 		{
-			uniform.m_TextureUnit = textureUnit++;
-			shader->m_TextureUnits.push_back(0);
+			uniform.m_TextureUnit = textureUnit;
+			for (int i = 0; i < uniform.m_ArrayCount; ++i)
+			{
+				textureUnit++;
+				shader->m_TextureUnits.push_back(0);
+			}
 		}
 		else
 		{
@@ -499,7 +509,7 @@ int Bacon_SetShaderUniform(int handle, int uniform, const void* value, int size)
 	
 	if (shaderUniform.m_TextureUnit != -1)
 	{
-		shader->m_TextureUnits[shaderUniform.m_TextureUnit] = *(int*)value;
+		memcpy(&shader->m_TextureUnits[shaderUniform.m_TextureUnit], value, size);
 	}
 	else
 	{
@@ -582,7 +592,17 @@ static int CompileShader(Shader* shader)
 		if (uniform.m_Id < 0)
 			Bacon_Log(Bacon_LogLevel_Warning, "Shader uniform \"%s\" is not used", uniform.m_Name.c_str());
 		if (uniform.m_TextureUnit != -1)
-			glUniform1i(uniform.m_Id, uniform.m_TextureUnit);
+		{
+			if (uniform.m_ArrayCount == 1)
+				glUniform1i(uniform.m_Id, uniform.m_TextureUnit);
+			else
+			{
+				vector<int> textureUnits;
+				for (int i = 0; i < uniform.m_ArrayCount; ++i)
+					textureUnits.push_back(uniform.m_TextureUnit +i);
+				glUniform1iv(uniform.m_Id, uniform.m_ArrayCount, &textureUnits[0]);
+			}
+		}
 	}
 	
 	return Bacon_Error_None;

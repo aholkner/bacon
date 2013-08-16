@@ -28,32 +28,35 @@ shader = bacon.Shader(vertex_source=
     precision highp float;
     
     uniform sampler2D g_Texture0;
-    uniform sampler2D mask;
-    uniform float brightness;
+    uniform sampler2D mask[2];
+    uniform vec2 brightness[2];
+    uniform int selector;
     
     varying vec2 v_TexCoord0;
     varying vec4 v_Color;
 
     void main()
     {
-        gl_FragColor = v_Color * texture2D(g_Texture0, v_TexCoord0) * texture2D(mask, v_TexCoord0);
+        gl_FragColor = brightness[0].x + brightness[1].y * v_Color * texture2D(g_Texture0, v_TexCoord0) * texture2D(mask[selector], v_TexCoord0);
     }
     """)
 
 brightness = shader.uniforms['brightness']
-shader.uniforms['mask'].value = bacon.Image('res/ball.png')
+print shader.uniforms
+shader.uniforms['mask'].value = (bacon.Image('res/PngSuite.png'), bacon.Image('res/ball.png'))
+
 kitten = bacon.Image('res/kitten.png')
 
 class Game(bacon.Game):
     def on_tick(self):
         bacon.clear(0, 0, 0, 1)
         bacon.set_shader(shader)
-        #brightness.value = bacon.mouse.x / float(bacon.window.width)
+        brightness.value = [(bacon.mouse.x / float(bacon.window.width), bacon.mouse.y / float(bacon.window.height)),
+                            (bacon.mouse.y / float(bacon.window.width), bacon.mouse.x / float(bacon.window.height))]
         bacon.draw_image(kitten, 0, 0)
 
     def on_key(self, key, pressed):
-        shader.uniforms['mask'].value = bacon.Image('res/PngSuite.png')
-        
+        shader.uniforms['selector'].value = 1
 
 
 bacon.run(Game())
