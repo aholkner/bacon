@@ -122,6 +122,7 @@ else:
 version = '%d.%d.%d' % (major_version, minor_version, patch_version)
 
 BlendFlags = native.BlendFlags
+ShaderUniformType = native.ShaderUniformType
 ControllerProfiles = native.ControllerProfiles
 ControllerButtons = native.ControllerButtons
 ControllerAxes = native.ControllerAxes
@@ -269,16 +270,24 @@ class Shader(object):
         lib.CreateShader(byref(handle), vertex_source.encode('utf-8'), fragment_source.encode('utf-8'))
         self._handle = handle.value
 
-        self.uniforms = {}
+        self._uniforms = {}
 
         enum_uniform_callback = lib.EnumShaderUniformsCallback(self._on_enum_uniform)
         lib.EnumShaderUniforms(handle, enum_uniform_callback, None)
 
-        self.uniforms = ReadOnlyDict(self.uniforms)
+        self._uniforms = ReadOnlyDict(self.uniforms)
 
     def _on_enum_uniform(self, shader, uniform, name, type, array_count, arg):
         name = name.decode('utf-8')
-        self.uniforms[name] = ShaderUniform(self, uniform, name, type, array_count)
+        self._uniforms[name] = ShaderUniform(self, uniform, name, type, array_count)
+
+    @property
+    def uniforms(self):
+        '''Map of shader uniforms available on this shader.
+
+        :return: read-only dictionary of string to :class:`ShaderUniform`
+        '''
+        return self._uniforms
 
 class _ShaderUniformNativeType(object):
     def __init__(self, ctype, converter=None):
@@ -311,12 +320,16 @@ _shader_uniform_native_types = {
 }
 
 class ShaderUniform(object):
+    '''A uniform variable assocated with a single shader.
+
+    :see: :attr:`Shader.uniforms`
+    '''
     def __init__(self, shader, uniform, name, type, array_count):
         self._shader_handle = shader._handle
         self._uniform_handle = uniform
-        self.name = name
-        self.type = type
-        self.array_count = array_count
+        self._name = name
+        self._type = type
+        self._array_count = array_count
         self._value = None
 
         try:
@@ -340,7 +353,41 @@ class ShaderUniform(object):
         self._value = value
         native_value = self._converter(value)
         lib.SetShaderUniform(self._shader_handle, self._uniform_handle, byref(native_value), sizeof(native_value))
-    value = property(_get_value, _set_value)
+    value = property(_get_value, _set_value, doc='''Current value of the uniform as seen by the shader.
+
+        The type of the value depends on the type of the uniform:
+
+        * ``float``, ``int``, ``bool``: their equivalent Python types
+        * ``vec[2-4]``, ``ivec[2-4]``, ``bvec[2-4]``: a sequence of equivalent Python types (e.g., a sequence of 3 floats for ``vec3``)
+        * ``mat2``, ``mat3``, ``mat4``: a sequence of 4, 9 or 16 floats, respectively
+        * ``sampler2D``: an :class:`Image`
+
+        For uniform arrays, the value is a sequence of the above types.  For example, a uniform of type ``vec2[3]`` can be assigned::
+
+            value = ((0, 1), (2, 3), (4, 5))
+
+        '''
+
+    @property
+    def name(self):
+        '''Name of the uniform, as it appears in the shader.
+
+        :type: ``str``
+        '''
+
+    @property
+    def type(self):
+        '''Type of the uniform, or, if the uniform is an array, the element type of the array.
+
+        :type: an enumeration of :class:`ShaderUniformType`
+        '''
+
+    @property
+    def array_count(self):
+        '''The size of the array, or 1 if this uniform is not an array.
+
+        :type: ``int``
+        '''
 
 class Image(object):
     '''An image that can be passed to :func:`draw_image` and other rendering functions.

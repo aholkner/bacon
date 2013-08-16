@@ -105,12 +105,37 @@ special effects.
 Shaders
 =======
 
-.. note:: TODO: shader example.
+Shaders are small programs that run on the GPU to modify the drawing commands.  The shader is written in OpenGL-ES Shading
+Language 2.0, and is supplied as two strings: one for the vertex program and one for the fragment program.  The following
+example demonstrates a shader that adjusts the brightness and contrast of the image depending on the mouse position within
+the window::
 
+.. literalinclude:: ../examples/shader.py
+
+Bacon requires that certain shader uniforms and attributes are named and typed appropriately for it to be able to submit
+drawing commands:
+
+* ``attribute vec3 a_Position``: transformed unprojected vertex position (i.e., in screen space with the transform stack applied)
+* ``attribute vec2 a_TexCoord0``: texture coordinate for the image drawn with :func:`draw_image`
+* ``attribute vec4 a_Color``: vertex color, as provided by :func:`set_color`
+
+* ``uniform mat4 g_Projection``: projection matrix, typically mapping screen space to NDC
+* ``uniform sampler2D g_Texture0``: texture for the image drawn with :func:`draw_image`
+
+These uniforms may not be set directly, however others you define in the shader can be manipulated through the :attr:`Shader.uniforms`
+map as shown in the example above.
+    
 .. autofunction:: set_shader
 
 .. autoclass:: Shader
     :members:
+
+.. autoclass::ShaderUniform
+    :members:
+
+.. autoclass::ShaderUniformType
+    :members:
+    :undoc-members:
 
 Blend modes
 ===========
