@@ -1,6 +1,3 @@
-import logging
-logging.basicConfig(level=logging.WARN)
-
 import bacon
 
 shader = bacon.Shader(vertex_source=

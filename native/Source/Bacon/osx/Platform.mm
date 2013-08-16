@@ -28,7 +28,13 @@ static void LogSystemInfo()
 	Bacon_Log(Bacon_LogLevel_Info, "Number of processors: %d", pi.processorCount);
 }
 
-int Bacon_Run()
+void Platform_Init()
+{ }
+
+void Platform_Shutdown()
+{ }
+
+int Platform_Run()
 {
 	// Minimal Cocoa startup
 	// http://www.cocoawithlove.com/2010/09/minimalist-cocoa-programming.html
@@ -93,4 +99,9 @@ int Bacon_Run()
     [NSApp run];
 	[pool release];
 	return 0;
+}
+
+void Platform_Stop()
+{
+	[NSApp terminate:nil];
 }

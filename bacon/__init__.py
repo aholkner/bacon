@@ -1374,6 +1374,7 @@ def _first_tick_callback():
         _game.on_init()
         _tick_callback()
     except:
+        logger.exception('Exception raised before first frame rendered')
         lib.Stop()
         raise
 
