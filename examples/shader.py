@@ -42,7 +42,7 @@ shader = bacon.Shader(vertex_source=
     """)
 
 brightness = shader.uniforms['brightness']
-print shader.uniforms
+print(shader.uniforms)
 shader.uniforms['mask'].value = (bacon.Image('res/PngSuite.png'), bacon.Image('res/ball.png'))
 
 kitten = bacon.Image('res/kitten.png')

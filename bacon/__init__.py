@@ -1,4 +1,5 @@
 from bacon import native
+from bacon.readonly_collections import ReadOnlyDict
 from ctypes import *
 import os
 import logging
@@ -272,6 +273,8 @@ class Shader(object):
 
         enum_uniform_callback = lib.EnumShaderUniformsCallback(self._on_enum_uniform)
         lib.EnumShaderUniforms(handle, enum_uniform_callback, None)
+
+        self.uniforms = ReadOnlyDict(self.uniforms)
 
     def _on_enum_uniform(self, shader, uniform, name, type, array_count, arg):
         self.uniforms[name] = ShaderUniform(self, uniform, name.decode('utf-8'), type, array_count)
