@@ -277,7 +277,8 @@ class Shader(object):
         self.uniforms = ReadOnlyDict(self.uniforms)
 
     def _on_enum_uniform(self, shader, uniform, name, type, array_count, arg):
-        self.uniforms[name] = ShaderUniform(self, uniform, name.decode('utf-8'), type, array_count)
+        name = name.decode('utf-8')
+        self.uniforms[name] = ShaderUniform(self, uniform, name, type, array_count)
 
 class _ShaderUniformNativeType(object):
     def __init__(self, ctype, converter=None):
