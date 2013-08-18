@@ -99,6 +99,7 @@ namespace {
 		{ }
 
 		int m_RefCount;
+		int m_Width, m_Height;
 		GLuint m_TextureId;
 		GLuint m_FrameBuffer;
 	};
@@ -1085,6 +1086,8 @@ static Texture* CreateImageTexture(Image* image)
 	
 	image->m_Texture = s_Impl->m_Textures.Alloc();
 	Texture* texture = s_Impl->m_Textures.Get(image->m_Texture);
+	texture->m_Width = image->m_Width;
+	texture->m_Height = image->m_Height;
 
 	glActiveTexture(GL_TEXTURE0);
 	s_Impl->m_CurrentTextureUnits[0] = image->m_Texture;
@@ -1102,6 +1105,29 @@ static Texture* CreateImageTexture(Image* image)
 	{
 		FreeImage_Unload(image->m_Bitmap);
 		image->m_Bitmap = nullptr;
+	}
+	
+	return texture;
+}
+
+static Texture* RealizeTexture(Image* image)
+{
+	if (image->m_Flags & Bacon_ImageFlags_Internal_TextureIsImage)
+	{
+		// Image::m_Texture is actually an image reference.  Resolve that parent
+		// image first, then update our texture reference for next time
+		Image* parent = s_Impl->m_Images.Get(image->m_Texture);
+		assert(parent);
+		RealizeTexture(parent);
+		image->m_Texture = parent->m_Texture;
+		image->m_Flags &= ~Bacon_ImageFlags_Internal_TextureIsImage;
+	}
+	
+	Texture* texture = s_Impl->m_Textures.Get(image->m_Texture);
+	if (!texture)
+	{
+		Bacon_Flush();
+		texture = CreateImageTexture(image);
 	}
 	
 	return texture;
@@ -1137,16 +1163,15 @@ static int BindFrameBuffer(int imageHandle)
 	Image* image = s_Impl->m_Images.Get(imageHandle);
 	if (!image)
 		return Bacon_Error_InvalidHandle;
-	
-	Texture* texture = s_Impl->m_Textures.Get(image->m_Texture);
-	if (!texture)
-		texture = CreateImageTexture(image);
+
+	Texture* texture = RealizeTexture(image);
 	
 	if (!CreateTextureFrameBuffer(texture))
 		return Bacon_Error_Unknown;
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, texture->m_FrameBuffer);
-	vec2f origin = image->m_UVScaleBias.Apply(vec2f(0.f, 0.f));
+	vec2f origin = image->m_UVScaleBias.Apply(vec2f(0.f, 0.f)) * vec2f(texture->m_Width, texture->m_Height);
+	printf("%f %f\n", origin.x(), -origin.y());
 	Bacon_SetViewport((int)origin.x(), (int)origin.y(), image->m_Width, image->m_Height);
 	return Bacon_Error_None;
 }
@@ -1292,7 +1317,11 @@ int Bacon_SetViewport(int x, int y, int width, int height)
 
 	int frameBufferHeight = s_Impl->m_FrameBufferHeight;
 	if (s_Impl->m_CurrentFrameBuffer != 0)
-		frameBufferHeight = s_Impl->m_Images.Get(s_Impl->m_CurrentFrameBuffer)->m_Height;
+	{
+		Image* frameBufferImage = s_Impl->m_Images.Get(s_Impl->m_CurrentFrameBuffer);
+		Texture* frameBufferTexture = s_Impl->m_Textures.Get(frameBufferImage->m_Texture);
+		frameBufferHeight = frameBufferTexture->m_Height;
+	}
 	
 	glViewport(x, frameBufferHeight - (y + height), width, height);
 	vmml::mat4f projection = frustumf(0.f, (float)width, (float)height, 0.f, -1.f, 1.f).compute_ortho_matrix();
@@ -1437,24 +1466,7 @@ inline void SetCurrentMode(GLuint mode)
 
 inline void SetCurrentImage(Image* image)
 {
-	if (image->m_Flags & Bacon_ImageFlags_Internal_TextureIsImage)
-	{
-		// Image::m_Texture is actually an image reference.  Resolve that parent
-		// image first, then update our texture reference for next time
-		Image* parent = s_Impl->m_Images.Get(image->m_Texture);
-		assert(parent);
-		SetCurrentImage(parent);
-		image->m_Texture = parent->m_Texture;
-		image->m_Flags &= ~Bacon_ImageFlags_Internal_TextureIsImage;
-	}
-	
-	Texture* texture = s_Impl->m_Textures.Get(image->m_Texture);
-	if (!texture)
-	{
-		Bacon_Flush();
-		texture = CreateImageTexture(image);
-	}
-	
+	RealizeTexture(image);
 	SetSharedUniformValue(s_Impl->m_Texture0Uniform, image->m_Texture);
 }
 
