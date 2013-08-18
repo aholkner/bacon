@@ -123,7 +123,9 @@ drawing commands:
 * ``uniform sampler2D g_Texture0``: texture for the image drawn with :func:`draw_image`
 
 These uniforms may not be set directly, however others you define in the shader can be manipulated through the :attr:`Shader.uniforms`
-map as shown in the example above.
+map as shown in the example above.  Note that the naming convention of shader uniforms is important: uniforms with names that begin with
+``g_`` share their value across all shaders (for example, ``g_Projection`` and ``g_Texture0`` above).  Other uniforms have values that
+must be set per-shader.
     
 .. autofunction:: set_shader
 
