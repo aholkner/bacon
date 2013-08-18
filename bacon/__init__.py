@@ -1653,7 +1653,7 @@ def draw_image_region(image, x1, y1, x2, y2,
 
     :param image: an :class:`Image` to draw
     '''
-    lib.DrawImage(image._handle, x1, y1, x2, y2, ix1, iy1, ix2, iy2)
+    lib.DrawImageRegion(image._handle, x1, y1, x2, y2, ix1, iy1, ix2, iy2)
 
 if _mock_native:
     def draw_line(x1, y1, x2, y2):

@@ -57,12 +57,30 @@ namespace {
 		vec4f m_Color;
 	};
 
+	struct RectF
+	{
+		RectF(float left, float top, float right, float bottom)
+		: m_Left(left)
+		, m_Top(top)
+		, m_Right(right)
+		, m_Bottom(bottom)
+		{ }
+		
+		RectF() { }
+		
+		float m_Left;
+		float m_Top;
+		float m_Right;
+		float m_Bottom;
+	};
+	
 	struct Image
 	{
 		FIBITMAP* m_Bitmap;
 		int m_Flags;
 		int m_Width;
 		int m_Height;
+		RectF m_UVRegion;
 		GLuint m_Texture;
 		GLuint m_FrameBuffer;
 	};
@@ -871,6 +889,7 @@ int Bacon_CreateImage(int* outHandle, int width, int height)
 	image->m_Bitmap = nullptr;
 	image->m_Width = width;
 	image->m_Height = height;
+	image->m_UVRegion = RectF(0, 1, 1, 0);
 	image->m_Texture = 0;
 	image->m_FrameBuffer = 0;
 	
@@ -906,6 +925,7 @@ int Bacon_LoadImage(int* outHandle, const char* path, int flags)
 	image->m_Width = (int)FreeImage_GetWidth(bitmap);
 	image->m_Height = (int)FreeImage_GetHeight(bitmap);
 	image->m_Texture = 0;
+	image->m_UVRegion = RectF(0, 1, 1, 0);
 	image->m_FrameBuffer = 0;
 	image->m_Flags = flags;
 	
@@ -1276,6 +1296,11 @@ int Bacon_Clear(float r, float g, float b, float a)
 
 int Bacon_DrawImage(int handle, float x1, float y1, float x2, float y2)
 {
+	Image* image = s_Impl->m_Images.Get(handle);
+	if (!image)
+		return Bacon_Error_InvalidHandle;
+	RectF uvRegion = image->m_UVRegion;
+	
 	float z = s_Impl->m_CurrentZ;
 	float positions[] = {
 		x1, y1, z,
@@ -1284,10 +1309,10 @@ int Bacon_DrawImage(int handle, float x1, float y1, float x2, float y2)
 		x2, y1, z
 	};
 	float texCoords[] = {
-		0.f, 1.f,
-		0.f, 0.f,
-		1.f, 0.f,
-		1.f, 1.f
+		uvRegion.m_Left, uvRegion.m_Top,
+		uvRegion.m_Left, uvRegion.m_Bottom,
+		uvRegion.m_Right, uvRegion.m_Bottom,
+		uvRegion.m_Right, uvRegion.m_Top,
 	};
 	float colors[] = {
 		1.f, 1.f, 1.f, 1.f,
@@ -1302,19 +1327,18 @@ int Bacon_DrawImage(int handle, float x1, float y1, float x2, float y2)
 int Bacon_DrawImageRegion(int handle, float x1, float y1, float x2, float y2,
 						 float u1, float v1, float u2, float v2)
 {
-	if (handle)
-	{
-		Image* image = s_Impl->m_Images.Get(handle);
-		if (!image)
-			return Bacon_Error_InvalidHandle;
-		float w = (float)image->m_Width;
-		float h = (float)image->m_Height;
-		u1 = u1 / w;
-		v1 = 1.f - v1 / h;
-		u2 = u2 / h;
-		v2 = 1.f - v2 / h;
-	}
-	
+	Image* image = s_Impl->m_Images.Get(handle);
+	if (!image)
+		return Bacon_Error_InvalidHandle;
+
+	RectF uvRegion = image->m_UVRegion;
+	float w = (float)image->m_Width;
+	float h = (float)image->m_Height;
+	u1 = uvRegion.m_Left + u1 / w;
+	v1 = uvRegion.m_Top - v1 / h;
+	u2 = uvRegion.m_Left + u2 / h;
+	v2 = uvRegion.m_Top - v2 / h;
+
 	float z = s_Impl->m_CurrentZ;
 	float positions[] = {
 		x1, y1, z,
