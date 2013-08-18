@@ -44,6 +44,13 @@ namespace {
 	const int BoundVertexAttribTexCoord0 = 1;
 	const int BoundVertexAttribColor = 2;
 
+	enum Bacon_ImageFlags_Internal
+	{
+		// Image.m_Texture actually refers to another image.  Used for image regions of images
+		// that have not had their texture realized yet.
+		Bacon_ImageFlags_Internal_TextureIsImage = 1 << 16
+	};
+
 	struct Vertex
 	{
         Vertex(vec3f const& position, vec2f const& texCoord, vec4f const& color)
@@ -64,6 +71,13 @@ namespace {
 		, m_ScaleY(1.f)
 		, m_BiasX(0.f)
 		, m_BiasY(0.f)
+		{ }
+		
+		UVScaleBias(float scaleX, float scaleY, float biasX, float biasY)
+		: m_ScaleX(scaleX)
+		, m_ScaleY(scaleY)
+		, m_BiasX(biasX)
+		, m_BiasY(biasY)
 		{ }
 		
 		float m_ScaleX;
@@ -955,6 +969,47 @@ int Bacon_LoadImage(int* outHandle, const char* path, int flags)
 	return Bacon_Error_None;
 }
 
+int Bacon_GetImageRegion(int* outImage, int imageHandle, int x1, int y1, int x2, int y2)
+{
+	if (!outImage)
+		return Bacon_Error_InvalidHandle;
+	
+	Image* image = s_Impl->m_Images.Get(imageHandle);
+	if (!image)
+		return Bacon_Error_InvalidHandle;
+
+	*outImage = s_Impl->m_Images.Alloc();
+	Image* region = s_Impl->m_Images.Get(*outImage);
+	region->m_Bitmap = nullptr;
+	region->m_Flags = image->m_Flags;
+	region->m_Width = x2 - x1;
+	region->m_Height = y2 - y1;
+	
+	UVScaleBias const& sb = image->m_UVScaleBias;
+	region->m_UVScaleBias = UVScaleBias(sb.m_ScaleX * (float)(x2 - x1) / image->m_Width,
+										sb.m_ScaleY * (float)(y2 - y1) / image->m_Height,
+										sb.m_BiasX + x1 / (float) image->m_Width * sb.m_ScaleX,
+										sb.m_BiasY + y1 / (float) image->m_Height * sb.m_ScaleY);
+	
+	Texture* texture = s_Impl->m_Textures.Get(image->m_Texture);
+	if (texture)
+	{
+		// Share texture
+		region->m_Texture = image->m_Texture;
+		++texture->m_RefCount;
+	}
+	else
+	{
+		// Image doesn't have a texture yet, so point to the image and set flag to resolve
+		// as such.
+		region->m_Texture = imageHandle;
+		region->m_Flags |= Bacon_ImageFlags_Internal_TextureIsImage;
+	}
+	
+	return Bacon_Error_None;
+}
+
+
 int Bacon_UnloadImage(int handle)
 {
 	Image* image = s_Impl->m_Images.Get(handle);
@@ -1382,6 +1437,17 @@ inline void SetCurrentMode(GLuint mode)
 
 inline void SetCurrentImage(Image* image)
 {
+	if (image->m_Flags & Bacon_ImageFlags_Internal_TextureIsImage)
+	{
+		// Image::m_Texture is actually an image reference.  Resolve that parent
+		// image first, then update our texture reference for next time
+		Image* parent = s_Impl->m_Images.Get(image->m_Texture);
+		assert(parent);
+		SetCurrentImage(parent);
+		image->m_Texture = parent->m_Texture;
+		image->m_Flags &= ~Bacon_ImageFlags_Internal_TextureIsImage;
+	}
+	
 	Texture* texture = s_Impl->m_Textures.Get(image->m_Texture);
 	if (!texture)
 	{

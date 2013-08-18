@@ -435,6 +435,8 @@ def load(function_wrapper = None):
 
     CreateImage = fn(_lib.Bacon_CreateImage, POINTER(c_int), c_int, c_int)
     LoadImage = fn(_lib.Bacon_LoadImage, POINTER(c_int), c_char_p, c_int)
+    GetImageRegion = fn(_lib.Bacon_GetImageRegion, POINTER(c_int), c_int, c_int, c_int, c_int, c_int)
+
     UnloadImage = fn(_lib.Bacon_UnloadImage, c_int)
     GetImageSize = fn(_lib.Bacon_GetImageSize, c_int, POINTER(c_int))
 

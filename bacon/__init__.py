@@ -506,13 +506,25 @@ class Image(object):
 
     @property
     def width(self):
-        ''' The width of the image, in texels (read-only).'''
+        '''The width of the image, in texels (read-only).'''
         return self._width
 
     @property
     def height(self):
-        ''' The height of the image, in texels (read-only).'''
+        '''The height of the image, in texels (read-only).'''
         return self._height
+
+    def get_region(self, x1, y1, x2, y2):
+        '''Get an image that refers to the given rectangle within this image.  The image data is not actually
+        copied; if the image region is rendered into, it will affect this image.
+
+        :param x1, y1: ``int`` upper-left corner of the image to return
+        :param x2, y2: ``int`` lower-right corner of the image to return
+        :return: :class:`Image`
+        '''
+        handle = c_int()
+        lib.GetImageRegion(byref(handle), self._handle, x1, y1, x2, y2)
+        return Image(width = x2 - x1, height = y2 - y1, handle = handle)
 
 class FontMetrics(object):
     '''Aggregates pixel metrics for a font loaded at a particular size.  See :attr:`Font.metrics`
@@ -1639,6 +1651,7 @@ def draw_image(image, x1, y1, x2 = None, y2 = None):
     if y2 is None:
         y2 = y1 + image.height
     lib.DrawImage(image._handle, x1, y1, x2, y2)
+
 def draw_image_region(image, x1, y1, x2, y2,
                       ix1, iy1, ix2, iy2):
     '''Draw a rectangular region of an image.

@@ -132,7 +132,10 @@ enum Bacon_Blend
 enum Bacon_ImageFlags
 {
 	Bacon_ImageFlags_PremultiplyAlpha = 1 << 0,
-	Bacon_ImageFlags_DiscardBitmap = 1 << 1
+	Bacon_ImageFlags_DiscardBitmap = 1 << 1,
+	
+	// Reserved for internal use
+	Bacon_ImageFlags_Reserved = 1 << 16
 };
 
 enum Bacon_ShaderUniformTypes
@@ -312,10 +315,11 @@ extern "C" {
 	BACON_API int Bacon_CreateSharedShaderUniform(int* outHandle, const char* name, int type, int arrayCount);
 	BACON_API int Bacon_SetSharedShaderUniform(int handle, const void* value, int size);
 
-	BACON_API int Bacon_CreateImage(int* outHandle, int width, int height);
-	BACON_API int Bacon_LoadImage(int* outHandle, const char* path, int flags);
-	BACON_API int Bacon_UnloadImage(int handle);
-	BACON_API int Bacon_GetImageSize(int handle, int* width, int* height);
+	BACON_API int Bacon_CreateImage(int* outImage, int width, int height);
+	BACON_API int Bacon_LoadImage(int* outImage, const char* path, int flags);
+	BACON_API int Bacon_GetImageRegion(int* outImage, int image, int x1, int y1, int x2, int y2);
+	BACON_API int Bacon_UnloadImage(int image);
+	BACON_API int Bacon_GetImageSize(int image, int* width, int* height);
 	
 	BACON_API int Bacon_PushTransform();
 	BACON_API int Bacon_PopTransform();
