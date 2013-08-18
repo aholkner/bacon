@@ -70,18 +70,48 @@ namespace {
 	struct ShaderUniform
 	{
 		ShaderUniform()
-		: m_Id(0)
-		, m_ValueDirty(true)
+		: m_Id(-1)
+		, m_ValueVersion(-1)
+		, m_SharedUniformIndex(-1)
 		{ }
 		
-		GLint m_Id;
-		GLuint m_TextureUnit;
-		int m_ArrayCount;
-		ShDataType m_Type;
-		string m_Name;
-		bool m_IsSystemUniform;
+		ShaderUniform(const char* name, ShDataType type, int arrayCount)
+		: m_Id(-1)
+		, m_Name(name)
+		, m_Type(type)
+		, m_ArrayCount(arrayCount)
+		, m_SharedUniformIndex(-1)
+		{ }
 		
-		bool m_ValueDirty;
+		// OpenGL-ES name of the uniform, populated when the shader is linked; -1 if the
+		// uniform was not linked (e.g., optimized out by the compiler)
+		GLint m_Id;
+		
+		// For sampler uniforms, the texture unit assigned to this uniform
+		GLuint m_TextureUnit;
+		
+		// Name of the uniform, excluding any array suffixes (e.g., name of g_Textures[4] is
+		// "g_Textures")
+		string m_Name;
+
+		// Type and array count of the uniform; this dictates the size and format of m_Value.
+		ShDataType m_Type;
+		int m_ArrayCount;
+		
+		// Shader uniform data can be shared between all shaders (e.g. projection matrix, time, ...)
+		// in which case m_SharedUniformIndex is an index into s_Impl->m_SharedUniforms.
+		//
+		// Other uniforms are specific to the shader (e.g., a variable for a post-effect), and
+		// m_SharedUniformIndex is -1 and the value is stored in m_Value.
+		int m_SharedUniformIndex;
+		
+		// For shared uniforms, the version matches if this shader has the shared value up-to-date;
+		// for non-shared unifors, m_ValueVersion is 0 if the value is unchanged, non-zero if
+		// changed.
+		int m_ValueVersion;
+		
+		// For non-shared uniforms only (or the shared entry in s_Impl->m_SharedUniforms), the next
+		// value to set with glUniform.
 		vector<char> m_Value;
 	};
 	
@@ -94,11 +124,9 @@ namespace {
 		vector<int> m_TextureUnits;
 
 		GLuint m_Program;
-		GLuint m_UniformProjection;
-		GLuint m_UniformTexture0;
 
-		int m_SystemUniformsVersion;
-		bool m_UniformValuesDirty;
+		int m_SharedUniformsVersion;
+		bool m_NonSharedValuesDirty;
 		bool m_HasError;
 	};
 		
@@ -128,9 +156,12 @@ namespace {
 		int m_CurrentFrameBuffer;
 		int m_CurrentTextureUnits[16];
 		
-		int m_SystemUniformsVersion;
+		int m_SharedUniformsVersion;
+		vector<ShaderUniform> m_SharedUniforms;
 		
-		mat4f m_Projection;
+		// Built-in shared uniforms
+		int m_ProjectionUniform;
+		int m_Texture0Uniform;
 		
 		vector<mat4f> m_TransformStack;
 		vector<vec4f> m_ColorStack;
@@ -145,6 +176,8 @@ namespace {
 #define REQUIRE_GL() \
 	if (!s_Impl->m_IsInFrame) \
 		return Bacon_Error_NotRendering;
+
+static int CreateSharedUniform(ShaderUniform const& uniform);
 
 void Graphics_Init()
 {
@@ -164,7 +197,7 @@ void Graphics_Init()
 	s_Impl->m_CurrentMode = GL_TRIANGLES;
 	s_Impl->m_ColorStack.push_back(vec4f::ONE);
 	s_Impl->m_TransformStack.push_back(mat4f::IDENTITY);
-	s_Impl->m_SystemUniformsVersion = 0;
+	s_Impl->m_SharedUniformsVersion = 0;
 	
 	Bacon_CreateImage(&s_Impl->m_BlankImage, 1, 1);
 	
@@ -176,11 +209,15 @@ void Graphics_Init()
 	resources.FragmentPrecisionHigh = 1;
 #if BACON_PLATFORM_OPENGL
 	ShShaderOutput output = SH_GLSL_OUTPUT;
-#else if WIN32
+#elif WIN32
 	ShShaderOutput output = SH_HLSL9_OUTPUT;
 #endif
 	s_VertexCompiler = ShConstructCompiler(SH_VERTEX_SHADER, SH_GLES2_SPEC, output, &resources);
 	s_FragmentCompiler = ShConstructCompiler(SH_FRAGMENT_SHADER, SH_GLES2_SPEC, output, &resources);
+	
+	// Built-in shared uniforms
+	s_Impl->m_ProjectionUniform = CreateSharedUniform(ShaderUniform("g_Projection", SH_FLOAT_MAT4, 1));
+	s_Impl->m_Texture0Uniform = CreateSharedUniform(ShaderUniform("g_Texture0", SH_SAMPLER_2D, 1));
 }
 
 void Graphics_Shutdown()
@@ -348,6 +385,53 @@ static int GetShaderUniformSize(ShaderUniform const& uniform)
 	return size * uniform.m_ArrayCount;
 }
 
+static int GetSharedUniform(const char* name)
+{
+	for (int i = 0; i < s_Impl->m_SharedUniforms.size(); ++i)
+	{
+		if (s_Impl->m_SharedUniforms[i].m_Name == name)
+			return i;
+	}
+	return -1;
+}
+
+static int CreateSharedUniform(ShaderUniform const& uniform)
+{
+	assert(GetSharedUniform(uniform.m_Name.c_str()) == -1);
+	s_Impl->m_SharedUniforms.push_back(uniform);
+	s_Impl->m_SharedUniforms.back().m_ValueVersion = 0;
+	s_Impl->m_SharedUniforms.back().m_Value.resize(GetShaderUniformSize(uniform));
+	return (int)s_Impl->m_SharedUniforms.size() - 1;
+}
+
+static void SetSharedUniformValue(int sharedUniformIndex, int value)
+{
+	ShaderUniform& shared = s_Impl->m_SharedUniforms[sharedUniformIndex];
+	int& sharedValue = (int&)shared.m_Value[0];
+	assert(shared.m_Value.size() == 4);
+	
+	if (sharedValue == value)
+		return;
+	
+	Bacon_Flush();
+	sharedValue = value;
+	++shared.m_ValueVersion;
+	++s_Impl->m_SharedUniformsVersion;
+}
+
+static void SetSharedUniformValue(int sharedUniformIndex, const void* value, size_t size)
+{
+	ShaderUniform& shared = s_Impl->m_SharedUniforms[sharedUniformIndex];
+	assert(shared.m_Value.size() == size);
+	if (memcmp(&shared.m_Value[0], value, size) == 0)
+		return;
+	
+	Bacon_Flush();
+	memcpy(&shared.m_Value[0], value, size);
+	++shared.m_ValueVersion;
+	++s_Impl->m_SharedUniformsVersion;
+}
+
 static bool TranslateShader(Shader* shader, GLuint type, string& source)
 {
 	int options = SH_ATTRIBUTES_UNIFORMS;
@@ -403,16 +487,35 @@ static bool TranslateShader(Shader* shader, GLuint type, string& source)
 		if (bracketPos != string::npos)
 			shaderUniform.m_Name.resize(bracketPos);
 		
-		if (shaderUniform.m_Name == "g_Projection" ||
-			shaderUniform.m_Name == "g_Texture0")
+		if (shaderUniform.m_Name.size() > 2 &&
+			shaderUniform.m_Name[0] == 'g' &&
+			shaderUniform.m_Name[1] == '_')
 		{
-			shaderUniform.m_IsSystemUniform = true;
-			shaderUniform.m_ValueDirty = false;
+			// This is a shared uniform, link it up
+			shaderUniform.m_SharedUniformIndex = GetSharedUniform(shaderUniform.m_Name.c_str());
+			if (shaderUniform.m_SharedUniformIndex == -1)
+			{
+				// Create new shared uniform
+				shaderUniform.m_SharedUniformIndex = CreateSharedUniform(shaderUniform);
+				shaderUniform.m_ValueVersion = -1;
+			}
+			else
+			{
+				// Ensure types match
+				ShaderUniform& shared = s_Impl->m_SharedUniforms[shaderUniform.m_SharedUniformIndex];
+				if (shared.m_ArrayCount != shaderUniform.m_ArrayCount ||
+					shared.m_Type != shaderUniform.m_Type)
+				{
+					Bacon_Log(Bacon_LogLevel_Error, "Shared uniform \"%s\" has the wrong type.  All shared uniforms with the same name must have the same type and array size.", shaderUniform.m_Name.size());
+					return false;
+				}
+			}
 		}
 		else
 		{
-			shaderUniform.m_IsSystemUniform = false;
-			shaderUniform.m_ValueDirty = true;
+			// Non-shared uniform
+			shaderUniform.m_SharedUniformIndex = -1;
+			shaderUniform.m_ValueVersion = 1;
 			shaderUniform.m_Value.resize(GetShaderUniformSize(shaderUniform));
 		}
 	}
@@ -428,10 +531,10 @@ int Bacon_CreateShader(int* outHandle, const char* vertexSource, const char* fra
 	*outHandle = s_Impl->m_Shaders.Alloc();
 	Shader* shader = s_Impl->m_Shaders.Get(*outHandle);
 	shader->m_Program = 0;
-	shader->m_UniformProjection = 0;
 	shader->m_VertexSource = vertexSource;
 	shader->m_FragmentSource = fragmentSource;
-	shader->m_SystemUniformsVersion = -1;
+	shader->m_SharedUniformsVersion = -1;
+	shader->m_NonSharedValuesDirty = true;
 	
 	if (!TranslateShader(shader, GL_VERTEX_SHADER, shader->m_VertexSource))
 	{
@@ -479,8 +582,7 @@ int Bacon_EnumShaderUniforms(int handle, Bacon_EnumShaderUniformsCallback callba
 	for (int i = 0; i < shader->m_Uniforms.size(); ++i)
 	{
 		ShaderUniform& uniform = shader->m_Uniforms[i];
-		if (!uniform.m_IsSystemUniform)
-			callback(handle, i, uniform.m_Name.c_str(), uniform.m_Type, uniform.m_ArrayCount, arg);
+		callback(handle, i, uniform.m_Name.c_str(), uniform.m_Type, uniform.m_ArrayCount, arg);
 	}
 	
 	return Bacon_Error_None;
@@ -499,21 +601,31 @@ int Bacon_SetShaderUniform(int handle, int uniform, const void* value, int size)
 		return Bacon_Error_InvalidHandle;
 	
 	ShaderUniform& shaderUniform = shader->m_Uniforms[uniform];
-	if (shaderUniform.m_Value.size() != size)
-		return Bacon_Error_InvalidArgument;
 	
-	if (shaderUniform.m_IsSystemUniform)
-		return Bacon_Error_InvalidArgument;
-	
-	if (shaderUniform.m_TextureUnit != -1)
+	if (shaderUniform.m_SharedUniformIndex != -1)
 	{
-		memcpy(&shader->m_TextureUnits[shaderUniform.m_TextureUnit], value, size);
+		// Set shared value
+		if (s_Impl->m_SharedUniforms[shaderUniform.m_SharedUniformIndex].m_Value.size() != size)
+			return Bacon_Error_InvalidArgument;
+
+		SetSharedUniformValue(shaderUniform.m_SharedUniformIndex, value, size);
 	}
 	else
 	{
-		memcpy(&shaderUniform.m_Value[0], value, size);
-		shaderUniform.m_ValueDirty = true;
-		shader->m_UniformValuesDirty = true;
+		// Set non-shared value
+		if (shaderUniform.m_Value.size() != size)
+			return Bacon_Error_InvalidArgument;
+
+		if (shaderUniform.m_TextureUnit != -1)
+		{
+			memcpy(&shader->m_TextureUnits[shaderUniform.m_TextureUnit], value, size);
+		}
+		else
+		{
+			memcpy(&shaderUniform.m_Value[0], value, size);
+			shaderUniform.m_ValueVersion = 1;
+			shader->m_NonSharedValuesDirty = true;
+		}
 	}
 	return Bacon_Error_None;
 }
@@ -579,11 +691,8 @@ static int CompileShader(Shader* shader)
 	
 	shader->m_HasError = false;
 	shader->m_Program = program;
-	shader->m_UniformProjection = glGetUniformLocation(program, UniformProjection);
-	shader->m_UniformTexture0 = glGetUniformLocation(program, UniformTexture0);
 	
 	glUseProgram(program);
-	glUniform1i(shader->m_UniformTexture0, 0);
 	for (auto& uniform : shader->m_Uniforms)
 	{
 		uniform.m_Id = glGetUniformLocation(program, uniform.m_Name.c_str());
@@ -629,22 +738,38 @@ static void BindShaderUniforms()
 {
 	Shader* shader = s_Impl->m_Shaders.Get(s_Impl->m_CurrentShader);
 	
-	if (shader->m_SystemUniformsVersion != s_Impl->m_SystemUniformsVersion)
-	{
-		glUniformMatrix4fv(shader->m_UniformProjection, 1, GL_FALSE, s_Impl->m_Projection);
-		shader->m_SystemUniformsVersion = s_Impl->m_SystemUniformsVersion;
-	}
-	
-	if (!shader->m_UniformValuesDirty)
+	// Early-out if up-to-date
+	if (shader->m_SharedUniformsVersion == s_Impl->m_SharedUniformsVersion &&
+		!shader->m_NonSharedValuesDirty)
 		return;
+	
+	shader->m_SharedUniformsVersion = s_Impl->m_SharedUniformsVersion;
+	shader->m_NonSharedValuesDirty = false;
 	
 	for (auto& uniform : shader->m_Uniforms)
 	{
-		if (!uniform.m_ValueDirty)
-			continue;
-		
-		if (uniform.m_IsSystemUniform)
-			continue;
+		const void* value;
+		if (uniform.m_SharedUniformIndex == -1)
+		{
+			// Non-shared
+			if (!uniform.m_ValueVersion)
+				continue;
+			uniform.m_ValueVersion = 0;
+			value = &uniform.m_Value[0];
+		}
+		else
+		{
+			// Shared
+			ShaderUniform& shared = s_Impl->m_SharedUniforms[uniform.m_SharedUniformIndex];
+			if (uniform.m_ValueVersion == shared.m_ValueVersion)
+				continue;
+			uniform.m_ValueVersion = shared.m_ValueVersion;
+			value = &shared.m_Value[0];
+			
+			// Copy shared sampler value into shader's texture unit array
+			if (uniform.m_TextureUnit != -1)
+				memcpy(&shader->m_TextureUnits[uniform.m_TextureUnit], &shared.m_Value[0], shared.m_Value.size());
+		}
 		
 		switch (uniform.m_Type)
 		{
@@ -652,40 +777,40 @@ static void BindShaderUniforms()
 				break;
 			case SH_BOOL:
 			case SH_INT:
-				glUniform1iv(uniform.m_Id, uniform.m_ArrayCount, (GLint*)&uniform.m_Value[0]);
+				glUniform1iv(uniform.m_Id, uniform.m_ArrayCount, (GLint*)value);
 				break;
 			case SH_BOOL_VEC2:
 			case SH_INT_VEC2:
-				glUniform2iv(uniform.m_Id, uniform.m_ArrayCount, (GLint*)&uniform.m_Value[0]);
+				glUniform2iv(uniform.m_Id, uniform.m_ArrayCount, (GLint*)value);
 				break;
 			case SH_BOOL_VEC3:
 			case SH_INT_VEC3:
-				glUniform3iv(uniform.m_Id, uniform.m_ArrayCount, (GLint*)&uniform.m_Value[0]);
+				glUniform3iv(uniform.m_Id, uniform.m_ArrayCount, (GLint*)value);
 				break;
 			case SH_BOOL_VEC4:
 			case SH_INT_VEC4:
-				glUniform4iv(uniform.m_Id, uniform.m_ArrayCount, (GLint*)&uniform.m_Value[0]);
+				glUniform4iv(uniform.m_Id, uniform.m_ArrayCount, (GLint*)value);
 				break;
 			case SH_FLOAT:
-				glUniform1fv(uniform.m_Id, uniform.m_ArrayCount, (GLfloat*)&uniform.m_Value[0]);
+				glUniform1fv(uniform.m_Id, uniform.m_ArrayCount, (GLfloat*)value);
 				break;
 			case SH_FLOAT_VEC2:
-				glUniform2fv(uniform.m_Id, uniform.m_ArrayCount, (GLfloat*)&uniform.m_Value[0]);
+				glUniform2fv(uniform.m_Id, uniform.m_ArrayCount, (GLfloat*)value);
 				break;
 			case SH_FLOAT_VEC3:
-				glUniform3fv(uniform.m_Id, uniform.m_ArrayCount, (GLfloat*)&uniform.m_Value[0]);
+				glUniform3fv(uniform.m_Id, uniform.m_ArrayCount, (GLfloat*)value);
 				break;
 			case SH_FLOAT_VEC4:
-				glUniform4fv(uniform.m_Id, uniform.m_ArrayCount, (GLfloat*)&uniform.m_Value[0]);
+				glUniform4fv(uniform.m_Id, uniform.m_ArrayCount, (GLfloat*)value);
 				break;
 			case SH_FLOAT_MAT2:
-				glUniformMatrix2fv(uniform.m_Id, uniform.m_ArrayCount, GL_FALSE, (GLfloat*)&uniform.m_Value[0]);
+				glUniformMatrix2fv(uniform.m_Id, uniform.m_ArrayCount, GL_FALSE, (GLfloat*)value);
 				break;
 			case SH_FLOAT_MAT3:
-				glUniformMatrix3fv(uniform.m_Id, uniform.m_ArrayCount, GL_FALSE, (GLfloat*)&uniform.m_Value[0]);
+				glUniformMatrix3fv(uniform.m_Id, uniform.m_ArrayCount, GL_FALSE, (GLfloat*)value);
 				break;
 			case SH_FLOAT_MAT4:
-				glUniformMatrix4fv(uniform.m_Id, uniform.m_ArrayCount, GL_FALSE, (GLfloat*)&uniform.m_Value[0]);
+				glUniformMatrix4fv(uniform.m_Id, uniform.m_ArrayCount, GL_FALSE, (GLfloat*)value);
 				break;
 			case SH_SAMPLER_2D:
 			case SH_SAMPLER_2D_RECT_ARB:
@@ -693,17 +818,14 @@ static void BindShaderUniforms()
 			case SH_SAMPLER_EXTERNAL_OES:
 				break;
 		}
-		uniform.m_ValueDirty = false;
 	}
-	
-	shader->m_UniformValuesDirty = false;
 }
 
 static void BindShaderTextureUnits()
 {
 	Shader* shader = s_Impl->m_Shaders.Get(s_Impl->m_CurrentShader);
 
-	for (int i = 1; i < shader->m_TextureUnits.size(); ++i)
+	for (int i = 0; i < shader->m_TextureUnits.size(); ++i)
 	{
 		if (s_Impl->m_CurrentTextureUnits[i] != shader->m_TextureUnits[i])
 		{
@@ -1060,11 +1182,8 @@ int Bacon_SetViewport(int x, int y, int width, int height)
 		frameBufferHeight = s_Impl->m_Images.Get(s_Impl->m_CurrentFrameBuffer)->m_Height;
 	
 	glViewport(x, frameBufferHeight - (y + height), width, height);
-	s_Impl->m_Projection = frustumf(0.f, (float)width, (float)height, 0.f, -1.f, 1.f).compute_ortho_matrix();
-	
-	// Invalidate system shader uniform values
-	++s_Impl->m_SystemUniformsVersion;
-	
+	vmml::mat4f projection = frustumf(0.f, (float)width, (float)height, 0.f, -1.f, 1.f).compute_ortho_matrix();
+	SetSharedUniformValue(s_Impl->m_ProjectionUniform, projection, sizeof(mat4f));
 	return Bacon_Error_None;
 }
 
@@ -1196,17 +1315,6 @@ int Bacon_DrawImageRegion(int handle, float x1, float y1, float x2, float y2,
 	return Bacon_DrawImageQuad(handle, positions, texCoords, colors);
 }
 
-inline void SetCurrentImage(int image)
-{
-	if (image != s_Impl->m_CurrentTextureUnits[0])
-	{
-		Bacon_Flush();
-		glActiveTexture(GL_TEXTURE0);
-		BindImage(image);
-		s_Impl->m_CurrentTextureUnits[0] = image;
-	}
-}
-
 inline void SetCurrentMode(GLuint mode)
 {
 	if (mode != s_Impl->m_CurrentMode)
@@ -1220,7 +1328,7 @@ int Bacon_DrawImageQuad(int image, float* positions, float* texCoords, float* co
 {
 	REQUIRE_GL();
 
-	SetCurrentImage(image);
+	SetSharedUniformValue(s_Impl->m_Texture0Uniform, image);
 	SetCurrentMode(GL_TRIANGLES);
 	
 	mat4f const& transform = s_Impl->m_TransformStack.back();
@@ -1249,7 +1357,7 @@ int Bacon_DrawLine(float x1, float y1, float x2, float y2)
 {
 	REQUIRE_GL();
 	
-	SetCurrentImage(0);
+	SetSharedUniformValue(s_Impl->m_Texture0Uniform, 0);
 	SetCurrentMode(GL_LINES);
 
 	float z = s_Impl->m_CurrentZ;
