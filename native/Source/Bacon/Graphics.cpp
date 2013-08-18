@@ -338,10 +338,10 @@ void Graphics_EndFrame()
 
 // Shaders
 
-static int GetShaderUniformSize(ShaderUniform const& uniform)
+static int GetShaderTypeSize(int type)
 {
 	int size = 0;
-	switch (uniform.m_Type)
+	switch (type)
 	{
 		case SH_NONE:
 			size = 0;
@@ -382,7 +382,12 @@ static int GetShaderUniformSize(ShaderUniform const& uniform)
 			size = 4 * 4 * 4;
 			break;
 	}
-	return size * uniform.m_ArrayCount;
+	return size;
+}
+
+static int GetShaderUniformSize(ShaderUniform const& uniform)
+{
+	return GetShaderTypeSize(uniform.m_Type) * uniform.m_ArrayCount;
 }
 
 static int GetSharedUniform(const char* name)
@@ -430,6 +435,27 @@ static void SetSharedUniformValue(int sharedUniformIndex, const void* value, siz
 	memcpy(&shared.m_Value[0], value, size);
 	++shared.m_ValueVersion;
 	++s_Impl->m_SharedUniformsVersion;
+}
+
+int Bacon_CreateSharedShaderUniform(int* outHandle, const char* name, int type, int arrayCount)
+{
+	if (!outHandle || GetShaderTypeSize(type) == 0 || arrayCount < 1)
+		return Bacon_Error_InvalidArgument;
+	
+	*outHandle = CreateSharedUniform(ShaderUniform(name, (ShDataType)type, arrayCount));
+	return Bacon_Error_None;
+}
+
+int Bacon_SetSharedShaderUniform(int handle, const void* value, int size)
+{
+	if (handle < 0 || handle >= s_Impl->m_SharedUniforms.size())
+		return Bacon_Error_InvalidHandle;
+	
+	if (s_Impl->m_SharedUniforms[handle].m_Value.size() != size)
+		return Bacon_Error_InvalidArgument;
+	
+	SetSharedUniformValue(handle, value, size);
+	return Bacon_Error_None;
 }
 
 static bool TranslateShader(Shader* shader, GLuint type, string& source)
@@ -605,10 +631,7 @@ int Bacon_SetShaderUniform(int handle, int uniform, const void* value, int size)
 	if (shaderUniform.m_SharedUniformIndex != -1)
 	{
 		// Set shared value
-		if (s_Impl->m_SharedUniforms[shaderUniform.m_SharedUniformIndex].m_Value.size() != size)
-			return Bacon_Error_InvalidArgument;
-
-		SetSharedUniformValue(shaderUniform.m_SharedUniformIndex, value, size);
+		return Bacon_SetSharedShaderUniform(shaderUniform.m_SharedUniformIndex, value, size);
 	}
 	else
 	{

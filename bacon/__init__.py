@@ -101,26 +101,6 @@ def _log_callback(level, message):
         level = logging.ERROR
     logger.log(level, message.decode('utf-8'))
 
-# Initialize library now
-if not _mock_native:
-    _log_callback_handle = lib.LogCallback(_log_callback)
-    lib.SetLogCallback(_log_callback_handle)
-    lib.Init()
-
-    # Expose library version
-    major_version = c_int()
-    minor_version = c_int()
-    patch_version = c_int()
-    lib.GetVersion(byref(major_version), byref(minor_version), byref(patch_version))
-    major_version = major_version.value     #: Major version number of the Bacon dynamic library that was loaded, as an integer.
-    minor_version = minor_version.value     #: Minor version number of the Bacon dynamic library that was loaded, as an integer.
-    patch_version = patch_version.value     #: Patch version number of the Bacon dynamic library that was loaded, as an integer.
-else:
-    major_version, minor_version, patch_version = (0, 1, 0)
-
-#: Version of the Bacon dynamic library that was loaded, in the form ``"major.minor.patch"``.
-version = '%d.%d.%d' % (major_version, minor_version, patch_version)
-
 BlendFlags = native.BlendFlags
 ShaderUniformType = native.ShaderUniformType
 ControllerProfiles = native.ControllerProfiles
@@ -287,11 +267,11 @@ class Shader(object):
         if name.startswith('g_'):
             shared_uniforms = self.__class__._shared_uniforms
             if name not in shared_uniforms:
-                self._uniforms[name] = shared_uniforms[name] = ShaderUniform(self, uniform, name, type, array_count)
+                self._uniforms[name] = shared_uniforms[name] = ShaderUniform(name, type, array_count, _shader=self, _uniform=uniform)
             else:
                 self._uniforms[name] = shared_uniforms[name]
         else:
-            self._uniforms[name] = ShaderUniform(self, uniform, name, type, array_count)
+            self._uniforms[name] = ShaderUniform(name, type, array_count, _shader=self, _uniform=uniform)
 
     @property
     def uniforms(self):
@@ -352,10 +332,28 @@ class ShaderUniform(object):
     specific to a particular shader.
 
     :see: :attr:`Shader.uniforms`
+
+    :param name: name of the shared shader uniform to create, must begin with ``g_``
+    :param type: type of the uniform variable, a member of :class:`ShaderUniformType`
+    :param array_count: number of elements in the uniform array, or 1 if the uniform is not an array
     '''
-    def __init__(self, shader, uniform, name, type, array_count):
-        self._shader_handle = shader._handle
-        self._uniform_handle = uniform
+    def __init__(self, name, type, array_count=1, _shader=None, _uniform=None):
+        if _shader:
+            # Create a non-shared uniform already bound to a shader
+            self._shader_handle = _shader._handle
+            self._uniform_handle = _uniform
+        else:
+            # Create a shared uniform not yet bound to any shader
+            if not name.startswith('g_'):
+                raise ValueError('Shader uniforms constructed manually must be shared, so the name must begin with "g_"')
+            if name in Shader._shared_uniforms:
+                raise ValueError('Shared shader uniform already exists')
+            self._shader_handle = None
+            _uniform = c_int()
+            lib.CreateSharedShaderUniform(byref(_uniform), name.encode('utf-8'), type, array_count)
+            self._uniform_handle = _uniform.value
+            Shader._shared_uniforms[name] = self
+
         self._name = name
         self._type = type
         self._array_count = array_count
@@ -389,7 +387,10 @@ class ShaderUniform(object):
     def _set_value(self, value):
         self._value = value
         native_value = self._converter(value)
-        lib.SetShaderUniform(self._shader_handle, self._uniform_handle, byref(native_value), sizeof(native_value))
+        if self._shader_handle is not None:
+            lib.SetShaderUniform(self._shader_handle, self._uniform_handle, byref(native_value), sizeof(native_value))
+        else:
+            lib.SetSharedShaderUniform(self._uniform_handle, byref(native_value), sizeof(native_value))
     value = property(_get_value, _set_value, doc='''Current value of the uniform as seen by the shader.
 
         Uniforms with names beginning with ``g_`` (e.g., ``g_Projection``) share their value across all shaders.  Otherwise,
@@ -1381,9 +1382,11 @@ timestep = 0.0
 def _first_tick_callback():
     global _tick_callback_handle
     global _last_frame_time
+    global _start_time
     global timestep
 
-    _last_frame_time = time.time()
+    _start_time = time.time()
+    _last_frame_time = _start_time
     timestep = 0.0
 
     _tick_callback_handle = lib.TickCallback(_tick_callback)
@@ -1403,9 +1406,11 @@ def _tick_callback():
     global _last_frame_time
     global timestep
 
-    now_time = time.time()
+    now_time = time.time() - _start_time
     timestep = now_time - _last_frame_time
     _last_frame_time = now_time
+
+    _time_uniform.value = now_time
 
     mouse._update_position()
     _game.on_tick()
@@ -1683,3 +1688,27 @@ def draw_glyph_layout(glyph_layout, x, y):
             if glyph.image:
                 draw_image(glyph.image, x + glyph.offset_x, y - glyph.offset_y)
             x += glyph.advance
+
+
+# Initialize library now
+if not _mock_native:
+    _log_callback_handle = lib.LogCallback(_log_callback)
+    lib.SetLogCallback(_log_callback_handle)
+    lib.Init()
+
+    # Expose library version
+    major_version = c_int()
+    minor_version = c_int()
+    patch_version = c_int()
+    lib.GetVersion(byref(major_version), byref(minor_version), byref(patch_version))
+    major_version = major_version.value     #: Major version number of the Bacon dynamic library that was loaded, as an integer.
+    minor_version = minor_version.value     #: Minor version number of the Bacon dynamic library that was loaded, as an integer.
+    patch_version = patch_version.value     #: Patch version number of the Bacon dynamic library that was loaded, as an integer.
+
+    _time_uniform = ShaderUniform('g_Time', ShaderUniformType.float_)
+else:
+    major_version, minor_version, patch_version = (0, 1, 0)
+
+#: Version of the Bacon dynamic library that was loaded, in the form ``"major.minor.patch"``.
+version = '%d.%d.%d' % (major_version, minor_version, patch_version)
+

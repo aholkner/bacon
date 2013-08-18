@@ -309,6 +309,8 @@ extern "C" {
 	BACON_API int Bacon_CreateShader(int* outHandle, const char* vertexSource, const char* fragmentSource);
 	BACON_API int Bacon_EnumShaderUniforms(int handle, Bacon_EnumShaderUniformsCallback callback, void* arg);
 	BACON_API int Bacon_SetShaderUniform(int handle, int uniform, const void* value, int size);
+	BACON_API int Bacon_CreateSharedShaderUniform(int* outHandle, const char* name, int type, int arrayCount);
+	BACON_API int Bacon_SetSharedShaderUniform(int handle, const void* value, int size);
 
 	BACON_API int Bacon_CreateImage(int* outHandle, int width, int height);
 	BACON_API int Bacon_LoadImage(int* outHandle, const char* path, int flags);

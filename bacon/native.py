@@ -430,6 +430,8 @@ def load(function_wrapper = None):
     CreateShader = fn(_lib.Bacon_CreateShader, POINTER(c_int), c_char_p, c_char_p)
     EnumShaderUniforms = fn(_lib.Bacon_EnumShaderUniforms, c_int, EnumShaderUniformsCallback, c_void_p)
     SetShaderUniform = fn(_lib.Bacon_SetShaderUniform, c_int, c_int, c_void_p, c_int)
+    CreateSharedShaderUniform = fn(_lib.Bacon_CreateSharedShaderUniform, POINTER(c_int), c_char_p, c_int, c_int)
+    SetSharedShaderUniform = fn(_lib.Bacon_SetSharedShaderUniform, c_int, c_void_p, c_int)
 
     CreateImage = fn(_lib.Bacon_CreateImage, POINTER(c_int), c_int, c_int)
     LoadImage = fn(_lib.Bacon_LoadImage, POINTER(c_int), c_char_p, c_int)

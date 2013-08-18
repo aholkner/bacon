@@ -121,6 +121,7 @@ drawing commands:
 
 * ``uniform mat4 g_Projection``: projection matrix, typically mapping screen space to NDC
 * ``uniform sampler2D g_Texture0``: texture for the image drawn with :func:`draw_image`
+* ``uniform float g_Time``: number of seconds since the game started
 
 These uniforms may not be set directly, however others you define in the shader can be manipulated through the :attr:`Shader.uniforms`
 map as shown in the example above.  Note that the naming convention of shader uniforms is important: uniforms with names that begin with
