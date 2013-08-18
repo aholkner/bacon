@@ -518,8 +518,10 @@ class Image(object):
         '''Get an image that refers to the given rectangle within this image.  The image data is not actually
         copied; if the image region is rendered into, it will affect this image.
 
-        :param x1, y1: ``int`` upper-left corner of the image to return
-        :param x2, y2: ``int`` lower-right corner of the image to return
+        :param int x1: left edge of the image region to return
+        :param int y1: top edge of the image region to return
+        :param int x2: right edge of the image region to return
+        :param int y2: bottom edge of the image region to return
         :return: :class:`Image`
         '''
         handle = c_int()
