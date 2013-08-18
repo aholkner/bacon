@@ -57,32 +57,55 @@ namespace {
 		vec4f m_Color;
 	};
 
-	struct RectF
+	struct UVScaleBias
 	{
-		RectF(float left, float top, float right, float bottom)
-		: m_Left(left)
-		, m_Top(top)
-		, m_Right(right)
-		, m_Bottom(bottom)
+		UVScaleBias()
+		: m_ScaleX(1.f)
+		, m_ScaleY(1.f)
+		, m_BiasX(0.f)
+		, m_BiasY(0.f)
 		{ }
 		
-		RectF() { }
+		float m_ScaleX;
+		float m_ScaleY;
+		float m_BiasX;
+		float m_BiasY;
 		
-		float m_Left;
-		float m_Top;
-		float m_Right;
-		float m_Bottom;
+		vec2f Apply(vec2f const& v)
+		{
+			return vec2f(m_BiasX + v.x() * m_ScaleX,
+						 m_BiasY + v.y() * m_ScaleY);
+		}
+	};
+	
+	struct Texture
+	{
+		Texture()
+		: m_RefCount(0)
+		{ }
+
+		int m_RefCount;
+		GLuint m_TextureId;
+		GLuint m_FrameBuffer;
 	};
 	
 	struct Image
 	{
+		// In-memory copy of the image; i.e. loaded from disk or rendered by FreeType
+		// May be null, representing a possible render target
 		FIBITMAP* m_Bitmap;
+		
+		// Handle to s_Impl->m_Textures, represents GPU resource which may be shared with other images
+		// Zero until the image is realized on GPU
+		int m_Texture;
+		
+		// Image-specific attributes
 		int m_Flags;
 		int m_Width;
 		int m_Height;
-		RectF m_UVRegion;
-		GLuint m_Texture;
-		GLuint m_FrameBuffer;
+		
+		// Scale/bias to apply to texture coordinates to map from image to texture
+		UVScaleBias m_UVScaleBias;
 	};
 	
 	struct ShaderUniform
@@ -159,6 +182,7 @@ namespace {
 		HandleArray<Shader> m_Shaders;
 		int m_DefaultShader;
 
+		HandleArray<Texture> m_Textures;
 		HandleArray<Image> m_Images;
 		int m_BlankImage;
 		vector<GLuint> m_PendingDeleteTextures;
@@ -217,7 +241,7 @@ void Graphics_Init()
 	s_Impl->m_TransformStack.push_back(mat4f::IDENTITY);
 	s_Impl->m_SharedUniformsVersion = 0;
 	
-	Bacon_CreateImage(&s_Impl->m_BlankImage, 1, 1);
+	Bacon_CreateImage(&s_Impl->m_BlankImage, 1, 1); // TODO fix
 	
 	FreeImage_Initialise(TRUE);
 	
@@ -773,7 +797,7 @@ static int BindShader(int handle)
 	return Bacon_Error_None;
 }
 
-static int BindImage(int handle);
+static int BindTexture(int handle);
 
 static void BindShaderUniforms()
 {
@@ -871,7 +895,7 @@ static void BindShaderTextureUnits()
 		if (s_Impl->m_CurrentTextureUnits[i] != shader->m_TextureUnits[i])
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
-			BindImage(shader->m_TextureUnits[i]);
+			BindTexture(shader->m_TextureUnits[i]);
 			s_Impl->m_CurrentTextureUnits[i] = shader->m_TextureUnits[i];
 		}
 	}
@@ -886,12 +910,12 @@ int Bacon_CreateImage(int* outHandle, int width, int height)
 	
 	*outHandle = s_Impl->m_Images.Alloc();
 	Image* image = s_Impl->m_Images.Get(*outHandle);
+	image->m_Texture = 0;
 	image->m_Bitmap = nullptr;
 	image->m_Width = width;
 	image->m_Height = height;
-	image->m_UVRegion = RectF(0, 1, 1, 0);
-	image->m_Texture = 0;
-	image->m_FrameBuffer = 0;
+	image->m_Flags = 0;
+	image->m_UVScaleBias = UVScaleBias();
 	
 	return Bacon_Error_None;
 }
@@ -922,12 +946,11 @@ int Bacon_LoadImage(int* outHandle, const char* path, int flags)
 	*outHandle = s_Impl->m_Images.Alloc();
 	Image* image = s_Impl->m_Images.Get(*outHandle);
 	image->m_Bitmap = bitmap;
+	image->m_Texture = 0;
 	image->m_Width = (int)FreeImage_GetWidth(bitmap);
 	image->m_Height = (int)FreeImage_GetHeight(bitmap);
-	image->m_Texture = 0;
-	image->m_UVRegion = RectF(0, 1, 1, 0);
-	image->m_FrameBuffer = 0;
 	image->m_Flags = flags;
+	image->m_UVScaleBias = UVScaleBias();
 	
 	return Bacon_Error_None;
 }
@@ -937,25 +960,33 @@ int Bacon_UnloadImage(int handle)
 	Image* image = s_Impl->m_Images.Get(handle);
 	if (!image)
 		return Bacon_Error_InvalidHandle;
-	
+
 	if (image->m_Bitmap)
 		FreeImage_Unload(image->m_Bitmap);
 	
-	if (image->m_Texture)
-		s_Impl->m_PendingDeleteTextures.push_back(image->m_Texture);
+	Texture* texture = s_Impl->m_Textures.Get(handle);
+	assert(texture);
 	
-	if (image->m_FrameBuffer)
-		s_Impl->m_PendingDeleteFrameBuffers.push_back(image->m_FrameBuffer);
+	if (--texture->m_RefCount == 0)
+	{
+		if (texture->m_TextureId)
+			s_Impl->m_PendingDeleteTextures.push_back(texture->m_TextureId);
+		
+		if (texture->m_FrameBuffer)
+			s_Impl->m_PendingDeleteFrameBuffers.push_back(texture->m_FrameBuffer);
+		
+		s_Impl->m_Textures.Free(image->m_Texture);
+	}
 	
 	s_Impl->m_Images.Free(handle);
 	
 	return Bacon_Error_None;
 }
 
-static bool CreateImageTexture(Image* image)
+static Texture* CreateImageTexture(Image* image)
 {
 	FIBITMAP* bitmap = image->m_Bitmap;
-
+	
 	bool ownsData = false;
 	BYTE* data = nullptr;
 	GLuint format = GL_BGRA_EXT;
@@ -996,8 +1027,15 @@ static bool CreateImageTexture(Image* image)
 	internalFormat = format;
 #endif
 	
-	glGenTextures(1, &image->m_Texture);
-	glBindTexture(GL_TEXTURE_2D, image->m_Texture);
+	
+	image->m_Texture = s_Impl->m_Textures.Alloc();
+	Texture* texture = s_Impl->m_Textures.Get(image->m_Texture);
+
+	glActiveTexture(GL_TEXTURE0);
+	s_Impl->m_CurrentTextureUnits[0] = image->m_Texture;
+
+	glGenTextures(1, &texture->m_TextureId);
+	glBindTexture(GL_TEXTURE_2D, texture->m_TextureId);
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, image->m_Width, image->m_Height, 0, format, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -1011,73 +1049,50 @@ static bool CreateImageTexture(Image* image)
 		image->m_Bitmap = nullptr;
 	}
 	
-	return true;
+	return texture;
 }
 
-static void CreateBlankImageTexture(Image* image)
+static int BindTexture(int textureHandle)
 {
-	unsigned char data[] = { 0xff, 0xff, 0xff, 0xff };
-	glGenTextures(1, &image->m_Texture);
-	glBindTexture(GL_TEXTURE_2D, image->m_Texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-}
-
-static int BindImage(int handle)
-{
-	if (!handle)
-		handle = s_Impl->m_BlankImage;
-	
-	Image* image = s_Impl->m_Images.Get(handle);
-	if (!image)
+	Texture* texture = s_Impl->m_Textures.Get(textureHandle);
+	if (!texture)
 		return Bacon_Error_InvalidHandle;
-
-	if (!image->m_Texture)
-	{
-		if (handle == s_Impl->m_BlankImage)
-			CreateBlankImageTexture(image);
-		else
-			CreateImageTexture(image);
-	}
 	
-	glBindTexture(GL_TEXTURE_2D, image->m_Texture);
+	glBindTexture(GL_TEXTURE_2D, texture->m_TextureId);
 	return Bacon_Error_None;
 }
 
-static bool CreateImageFrameBuffer(Image* image)
+static bool CreateTextureFrameBuffer(Texture* texture)
 {
-	if (!image->m_Texture)
-	{
-		if (!CreateImageTexture(image))
-			return false;
-	}
-	
-	glGenFramebuffers(1, &image->m_FrameBuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, image->m_FrameBuffer);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, image->m_Texture, 0);
+	glGenFramebuffers(1, &texture->m_FrameBuffer);
+	glBindFramebuffer(GL_FRAMEBUFFER, texture->m_FrameBuffer);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->m_TextureId, 0);
 	return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 }
 
-static int BindFrameBuffer(int handle)
+static int BindFrameBuffer(int imageHandle)
 {
-	if (!handle)
+	if (!imageHandle)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		Bacon_SetViewport(0, 0, s_Impl->m_FrameBufferWidth, s_Impl->m_FrameBufferHeight);
 		return Bacon_Error_None;
 	}
 	
-	Image* image = s_Impl->m_Images.Get(handle);
+	Image* image = s_Impl->m_Images.Get(imageHandle);
 	if (!image)
 		return Bacon_Error_InvalidHandle;
 	
-	if (!image->m_FrameBuffer)
-	{
-		if (!CreateImageFrameBuffer(image))
-			return Bacon_Error_Unknown;
-	}
+	Texture* texture = s_Impl->m_Textures.Get(image->m_Texture);
+	if (!texture)
+		texture = CreateImageTexture(image);
 	
-	glBindFramebuffer(GL_FRAMEBUFFER, image->m_FrameBuffer);
-	Bacon_SetViewport(0, 0, image->m_Width, image->m_Height);
+	if (!CreateTextureFrameBuffer(texture))
+		return Bacon_Error_Unknown;
+	
+	glBindFramebuffer(GL_FRAMEBUFFER, texture->m_FrameBuffer);
+	vec2f origin = image->m_UVScaleBias.Apply(vec2f(0.f, 0.f));
+	Bacon_SetViewport((int)origin.x(), (int)origin.y(), image->m_Width, image->m_Height);
 	return Bacon_Error_None;
 }
 
@@ -1294,13 +1309,8 @@ int Bacon_Clear(float r, float g, float b, float a)
 	return Bacon_Error_None;
 }
 
-int Bacon_DrawImage(int handle, float x1, float y1, float x2, float y2)
+int Bacon_DrawImage(int image, float x1, float y1, float x2, float y2)
 {
-	Image* image = s_Impl->m_Images.Get(handle);
-	if (!image)
-		return Bacon_Error_InvalidHandle;
-	RectF uvRegion = image->m_UVRegion;
-	
 	float z = s_Impl->m_CurrentZ;
 	float positions[] = {
 		x1, y1, z,
@@ -1309,10 +1319,10 @@ int Bacon_DrawImage(int handle, float x1, float y1, float x2, float y2)
 		x2, y1, z
 	};
 	float texCoords[] = {
-		uvRegion.m_Left, uvRegion.m_Top,
-		uvRegion.m_Left, uvRegion.m_Bottom,
-		uvRegion.m_Right, uvRegion.m_Bottom,
-		uvRegion.m_Right, uvRegion.m_Top,
+		0, 1,
+		0, 0,
+		1, 0,
+		1, 1
 	};
 	float colors[] = {
 		1.f, 1.f, 1.f, 1.f,
@@ -1321,23 +1331,22 @@ int Bacon_DrawImage(int handle, float x1, float y1, float x2, float y2)
 		1.f, 1.f, 1.f, 1.f,
 	};
 	
-	return Bacon_DrawImageQuad(handle, positions, texCoords, colors);
+	return Bacon_DrawImageQuad(image, positions, texCoords, colors);
 }
 
-int Bacon_DrawImageRegion(int handle, float x1, float y1, float x2, float y2,
+int Bacon_DrawImageRegion(int imageHandle, float x1, float y1, float x2, float y2,
 						 float u1, float v1, float u2, float v2)
 {
-	Image* image = s_Impl->m_Images.Get(handle);
+	Image* image = s_Impl->m_Images.Get(imageHandle);
 	if (!image)
 		return Bacon_Error_InvalidHandle;
 
-	RectF uvRegion = image->m_UVRegion;
 	float w = (float)image->m_Width;
 	float h = (float)image->m_Height;
-	u1 = uvRegion.m_Left + u1 / w;
-	v1 = uvRegion.m_Top - v1 / h;
-	u2 = uvRegion.m_Left + u2 / h;
-	v2 = uvRegion.m_Top - v2 / h;
+	u1 = u1 / w;
+	v1 = 1.f - v1 / h;
+	u2 = u2 / h;
+	v2 = 1.f - v2 / h;
 
 	float z = s_Impl->m_CurrentZ;
 	float positions[] = {
@@ -1359,7 +1368,7 @@ int Bacon_DrawImageRegion(int handle, float x1, float y1, float x2, float y2,
 		1.f, 1.f, 1.f, 1.f,
 	};
 	
-	return Bacon_DrawImageQuad(handle, positions, texCoords, colors);
+	return Bacon_DrawImageQuad(imageHandle, positions, texCoords, colors);
 }
 
 inline void SetCurrentMode(GLuint mode)
@@ -1371,11 +1380,27 @@ inline void SetCurrentMode(GLuint mode)
 	}
 }
 
-int Bacon_DrawImageQuad(int image, float* positions, float* texCoords, float* colors)
+inline void SetCurrentImage(Image* image)
+{
+	Texture* texture = s_Impl->m_Textures.Get(image->m_Texture);
+	if (!texture)
+	{
+		Bacon_Flush();
+		texture = CreateImageTexture(image);
+	}
+	
+	SetSharedUniformValue(s_Impl->m_Texture0Uniform, image->m_Texture);
+}
+
+int Bacon_DrawImageQuad(int imageHandle, float* positions, float* texCoords, float* colors)
 {
 	REQUIRE_GL();
 
-	SetSharedUniformValue(s_Impl->m_Texture0Uniform, image);
+	Image* image = s_Impl->m_Images.Get(imageHandle);
+	if (!image)
+		return Bacon_Error_InvalidHandle;
+
+	SetCurrentImage(image);
 	SetCurrentMode(GL_TRIANGLES);
 	
 	mat4f const& transform = s_Impl->m_TransformStack.back();
@@ -1385,7 +1410,7 @@ int Bacon_DrawImageQuad(int image, float* positions, float* texCoords, float* co
 	for (int i = 0; i < 4; ++i)
 		vertices.push_back(Vertex(
 			transform * vec3f(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]),
-			vec2f(texCoords[i * 2], texCoords[i * 2 + 1]),
+			image->m_UVScaleBias.Apply(vec2f(texCoords[i * 2], texCoords[i * 2 + 1])),
 			color * vec4f(colors[i * 4], colors[i * 4 + 1], colors[i * 4 + 2], colors[i * 4 + 3])
 		));
 	
@@ -1404,7 +1429,11 @@ int Bacon_DrawLine(float x1, float y1, float x2, float y2)
 {
 	REQUIRE_GL();
 	
-	SetSharedUniformValue(s_Impl->m_Texture0Uniform, 0);
+	Image* image = s_Impl->m_Images.Get(s_Impl->m_BlankImage);
+	if (!image)
+		return Bacon_Error_InvalidHandle;
+	
+	SetCurrentImage(image);
 	SetCurrentMode(GL_LINES);
 
 	float z = s_Impl->m_CurrentZ;
