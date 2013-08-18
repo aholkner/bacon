@@ -280,9 +280,18 @@ class Shader(object):
 
         self._uniforms = ReadOnlyDict(self.uniforms)
 
+    _shared_uniforms = {}
+
     def _on_enum_uniform(self, shader, uniform, name, type, array_count, arg):
         name = name.decode('utf-8')
-        self._uniforms[name] = ShaderUniform(self, uniform, name, type, array_count)
+        if name.startswith('g_'):
+            shared_uniforms = self.__class__._shared_uniforms
+            if name not in shared_uniforms:
+                self._uniforms[name] = shared_uniforms[name] = ShaderUniform(self, uniform, name, type, array_count)
+            else:
+                self._uniforms[name] = shared_uniforms[name]
+        else:
+            self._uniforms[name] = ShaderUniform(self, uniform, name, type, array_count)
 
     @property
     def uniforms(self):
@@ -339,7 +348,8 @@ _shader_uniform_native_types = {
 }
 
 class ShaderUniform(object):
-    '''A uniform variable assocated with a single shader.
+    '''A uniform variable, either shared between all shaders (if its name begins with ``g_``),
+    specific to a particular shader.
 
     :see: :attr:`Shader.uniforms`
     '''
@@ -366,6 +376,14 @@ class ShaderUniform(object):
     def __repr__(self):
         return 'ShaderUniform(%d, %s, %s, %d)' % (self._shader_handle, self.name, native.ShaderUniformType.tostring(self.type), self.array_count)
 
+    @property
+    def shared(self):
+        '''Boolean indicating if this shader uniform's value is shared between all shaders
+
+        :type: ``bool``
+        '''
+        return self._name.startswith('g_')
+
     def _get_value(self):
         return self._value
     def _set_value(self, value):
@@ -373,6 +391,9 @@ class ShaderUniform(object):
         native_value = self._converter(value)
         lib.SetShaderUniform(self._shader_handle, self._uniform_handle, byref(native_value), sizeof(native_value))
     value = property(_get_value, _set_value, doc='''Current value of the uniform as seen by the shader.
+
+        Uniforms with names beginning with ``g_`` (e.g., ``g_Projection``) share their value across all shaders.  Otherwise,
+        the uniform value is unique to this shader.
 
         The type of the value depends on the type of the uniform:
 
