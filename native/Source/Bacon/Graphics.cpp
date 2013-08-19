@@ -1039,10 +1039,8 @@ int Bacon_UnloadImage(int handle)
 	return Bacon_Error_None;
 }
 
-static Texture* CreateImageTexture(Image* image)
+static Texture* CreateTexture(int* outTextureHandle, FIBITMAP* bitmap, int width, int height)
 {
-	FIBITMAP* bitmap = image->m_Bitmap;
-	
 	bool ownsData = false;
 	BYTE* data = nullptr;
 	GLuint format = GL_BGRA_EXT;
@@ -1071,8 +1069,8 @@ static Texture* CreateImageTexture(Image* image)
 			internalFormat = GL_RGBA;
 
 			ownsData = true;
-			pitch = image->m_Width * 4;
-			data = (BYTE*)malloc(image->m_Height * pitch);
+			pitch = width * 4;
+			data = (BYTE*)malloc(height * pitch);
 			FreeImage_ConvertToRawBits(data, bitmap, pitch, 32, 0, 0, 0, FALSE);
 		}
 	
@@ -1084,28 +1082,22 @@ static Texture* CreateImageTexture(Image* image)
 #endif
 	
 	
-	image->m_Texture = s_Impl->m_Textures.Alloc();
-	Texture* texture = s_Impl->m_Textures.Get(image->m_Texture);
-	texture->m_Width = image->m_Width;
-	texture->m_Height = image->m_Height;
+	*outTextureHandle = s_Impl->m_Textures.Alloc();
+	Texture* texture = s_Impl->m_Textures.Get(*outTextureHandle);
+	texture->m_Width = width;
+	texture->m_Height = height;
 
 	glActiveTexture(GL_TEXTURE0);
-	s_Impl->m_CurrentTextureUnits[0] = image->m_Texture;
+	s_Impl->m_CurrentTextureUnits[0] = *outTextureHandle;
 
 	glGenTextures(1, &texture->m_TextureId);
 	glBindTexture(GL_TEXTURE_2D, texture->m_TextureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, image->m_Width, image->m_Height, 0, format, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
 	if (ownsData)
 		free(data);
-	
-	if (image->m_Flags & Bacon_ImageFlags_DiscardBitmap)
-	{
-		FreeImage_Unload(image->m_Bitmap);
-		image->m_Bitmap = nullptr;
-	}
 	
 	return texture;
 }
@@ -1127,7 +1119,13 @@ static Texture* RealizeTexture(Image* image)
 	if (!texture)
 	{
 		Bacon_Flush();
-		texture = CreateImageTexture(image);
+		texture = CreateTexture(&image->m_Texture, image->m_Bitmap, image->m_Width, image->m_Height);
+		
+		if (image->m_Flags & Bacon_ImageFlags_DiscardBitmap)
+		{
+			FreeImage_Unload(image->m_Bitmap);
+			image->m_Bitmap = nullptr;
+		}
 	}
 	
 	return texture;
