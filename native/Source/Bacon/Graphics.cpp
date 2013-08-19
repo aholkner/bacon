@@ -1189,7 +1189,7 @@ static void Blit32(FIBITMAP* destBitmap, FIBITMAP* srcBitmap, Rect const& destRe
 	int destPitch = FreeImage_GetWidth(destBitmap) * 4;
 	int srcPitch = FreeImage_GetWidth(srcBitmap) * 4;
 	
-	dest += destPitch * destRect.m_Top + destRect.m_Left;
+	dest += destPitch * destRect.m_Top + destRect.m_Left * 4;
 	for (int y = destRect.m_Top; y < destRect.m_Bottom; ++y)
 	{
 		memcpy(dest, src, srcPitch);
@@ -1205,8 +1205,8 @@ static void AddToTextureAtlas(Image* image)
 {
 	// TODO packing
 	int atlasHandle = s_Impl->m_TextureAtlases.Alloc();
-	int atlasWidth = image->m_Width;
-	int atlasHeight = image->m_Height;
+	int atlasWidth = 1024;
+	int atlasHeight = 1024;
 	TextureAtlas* atlas = s_Impl->m_TextureAtlases.Get(atlasHandle);
 	atlas->m_Width = atlasWidth;
 	atlas->m_Height = atlasHeight;
@@ -1216,6 +1216,10 @@ static void AddToTextureAtlas(Image* image)
 	if (image->m_Bitmap)
 		Blit32(atlas->m_Bitmap, image->m_Bitmap, r);
 	image->m_Atlas = atlasHandle;
+	image->m_UVScaleBias = UVScaleBias(image->m_Width / (float)atlasWidth,
+									   image->m_Height / (float)atlasHeight,
+									   r.m_Left / (float)atlasWidth,
+									   r.m_Top / (float)atlasHeight);
 	++atlas->m_RefCount;
 	
 	CreateTexture(&atlas->m_Texture, atlas->m_Bitmap, atlas->m_Width, atlas->m_Height);
