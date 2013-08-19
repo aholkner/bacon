@@ -1152,35 +1152,58 @@ static Texture* CreateTexture(int* outTextureHandle, FIBITMAP* bitmap, int width
 	return texture;
 }
 
-static void Blit32(FIBITMAP* destBitmap, FIBITMAP* srcBitmap, Rect const& destRect)
+static void Blit32Line(char* destData, int destPitch, const char* srcData, int srcPitch, int destX, int destY, int srcX, int srcY, int size, int margin)
 {
-	char* src;
+	char* dest = destData + destPitch * destY + destX * 4;
+	const char* src = srcData + srcPitch * srcY + srcX * 4;
+	
+	// Left margin
+	for (int x = destX - margin; x < destX; ++x)
+		memcpy(dest - (margin - x) * 4, src, 4);
+		
+	// Row
+	memcpy(dest, src, size * 4);
+
+	// Right margin
+	for (int x = size * 4; x < (size + margin) * 4; x += 4)
+		memcpy(dest + x, src + (size - 1) * 4, 4);
+}
+
+// Blit entire srcBitmap int destRect of destBitmap.  If destMargin > 0, adds padding pixels around
+// destRect (caller's responsibility to ensure dest bitmap is large enough)
+static void Blit32(FIBITMAP* destBitmap, FIBITMAP* srcBitmap, Rect const& destRect, int destMargin)
+{
+	const char* srcData;
 	char* ownedSrcData = nullptr;
 	if (FreeImage_GetBPP(srcBitmap) == 32)
 	{
-		src = (char*)FreeImage_GetBits(srcBitmap);
+		srcData = (char*)FreeImage_GetBits(srcBitmap);
 	}
 	else
 	{
 		// TODO support more source formats directly, at least 24bpp
 		int pitch = FreeImage_GetWidth(srcBitmap) * 4;
-		ownedSrcData = src = (char*)malloc(pitch * FreeImage_GetHeight(srcBitmap));
-		FreeImage_ConvertToRawBits((BYTE*)src, srcBitmap, pitch, 32, 0, 0, 0, FALSE);
+		srcData = ownedSrcData = (char*)malloc(pitch * FreeImage_GetHeight(srcBitmap));
+		FreeImage_ConvertToRawBits((BYTE*)ownedSrcData, srcBitmap, pitch, 32, 0, 0, 0, FALSE);
 	}
 
 	assert(FreeImage_GetBPP(destBitmap) == 32);
-	char* dest = (char*)FreeImage_GetBits(destBitmap);
+	char* destData = (char*)FreeImage_GetBits(destBitmap);
 	int destPitch = FreeImage_GetWidth(destBitmap) * 4;
 	int srcPitch = FreeImage_GetWidth(srcBitmap) * 4;
 	
-	dest += destPitch * destRect.m_Top + destRect.m_Left * 4;
-	for (int y = destRect.m_Top; y < destRect.m_Bottom; ++y)
-	{
-		memcpy(dest, src, srcPitch);
-		dest += destPitch;
-		src += srcPitch;
-	}
+	// Top margin
+	for (int y = destRect.m_Top - destMargin; y < destRect.m_Top; ++y)
+		Blit32Line(destData, destPitch, srcData, srcPitch, destRect.m_Left, y, 0, 0, destRect.GetWidth(), destMargin);
 	
+	// Image
+	for (int y = destRect.m_Top; y < destRect.m_Bottom; ++y)
+		Blit32Line(destData, destPitch, srcData, srcPitch, destRect.m_Left, y, 0, y - destRect.m_Top, destRect.GetWidth(), destMargin);
+
+	// Bottom margin
+	for (int y = destRect.m_Bottom; y < destRect.m_Bottom + destMargin; ++y)
+		Blit32Line(destData, destPitch, srcData, srcPitch, destRect.m_Left, y, 0, destRect.GetHeight() - 1, destRect.GetWidth(), destMargin);
+
 	if (ownedSrcData)
 		free(ownedSrcData);
 }
@@ -1196,12 +1219,13 @@ static void AddToTextureAtlas(Image* image)
 	atlas->m_Height = atlasHeight;
 	atlas->m_Bitmap = FreeImage_Allocate(atlas->m_Width, atlas->m_Height, 32);
 	
-	Rect r(0, 0, image->m_Width, image->m_Height);
+	int margin = 2;
+	Rect r = Rect(0, 0, image->m_Width, image->m_Height).Offset(margin);
 	if (image->m_Bitmap)
-		Blit32(atlas->m_Bitmap, image->m_Bitmap, r);
+		Blit32(atlas->m_Bitmap, image->m_Bitmap, r, margin);
 	image->m_Atlas = atlasHandle;
-	image->m_UVScaleBias = UVScaleBias(image->m_Width / (float)atlasWidth,
-									   image->m_Height / (float)atlasHeight,
+	image->m_UVScaleBias = UVScaleBias(r.GetWidth() / (float)atlasWidth,
+									   r.GetHeight() / (float)atlasHeight,
 									   r.m_Left / (float)atlasWidth,
 									   r.m_Top / (float)atlasHeight);
 	++atlas->m_RefCount;
