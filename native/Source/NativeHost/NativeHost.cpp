@@ -92,7 +92,7 @@ int main(int argc, const char * argv[])
 	float offsetX, offsetY, advance;
 	error = Bacon_GetGlyph(g_Font, 64.f, 'A', &g_Glyph, &offsetX, &offsetY, &advance);
 	
-	Bacon_LoadImage(&g_Kitten, "res/kitten.png", Bacon_ImageFlags_PremultiplyAlpha | Bacon_ImageFlags_DiscardBitmap);
+	Bacon_LoadImage(&g_Kitten, "res/kitten.png", Bacon_ImageFlags_PremultiplyAlpha | Bacon_ImageFlags_DiscardBitmap | Bacon_ImageFlags_Atlas);
 	
 	Bacon_SetTickCallback(Tick);
 	Bacon_Run();

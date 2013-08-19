@@ -463,7 +463,7 @@ class Image(object):
     :param height: height of the image to creat, in texels
     '''
 
-    def __init__(self, file=None, premultiply_alpha=True, discard_bitmap=True, width=None, height=None, handle=None):
+    def __init__(self, file=None, premultiply_alpha=True, discard_bitmap=True, separate_texture=False, width=None, height=None, handle=None):
         if file:
             # Load image from file
             if handle:
@@ -474,6 +474,8 @@ class Image(object):
                 flags |= native.ImageFlags.premultiply_alpha
             if discard_bitmap:
                 flags |= native.ImageFlags.discard_bitmap
+            if not separate_texture:
+                flags |= native.ImageFlags.atlas
 
             handle = c_int()
             lib.LoadImage(byref(handle), file.encode('utf-8'), flags)

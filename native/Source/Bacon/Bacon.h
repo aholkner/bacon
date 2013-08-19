@@ -133,6 +133,7 @@ enum Bacon_ImageFlags
 {
 	Bacon_ImageFlags_PremultiplyAlpha = 1 << 0,
 	Bacon_ImageFlags_DiscardBitmap = 1 << 1,
+	Bacon_ImageFlags_Atlas = 1 << 2,
 	
 	// Reserved for internal use
 	Bacon_ImageFlags_Reserved = 1 << 16

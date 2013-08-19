@@ -110,6 +110,7 @@ class BlendFlags(object):
 class ImageFlags(object):
     premultiply_alpha = 1 << 0
     discard_bitmap = 1 << 1
+    atlas = 1 << 2
 
 @enum
 class ShaderUniformType(object):

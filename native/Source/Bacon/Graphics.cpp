@@ -48,7 +48,7 @@ namespace {
 	{
 		// Image.m_Texture actually refers to another image.  Used for image regions of images
 		// that have not had their texture realized yet.
-		Bacon_ImageFlags_Internal_TextureIsImage = 1 << 16
+		Bacon_ImageFlags_Internal_TextureIsImage = 1 << 16,
 	};
 
 	struct Vertex
@@ -64,6 +64,23 @@ namespace {
 		vec4f m_Color;
 	};
 
+	struct Rect
+	{
+		Rect(int left, int top, int right, int bottom)
+		: m_Left(left)
+		, m_Top(top)
+		, m_Right(right)
+		, m_Bottom(bottom)
+		{ }
+		
+		Rect() { }
+		
+		int m_Left;
+		int m_Top;
+		int m_Right;
+		int m_Bottom;
+	};
+	
 	struct UVScaleBias
 	{
 		UVScaleBias()
@@ -104,6 +121,21 @@ namespace {
 		GLuint m_FrameBuffer;
 	};
 	
+	struct TextureAtlas
+	{
+		TextureAtlas()
+		: m_RefCount(0)
+		{ }
+		
+		int m_RefCount;
+		FIBITMAP* m_Bitmap;
+		int m_Texture;
+		int m_Flags;
+		int m_Width;
+		int m_Height;
+		// TODO packing rects
+	};
+	
 	struct Image
 	{
 		// In-memory copy of the image; i.e. loaded from disk or rendered by FreeType
@@ -113,6 +145,9 @@ namespace {
 		// Handle to s_Impl->m_Textures, represents GPU resource which may be shared with other images
 		// Zero until the image is realized on GPU
 		int m_Texture;
+		
+		// Handle to s_Impl->m_TextureAtlases; zero if the image does not belong to an atlas
+		int m_Atlas;
 		
 		// Image-specific attributes
 		int m_Flags;
@@ -198,6 +233,7 @@ namespace {
 		int m_DefaultShader;
 
 		HandleArray<Texture> m_Textures;
+		HandleArray<TextureAtlas> m_TextureAtlases;
 		HandleArray<Image> m_Images;
 		int m_BlankImage;
 		vector<GLuint> m_PendingDeleteTextures;
@@ -242,6 +278,8 @@ void Graphics_Init()
     s_Impl->m_VBO = 0;
     s_Impl->m_IBO = 0;
 	s_Impl->m_Images.Reserve(256);
+	s_Impl->m_TextureAtlases.Reserve(32);
+	s_Impl->m_Textures.Reserve(256);
 	s_Impl->m_Shaders.Reserve(16);
 	s_Impl->m_Vertices.reserve(8096);
 	s_Impl->m_Indices.reserve(32768);
@@ -926,6 +964,7 @@ int Bacon_CreateImage(int* outHandle, int width, int height)
 	*outHandle = s_Impl->m_Images.Alloc();
 	Image* image = s_Impl->m_Images.Get(*outHandle);
 	image->m_Texture = 0;
+	image->m_Atlas = 0;
 	image->m_Bitmap = nullptr;
 	image->m_Width = width;
 	image->m_Height = height;
@@ -961,6 +1000,7 @@ int Bacon_LoadImage(int* outHandle, const char* path, int flags)
 	*outHandle = s_Impl->m_Images.Alloc();
 	Image* image = s_Impl->m_Images.Get(*outHandle);
 	image->m_Bitmap = bitmap;
+	image->m_Atlas = 0;
 	image->m_Texture = 0;
 	image->m_Width = (int)FreeImage_GetWidth(bitmap);
 	image->m_Height = (int)FreeImage_GetHeight(bitmap);
@@ -982,6 +1022,7 @@ int Bacon_GetImageRegion(int* outImage, int imageHandle, int x1, int y1, int x2,
 	*outImage = s_Impl->m_Images.Alloc();
 	Image* region = s_Impl->m_Images.Get(*outImage);
 	region->m_Bitmap = nullptr;
+	region->m_Atlas = 0;
 	region->m_Flags = image->m_Flags;
 	region->m_Width = x2 - x1;
 	region->m_Height = y2 - y1;
@@ -1010,6 +1051,40 @@ int Bacon_GetImageRegion(int* outImage, int imageHandle, int x1, int y1, int x2,
 	return Bacon_Error_None;
 }
 
+static void ReleaseTexture(int textureHandle)
+{
+	Texture* texture = s_Impl->m_Textures.Get(textureHandle);
+	if (texture)
+	{
+		if (--texture->m_RefCount == 0)
+		{
+			if (texture->m_TextureId)
+				s_Impl->m_PendingDeleteTextures.push_back(texture->m_TextureId);
+			
+			if (texture->m_FrameBuffer)
+				s_Impl->m_PendingDeleteFrameBuffers.push_back(texture->m_FrameBuffer);
+			
+			s_Impl->m_Textures.Free(textureHandle);
+		}
+	}
+}
+
+static void ReleaseTextureAtlas(int textureAtlasHandle)
+{
+	TextureAtlas* atlas = s_Impl->m_TextureAtlases.Get(textureAtlasHandle);
+	if (atlas)
+	{
+		if (--atlas->m_RefCount == 0)
+		{
+			if (atlas->m_Bitmap)
+				FreeImage_Unload(atlas->m_Bitmap);
+			
+			ReleaseTexture(atlas->m_Texture);
+			
+			s_Impl->m_TextureAtlases.Free(textureAtlasHandle);
+		}
+	}
+}
 
 int Bacon_UnloadImage(int handle)
 {
@@ -1020,19 +1095,10 @@ int Bacon_UnloadImage(int handle)
 	if (image->m_Bitmap)
 		FreeImage_Unload(image->m_Bitmap);
 	
-	Texture* texture = s_Impl->m_Textures.Get(handle);
-	assert(texture);
-	
-	if (--texture->m_RefCount == 0)
-	{
-		if (texture->m_TextureId)
-			s_Impl->m_PendingDeleteTextures.push_back(texture->m_TextureId);
-		
-		if (texture->m_FrameBuffer)
-			s_Impl->m_PendingDeleteFrameBuffers.push_back(texture->m_FrameBuffer);
-		
-		s_Impl->m_Textures.Free(image->m_Texture);
-	}
+	if (!(image->m_Flags & Bacon_ImageFlags_Internal_TextureIsImage))
+		ReleaseTexture(image->m_Texture);
+
+	ReleaseTextureAtlas(image->m_Atlas);
 	
 	s_Impl->m_Images.Free(handle);
 	
@@ -1102,6 +1168,61 @@ static Texture* CreateTexture(int* outTextureHandle, FIBITMAP* bitmap, int width
 	return texture;
 }
 
+static void Blit32(FIBITMAP* destBitmap, FIBITMAP* srcBitmap, Rect const& destRect)
+{
+	char* src;
+	char* ownedSrcData = nullptr;
+	if (FreeImage_GetBPP(srcBitmap) == 32)
+	{
+		src = (char*)FreeImage_GetBits(srcBitmap);
+	}
+	else
+	{
+		// TODO support more source formats directly, at least 24bpp
+		int pitch = FreeImage_GetWidth(srcBitmap) * 4;
+		ownedSrcData = src = (char*)malloc(pitch * FreeImage_GetHeight(srcBitmap));
+		FreeImage_ConvertToRawBits((BYTE*)src, srcBitmap, pitch, 32, 0, 0, 0, FALSE);
+	}
+
+	assert(FreeImage_GetBPP(destBitmap) == 32);
+	char* dest = (char*)FreeImage_GetBits(destBitmap);
+	int destPitch = FreeImage_GetWidth(destBitmap) * 4;
+	int srcPitch = FreeImage_GetWidth(srcBitmap) * 4;
+	
+	dest += destPitch * destRect.m_Top + destRect.m_Left;
+	for (int y = destRect.m_Top; y < destRect.m_Bottom; ++y)
+	{
+		memcpy(dest, src, srcPitch);
+		dest += destPitch;
+		src += srcPitch;
+	}
+	
+	if (ownedSrcData)
+		free(ownedSrcData);
+}
+
+static void AddToTextureAtlas(Image* image)
+{
+	// TODO packing
+	int atlasHandle = s_Impl->m_TextureAtlases.Alloc();
+	int atlasWidth = image->m_Width;
+	int atlasHeight = image->m_Height;
+	TextureAtlas* atlas = s_Impl->m_TextureAtlases.Get(atlasHandle);
+	atlas->m_Width = atlasWidth;
+	atlas->m_Height = atlasHeight;
+	atlas->m_Bitmap = FreeImage_Allocate(atlas->m_Width, atlas->m_Height, 32);
+	
+	Rect r(0, 0, image->m_Width, image->m_Height);
+	if (image->m_Bitmap)
+		Blit32(atlas->m_Bitmap, image->m_Bitmap, r);
+	image->m_Atlas = atlasHandle;
+	++atlas->m_RefCount;
+	
+	CreateTexture(&atlas->m_Texture, atlas->m_Bitmap, atlas->m_Width, atlas->m_Height);
+
+	image->m_Texture = atlas->m_Texture;
+}
+
 static Texture* RealizeTexture(Image* image)
 {
 	if (image->m_Flags & Bacon_ImageFlags_Internal_TextureIsImage)
@@ -1119,7 +1240,16 @@ static Texture* RealizeTexture(Image* image)
 	if (!texture)
 	{
 		Bacon_Flush();
-		texture = CreateTexture(&image->m_Texture, image->m_Bitmap, image->m_Width, image->m_Height);
+		
+		if (image->m_Flags & Bacon_ImageFlags_Atlas)
+		{
+			AddToTextureAtlas(image);
+			texture = s_Impl->m_Textures.Get(image->m_Texture);
+		}
+		else
+		{
+			texture = CreateTexture(&image->m_Texture, image->m_Bitmap, image->m_Width, image->m_Height);
+		}
 		
 		if (image->m_Flags & Bacon_ImageFlags_DiscardBitmap)
 		{
