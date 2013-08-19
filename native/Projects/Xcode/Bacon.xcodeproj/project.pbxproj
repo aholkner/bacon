@@ -1971,6 +1971,7 @@
 		FA867F2C17B492260027B6E4 /* ArrayBoundsClamper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArrayBoundsClamper.h; sourceTree = "<group>"; };
 		FA867F2D17B492260027B6E4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		FA867F2E17B492260027B6E4 /* README.angle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.angle; sourceTree = "<group>"; };
+		FA940F5917C2CB8C00B5FF13 /* Rect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Rect.h; sourceTree = "<group>"; };
 		FADE9EC917ABEEEC008F54B5 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		FADE9ECB17ABEEFC008F54B5 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		FAE5DF1C17A53D5F008013E5 /* NativeHost */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NativeHost; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2380,6 +2381,7 @@
 				FA1E170E17ADE47800CFDFC8 /* Keyboard.cpp */,
 				FA1E170F17ADE47800CFDFC8 /* Mouse.cpp */,
 				FA1E171717ADE47900CFDFC8 /* Window.cpp */,
+				FA940F5917C2CB8C00B5FF13 /* Rect.h */,
 			);
 			path = Bacon;
 			sourceTree = "<group>";

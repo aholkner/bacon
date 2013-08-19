@@ -18,6 +18,7 @@
 #include "Bacon.h"
 #include "BaconInternal.h"
 #include "HandleArray.h"
+#include "Rect.h"
 using namespace Bacon;
 
 #include <cassert>
@@ -64,23 +65,6 @@ namespace {
 		vec4f m_Color;
 	};
 
-	struct Rect
-	{
-		Rect(int left, int top, int right, int bottom)
-		: m_Left(left)
-		, m_Top(top)
-		, m_Right(right)
-		, m_Bottom(bottom)
-		{ }
-		
-		Rect() { }
-		
-		int m_Left;
-		int m_Top;
-		int m_Right;
-		int m_Bottom;
-	};
-	
 	struct UVScaleBias
 	{
 		UVScaleBias()
