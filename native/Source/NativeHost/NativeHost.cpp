@@ -7,7 +7,16 @@ using namespace std;
 int g_Kitten;
 int g_Font;
 int g_Buffer;
-int g_Glyph;
+
+struct Glyph
+{
+	Glyph() : m_Image(0) { }
+	int m_Image;
+	float m_OffsetX, m_OffsetY;
+	float m_Advance;
+};
+Glyph g_Glyphs[16];
+
 void Tick()
 {
 	static float time = 0.f;
@@ -15,9 +24,21 @@ void Tick()
 	Bacon_Clear(0.3f, 0.3f, 0.3f, 1.f);
 	Bacon_SetColor(1, 1, 1, 1);
 	
-	int w, h;
-	Bacon_GetImageSize(g_Glyph, &w, &h);
-	Bacon_DrawImage(g_Glyph, 10.f, 10.f, 10.f + w, 10.f + h);
+	float x = 10.f, y = 82.f;
+	for (int i = 0; i < 16; ++i)
+	{
+		if (!g_Glyphs[i].m_Image)
+			break;
+		
+		int w, h;
+		Bacon_GetImageSize(g_Glyphs[i].m_Image, &w, &h);
+		Bacon_DrawImage(g_Glyphs[i].m_Image,
+						x + g_Glyphs[i].m_OffsetX,
+						y - g_Glyphs[i].m_OffsetY,
+						x + g_Glyphs[i].m_OffsetX + w,
+						y - g_Glyphs[i].m_OffsetY + h);
+		x += g_Glyphs[i].m_Advance;
+	}
 
     int kw, kh;
     Bacon_GetImageSize(g_Kitten, &kw, &kh);
@@ -88,9 +109,15 @@ int main(int argc, const char * argv[])
 	
 	float ascent, descent;
 	error = Bacon_GetFontMetrics(g_Font, 64.f, &ascent, &descent);
-	
-	float offsetX, offsetY, advance;
-	error = Bacon_GetGlyph(g_Font, 64.f, 'A', &g_Glyph, &offsetX, &offsetY, &advance);
+
+	int g = 0;
+	for (char c : "Abcdefg")
+	{
+		if (!c)
+			break;
+		Glyph& glyph = g_Glyphs[g++];
+		error = Bacon_GetGlyph(g_Font, 64.f, c, &glyph.m_Image, &glyph.m_OffsetX, &glyph.m_OffsetY, &glyph.m_Advance);
+	}
 	
 	Bacon_LoadImage(&g_Kitten, "res/kitten.png", Bacon_ImageFlags_PremultiplyAlpha | Bacon_ImageFlags_DiscardBitmap | Bacon_ImageFlags_Atlas);
 	
