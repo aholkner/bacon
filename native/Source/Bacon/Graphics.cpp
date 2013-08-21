@@ -19,6 +19,7 @@
 #include "BaconInternal.h"
 #include "HandleArray.h"
 #include "Rect.h"
+#include "MaxRectsAllocator.h"
 using namespace Bacon;
 
 #include <cassert>
@@ -44,6 +45,9 @@ namespace {
 	const int BoundVertexAttribPosition = 0;
 	const int BoundVertexAttribTexCoord0 = 1;
 	const int BoundVertexAttribColor = 2;
+
+	const int TextureAtlasMargin = 2;
+	const int TextureAtlasMinSize = 512;
 
 	enum Bacon_ImageFlags_Internal
 	{
@@ -112,6 +116,7 @@ namespace {
 		{ }
 		
 		int m_RefCount;
+		MaxRectsAllocator m_Allocator;
 		FIBITMAP* m_Bitmap;
 		int m_Texture;
 		int m_Flags;
@@ -1208,28 +1213,72 @@ static void Blit32(FIBITMAP* destBitmap, FIBITMAP* srcBitmap, Rect const& destRe
 		free(ownedSrcData);
 }
 
-static void AddToTextureAtlas(Image* image)
+static bool IsAtlasFlagsCompatible(TextureAtlas* atlas, Image* image)
 {
-	// TODO packing
-	int atlasHandle = s_Impl->m_TextureAtlases.Alloc();
-	int atlasWidth = 1024;
-	int atlasHeight = 1024;
-	TextureAtlas* atlas = s_Impl->m_TextureAtlases.Get(atlasHandle);
-	atlas->m_Width = atlasWidth;
-	atlas->m_Height = atlasHeight;
-	atlas->m_Bitmap = FreeImage_Allocate(atlas->m_Width, atlas->m_Height, 32);
+	return true; // TODO filtering
+}
+
+static TextureAtlas* AllocInTextureAtlas(Rect& outRect, Image* image)
+{
+	// Find an existing atlas with room and compatible flags
+	for (TextureAtlas& atlas : s_Impl->m_TextureAtlases)
+	{
+		if (!IsAtlasFlagsCompatible(&atlas, image))
+			continue;
+		
+		if (atlas.m_Allocator.Alloc(outRect, image->m_Width, image->m_Height, TextureAtlasMargin))
+			return &atlas;
+	}
+	return nullptr;
+}
+
+static int NextPowerOfTwo(int n)
+{
+	if ((n & (n - 1)) == 0)
+		return n;
 	
-	int margin = 2;
-	Rect r = Rect(0, 0, image->m_Width, image->m_Height).Offset(margin);
+	int v = 32;
+	for (; v < n; v <<= 1)
+		;
+	return v;
+}
+
+static void AddImageToTextureAtlas(Image* image)
+{
+	Rect rect;
+	int atlasHandle;
+	TextureAtlas* atlas = AllocInTextureAtlas(rect, image);
+	if (atlas)
+	{
+		// Alloc in existing atlas
+		atlasHandle = s_Impl->m_TextureAtlases.GetHandle(atlas);
+	}
+	else
+	{
+		// Create a new atlas
+		// TODO allow image to run against edges w/out bleeding into margin
+		int size = NextPowerOfTwo(std::max(std::max(image->m_Width + TextureAtlasMargin, image->m_Height + TextureAtlasMargin), TextureAtlasMinSize));
+		atlasHandle = s_Impl->m_TextureAtlases.Alloc();
+		atlas = s_Impl->m_TextureAtlases.Get(atlasHandle);
+		atlas->m_Allocator.Init(size, size);
+		atlas->m_Texture = 0;
+		atlas->m_Width = size;
+		atlas->m_Height = size;
+		atlas->m_Bitmap = FreeImage_Allocate(atlas->m_Width, atlas->m_Height, 32);
+		
+		atlas->m_Allocator.Alloc(rect, image->m_Width, image->m_Height, TextureAtlasMargin);
+	}
+
 	if (image->m_Bitmap)
-		Blit32(atlas->m_Bitmap, image->m_Bitmap, r, margin);
+		Blit32(atlas->m_Bitmap, image->m_Bitmap, rect, TextureAtlasMargin);
 	image->m_Atlas = atlasHandle;
-	image->m_UVScaleBias = UVScaleBias(r.GetWidth() / (float)atlasWidth,
-									   r.GetHeight() / (float)atlasHeight,
-									   r.m_Left / (float)atlasWidth,
-									   r.m_Top / (float)atlasHeight);
+	image->m_UVScaleBias = UVScaleBias(rect.GetWidth() / (float)atlas->m_Width,
+									   rect.GetHeight() / (float)atlas->m_Height,
+									   rect.m_Left / (float)atlas->m_Width,
+									   rect.m_Top / (float)atlas->m_Height);
 	++atlas->m_RefCount;
 	
+	// TODO update existing texture
 	CreateTexture(&atlas->m_Texture, atlas->m_Bitmap, atlas->m_Width, atlas->m_Height);
 
 	image->m_Texture = atlas->m_Texture;
@@ -1255,7 +1304,7 @@ static Texture* RealizeTexture(Image* image)
 		
 		if (image->m_Flags & Bacon_ImageFlags_Atlas)
 		{
-			AddToTextureAtlas(image);
+			AddImageToTextureAtlas(image);
 			texture = s_Impl->m_Textures.Get(image->m_Texture);
 		}
 		else

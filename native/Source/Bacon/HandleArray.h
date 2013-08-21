@@ -28,6 +28,15 @@ namespace Bacon {
 			return &m_Elements[index].m_Value;
 		}
 		
+		int GetHandle(T* value)
+		{
+			if (value < &m_Elements[0].m_Value || value >= &m_Elements[0].m_Value + m_Elements.size())
+				return 0;
+			
+			unsigned short index = (unsigned short)(value - &m_Elements[0].m_Value);
+			return CreateHandle(index);
+		}
+		
 		int Alloc()
 		{
 			int index;
@@ -59,6 +68,46 @@ namespace Bacon {
 			return true;
 		}
 		
+		class Iterator
+		{
+		public:
+			Iterator(HandleArray<T>& array, int index)
+			: m_Array(array)
+			, m_Index(index)
+			{ }
+			
+			T* operator->() { return &m_Array.m_Elements[m_Index].m_Value; }
+			T& operator*() { return m_Array.m_Elements[m_Index].m_Value; }
+			
+			bool operator!=(const Iterator& other) const
+			{
+				return (&m_Array != &other.m_Array ||
+						m_Index != other.m_Index);
+			}
+			
+			Iterator& operator++()
+			{
+				do {
+					++m_Index;
+				} while (m_Index < m_Array.m_Elements.size() &&
+						 m_Array.m_Elements[m_Index].m_NextFree != 0xffff);
+				return *this;
+			}
+			
+		private:
+			HandleArray<T>& m_Array;
+			int m_Index;
+		};
+		
+		Iterator begin()
+		{
+			return ++Iterator(*this, -1);
+		}
+		
+		Iterator end()
+		{
+			return Iterator(*this, (int)m_Elements.size());
+		}
 		
 	private:
 		struct Element
