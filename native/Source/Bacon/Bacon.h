@@ -316,7 +316,7 @@ extern "C" {
 	BACON_API int Bacon_CreateSharedShaderUniform(int* outHandle, const char* name, int type, int arrayCount);
 	BACON_API int Bacon_SetSharedShaderUniform(int handle, const void* value, int size);
 
-	BACON_API int Bacon_CreateImage(int* outImage, int width, int height);
+	BACON_API int Bacon_CreateImage(int* outImage, int width, int height, int flags);
 	BACON_API int Bacon_LoadImage(int* outImage, const char* path, int flags);
 	BACON_API int Bacon_GetImageRegion(int* outImage, int image, int x1, int y1, int x2, int y2);
 	BACON_API int Bacon_UnloadImage(int image);

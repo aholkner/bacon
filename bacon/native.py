@@ -434,7 +434,7 @@ def load(function_wrapper = None):
     CreateSharedShaderUniform = fn(_lib.Bacon_CreateSharedShaderUniform, POINTER(c_int), c_char_p, c_int, c_int)
     SetSharedShaderUniform = fn(_lib.Bacon_SetSharedShaderUniform, c_int, c_void_p, c_int)
 
-    CreateImage = fn(_lib.Bacon_CreateImage, POINTER(c_int), c_int, c_int)
+    CreateImage = fn(_lib.Bacon_CreateImage, POINTER(c_int), c_int, c_int, c_int)
     LoadImage = fn(_lib.Bacon_LoadImage, POINTER(c_int), c_char_p, c_int)
     GetImageRegion = fn(_lib.Bacon_GetImageRegion, POINTER(c_int), c_int, c_int, c_int, c_int, c_int)
 

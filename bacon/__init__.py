@@ -464,18 +464,18 @@ class Image(object):
     '''
 
     def __init__(self, file=None, premultiply_alpha=True, discard_bitmap=True, separate_texture=False, width=None, height=None, handle=None):
+        flags = 0
+        if premultiply_alpha:
+            flags |= native.ImageFlags.premultiply_alpha
+        if discard_bitmap:
+            flags |= native.ImageFlags.discard_bitmap
+        if not separate_texture:
+            flags |= native.ImageFlags.atlas
+            
         if file:
             # Load image from file
             if handle:
                 raise ValueError('`handle` is not a not valid argument if `file` is given')
-
-            flags = 0
-            if premultiply_alpha:
-                flags |= native.ImageFlags.premultiply_alpha
-            if discard_bitmap:
-                flags |= native.ImageFlags.discard_bitmap
-            if not separate_texture:
-                flags |= native.ImageFlags.atlas
 
             handle = c_int()
             lib.LoadImage(byref(handle), file.encode('utf-8'), flags)
@@ -491,7 +491,7 @@ class Image(object):
         elif width and height and not handle:
             # Create empty image of given dimensions
             handle = c_int()
-            lib.CreateImage(byref(handle), width, height)
+            lib.CreateImage(byref(handle), width, height, flags)
             handle = handle.value
 
         if not handle:

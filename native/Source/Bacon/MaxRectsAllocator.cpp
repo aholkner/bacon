@@ -11,9 +11,9 @@ namespace Bacon
 	
 	bool MaxRectsAllocator::Alloc(Rect& outRect, int width, int height, int margin)
 	{
-		if (Alloc(outRect, width, height))
+		if (Alloc(outRect, width + margin * 2, height + margin * 2))
 		{
-			outRect.Inset(margin);
+			outRect = outRect.Inset(margin);
 			return true;
 		}
 		return false;
@@ -25,8 +25,8 @@ namespace Bacon
 		{
 			if (r.GetWidth() >= width && r.GetHeight() >= height)
 			{
-				outRect = Rect(r.m_Left, r.m_Top, width, height);
-				m_FreeRects.clear();
+				outRect = Rect(r.m_Left, r.m_Top, r.m_Left + width, r.m_Top + height);
+				r.m_Left += width;
 				return true;
 			}
 		}

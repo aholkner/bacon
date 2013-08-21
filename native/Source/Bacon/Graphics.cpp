@@ -283,7 +283,7 @@ void Graphics_Init()
 	s_Impl->m_TransformStack.push_back(mat4f::IDENTITY);
 	s_Impl->m_SharedUniformsVersion = 0;
 	
-	Bacon_CreateImage(&s_Impl->m_BlankImage, 1, 1); // TODO fix
+	Bacon_CreateImage(&s_Impl->m_BlankImage, 1, 1, 0); // TODO fix
 	
 	FreeImage_Initialise(TRUE);
 	
@@ -945,7 +945,7 @@ static void BindShaderTextureUnits()
 
 // Images
 
-int Bacon_CreateImage(int* outHandle, int width, int height)
+int Bacon_CreateImage(int* outHandle, int width, int height, int flags)
 {
 	if (!outHandle || width <= 0 || height <= 0)
 		return Bacon_Error_InvalidArgument;
@@ -957,7 +957,7 @@ int Bacon_CreateImage(int* outHandle, int width, int height)
 	image->m_Bitmap = nullptr;
 	image->m_Width = width;
 	image->m_Height = height;
-	image->m_Flags = 0;
+	image->m_Flags = flags;
 	image->m_UVScaleBias = UVScaleBias();
 	
 	return Bacon_Error_None;
@@ -1269,6 +1269,8 @@ static void AddImageToTextureAtlas(Image* image)
 		atlas->m_Allocator.Alloc(rect, image->m_Width, image->m_Height, TextureAtlasMargin);
 	}
 
+	assert(rect.GetWidth() == image->m_Width &&
+		   rect.GetHeight() == image->m_Height);
 	if (image->m_Bitmap)
 		Blit32(atlas->m_Bitmap, image->m_Bitmap, rect, TextureAtlasMargin);
 	image->m_Atlas = atlasHandle;
