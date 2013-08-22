@@ -1292,11 +1292,41 @@ static void AddImageToTextureAtlas(Image* image)
 									   rect.m_Top / (float)atlas->m_Height);
 	++atlas->m_RefCount;
 	
-	// TODO search for similar images pending atlas and insert into this atlas before texture upload
-	
-	Texture* texture = s_Impl->m_Textures.Get(atlas->m_Texture);
-	UpdateTexture(texture, atlas->m_Bitmap);
 	image->m_Texture = atlas->m_Texture;
+}
+
+static void FillTextureAtlases()
+{
+	// Collect images that need atlasing
+	vector<Image*> images;
+	images.reserve(s_Impl->m_Images.GetCount());
+	for (Image& image : s_Impl->m_Images)
+	{
+		if (image.m_Texture == 0 &&
+			image.m_Flags & Bacon_ImageFlags_Atlas)
+		{
+			images.push_back(&image);
+		}
+	}
+	
+	// Sort by longest edge
+	std::sort(images.begin(), images.end(), [](Image* a, Image* b) {
+		int sizeA = std::max(a->m_Width, a->m_Height);
+		int sizeB = std::max(b->m_Width, b->m_Height);
+		return sizeB < sizeA;
+	});
+	
+	// Insert each image
+	for (Image* image : images)
+		AddImageToTextureAtlas(image);
+
+	// Update all textures in texture atlases that have been invalidated
+	for (TextureAtlas& atlas : s_Impl->m_TextureAtlases)
+	{
+		// TODO track invalid region
+		Texture* texture = s_Impl->m_Textures.Get(atlas.m_Texture);
+		UpdateTexture(texture, atlas.m_Bitmap);
+	}
 }
 
 static Texture* RealizeTexture(Image* image)
@@ -1319,7 +1349,7 @@ static Texture* RealizeTexture(Image* image)
 		
 		if (image->m_Flags & Bacon_ImageFlags_Atlas)
 		{
-			AddImageToTextureAtlas(image);
+			FillTextureAtlases();
 			texture = s_Impl->m_Textures.Get(image->m_Texture);
 		}
 		else

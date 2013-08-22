@@ -11,12 +11,18 @@ namespace Bacon {
         HandleArray()
             : m_Free(0xffff)
             , m_NextVersion(1)
+			, m_Count(0)
         {
         }
 
 		void Reserve(std::size_t count)
 		{
 			m_Elements.reserve(count);
+		}
+		
+		int GetCount() const
+		{
+			return m_Count;
 		}
 		
 		T* Get(int handle)
@@ -53,6 +59,7 @@ namespace Bacon {
 			
 			index = (int)m_Elements.size();
 			m_Elements.push_back(Element(T(), 0, 0xffff));
+			++m_Count;
 			return CreateHandle(index);
 		}
 		
@@ -65,6 +72,7 @@ namespace Bacon {
 			Element& element = m_Elements[index];
 			element.m_NextFree = m_Free;
 			m_Free = index;
+			--m_Count;
 			return true;
 		}
 		
@@ -127,6 +135,7 @@ namespace Bacon {
 		std::vector<Element> m_Elements;
 		unsigned short m_Free;		// 0xffff if none free
 		unsigned short m_NextVersion;
+		int m_Count;
 		
 		int CreateHandle(unsigned short index)
 		{
