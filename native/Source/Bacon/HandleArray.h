@@ -51,6 +51,8 @@ namespace Bacon {
 				index = m_Free;
 				m_Free = m_Elements[index].m_NextFree;
 				m_Elements[index].m_NextFree = 0xffff;
+				new (&m_Elements[index].m_Value) T;
+				++m_Count;
 				return CreateHandle(index);
 			}
 			
@@ -59,6 +61,7 @@ namespace Bacon {
 			
 			index = (int)m_Elements.size();
 			m_Elements.push_back(Element(T(), 0, 0xffff));
+			new (&m_Elements[index].m_Value) T;
 			++m_Count;
 			return CreateHandle(index);
 		}
@@ -71,6 +74,12 @@ namespace Bacon {
 			
 			Element& element = m_Elements[index];
 			element.m_NextFree = m_Free;
+			element.m_Value.~T();
+			
+			#if DEBUG
+			memset(&element.m_Value, 0xdd, sizeof(T));
+			#endif
+			
 			m_Free = index;
 			--m_Count;
 			return true;

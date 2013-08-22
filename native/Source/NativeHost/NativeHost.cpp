@@ -17,7 +17,7 @@ struct Glyph
 };
 Glyph g_Glyphs[26];
 
-int s_NumGlyphs = 0;
+int s_NumGlyphs = 1;
 
 void Tick()
 {
@@ -86,7 +86,11 @@ void OnKey(int key, int value)
     }
 	if (key == 'z' && value)
 	{
-		++s_NumGlyphs;
+		static float s = 64.f;
+		Glyph& glyph = g_Glyphs[0];
+		Bacon_UnloadImage(glyph.m_Image);
+		Bacon_GetGlyph(g_Font, s, 'a', &glyph.m_Image, &glyph.m_OffsetX, &glyph.m_OffsetY, &glyph.m_Advance);
+		s += 10.f;
 	}
 }
 
@@ -125,12 +129,12 @@ int main(int argc, const char * argv[])
 	error = Bacon_GetFontMetrics(g_Font, 64.f, &ascent, &descent);
 
 	int g = 0;
-	for (char c : "abcdefghijklmnopqrstuvwxyz")
+	for (char c : "a")
 	{
 		if (!c)
 			break;
 		Glyph& glyph = g_Glyphs[g++];
-		error = Bacon_GetGlyph(g_Font, 16, c, &glyph.m_Image, &glyph.m_OffsetX, &glyph.m_OffsetY, &glyph.m_Advance);
+		error = Bacon_GetGlyph(g_Font, 32, c, &glyph.m_Image, &glyph.m_OffsetX, &glyph.m_OffsetY, &glyph.m_Advance);
 	}
 	
 	Bacon_LoadImage(&g_Kitten, "res/ball.png", Bacon_ImageFlags_PremultiplyAlpha | Bacon_ImageFlags_DiscardBitmap | Bacon_ImageFlags_Atlas);

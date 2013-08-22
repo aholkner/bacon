@@ -47,7 +47,7 @@ namespace {
 	const int BoundVertexAttribColor = 2;
 
 	const int TextureAtlasMargin = 2;
-	const int TextureAtlasMinSize = 512;
+	const int TextureAtlasMinSize = 128;
 
 	enum Bacon_ImageFlags_Internal
 	{
@@ -1268,7 +1268,7 @@ static void AddImageToTextureAtlas(Image* image)
 	{
 		// Create a new atlas
 		// TODO allow image to run against edges w/out bleeding into margin
-		int size = NextPowerOfTwo(std::max(std::max(image->m_Width + TextureAtlasMargin, image->m_Height + TextureAtlasMargin), TextureAtlasMinSize));
+		int size = NextPowerOfTwo(std::max(std::max(image->m_Width + TextureAtlasMargin * 2, image->m_Height + TextureAtlasMargin * 2),TextureAtlasMinSize));
 		atlasHandle = s_Impl->m_TextureAtlases.Alloc();
 		atlas = s_Impl->m_TextureAtlases.Get(atlasHandle);
 		atlas->m_Allocator.Init(size, size);
@@ -1858,7 +1858,7 @@ int Bacon_Flush()
 
 void Graphics_DrawDebugOverlay()
 {
-	int drawTextureAtlas = 0;
+	int drawTextureAtlas = 1;
 	for (TextureAtlas& atlas : s_Impl->m_TextureAtlases)
 	{
 		if (drawTextureAtlas-- != 0)
