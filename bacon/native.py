@@ -461,6 +461,8 @@ def load(function_wrapper = None):
     DrawImage = fn(_lib.Bacon_DrawImage, c_int, c_float, c_float, c_float, c_float)
     DrawImageRegion = fn(_lib.Bacon_DrawImageRegion, c_int, c_float, c_float, c_float, c_float, c_float, c_float, c_float, c_float)
     DrawLine = fn(_lib.Bacon_DrawLine, c_float, c_float, c_float, c_float)
+    DrawRect = fn(_lib.Bacon_DrawRect, c_float, c_float, c_float, c_float)
+    FillRect = fn(_lib.Bacon_FillRect, c_float, c_float, c_float, c_float)
 
     LoadFont = fn(_lib.Bacon_LoadFont, POINTER(c_int), c_char_p)
     UnloadFont = fn(_lib.Bacon_UnloadFont, c_int)

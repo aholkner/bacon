@@ -13,6 +13,17 @@ At the beginning of each frame (before doing any other rendering in ``on_tick``)
 
 .. autofunction:: clear
 
+Basic shapes
+============
+
+Lines and rectangles can drawn with these functions:
+
+.. literalinclude:: ../examples/rect.py
+    :emphasize-lines: 7,9
+
+.. autofunction:: draw_line
+.. autofunction:: draw_rect
+.. autofunction:: fill_rect
 
 Images
 ======

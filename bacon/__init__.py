@@ -1682,6 +1682,26 @@ draw_line.__doc__ = '''Draw a line from coordinates ``(x1, y1)`` to ``(x2, y2)``
 No texture is applied.
 '''
 
+if _mock_native:
+    def draw_rect(x1, y1, x2, y2):
+        pass
+else:
+    draw_rect = lib.DrawRect
+draw_rect.__doc__ = '''Draw a rectangle bounding coordinates ``(x1, y1)`` to ``(x2, y2)``.
+
+No texture is applied.
+'''
+
+if _mock_native:
+    def fill_rect(x1, y1, x2, y2):
+        pass
+else:
+    fill_rect = lib.FillRect
+fill_rect.__doc__ = '''Fill a rectangle bounding coordinates ``(x1, y1)`` to ``(x2, y2)``.
+
+No texture is applied.
+'''
+
 def draw_string(font, text, x, y):
     '''Draw a string with the given font.
 
