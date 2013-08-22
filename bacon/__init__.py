@@ -987,6 +987,8 @@ class GlyphLayout(object):
             line.x = x
             line.y = y
 
+            y += self._lines[0].descent
+
 class Sound(object):
     '''Loads a sound from disk.  Supported formats are WAV (``.wav``) and Ogg Vorbis (``.ogg``).
 
