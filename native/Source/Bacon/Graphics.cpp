@@ -1094,7 +1094,7 @@ int Bacon_UnloadImage(int handle)
 	return Bacon_Error_None;
 }
 
-static Texture* CreateTexture(int* outTextureHandle, FIBITMAP* bitmap, int width, int height)
+static void UpdateTexture(Texture* texture, FIBITMAP* bitmap)
 {
 	bool ownsData = false;
 	BYTE* data = nullptr;
@@ -1124,8 +1124,8 @@ static Texture* CreateTexture(int* outTextureHandle, FIBITMAP* bitmap, int width
 			internalFormat = GL_RGBA;
 
 			ownsData = true;
-			pitch = width * 4;
-			data = (BYTE*)malloc(height * pitch);
+			pitch = texture->m_Width * 4;
+			data = (BYTE*)malloc(texture->m_Height * pitch);
 			FreeImage_ConvertToRawBits(data, bitmap, pitch, 32, 0, 0, 0, FALSE);
 		}
 	
@@ -1136,23 +1136,32 @@ static Texture* CreateTexture(int* outTextureHandle, FIBITMAP* bitmap, int width
 	internalFormat = format;
 #endif
 	
-	
-	*outTextureHandle = s_Impl->m_Textures.Alloc();
-	Texture* texture = s_Impl->m_Textures.Get(*outTextureHandle);
-	texture->m_Width = width;
-	texture->m_Height = height;
-
 	glActiveTexture(GL_TEXTURE0);
-	s_Impl->m_CurrentTextureUnits[0] = *outTextureHandle;
-
-	glGenTextures(1, &texture->m_TextureId);
+	s_Impl->m_CurrentTextureUnits[0] = s_Impl->m_Textures.GetHandle(texture);
+	
+	// TODO optionally use TexSubImage2D
+	
+	if (!texture->m_TextureId)
+		glGenTextures(1, &texture->m_TextureId);
 	glBindTexture(GL_TEXTURE_2D, texture->m_TextureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture->m_Width, texture->m_Height, 0, format, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
 	if (ownsData)
 		free(data);
+
+}
+
+static Texture* CreateTexture(int* outTextureHandle, FIBITMAP* bitmap, int width, int height)
+{
+	*outTextureHandle = s_Impl->m_Textures.Alloc();
+	Texture* texture = s_Impl->m_Textures.Get(*outTextureHandle);
+	texture->m_Width = width;
+	texture->m_Height = height;
+	texture->m_TextureId = 0;
+
+	UpdateTexture(texture, bitmap);
 	
 	return texture;
 }
@@ -1267,6 +1276,7 @@ static void AddImageToTextureAtlas(Image* image)
 		atlas->m_Bitmap = FreeImage_Allocate(atlas->m_Width, atlas->m_Height, 32);
 		
 		atlas->m_Allocator.Alloc(rect, image->m_Width, image->m_Height, TextureAtlasMargin);
+		CreateTexture(&atlas->m_Texture, atlas->m_Bitmap, atlas->m_Width, atlas->m_Height);
 	}
 
 	assert(rect.GetWidth() == image->m_Width &&
@@ -1280,9 +1290,10 @@ static void AddImageToTextureAtlas(Image* image)
 									   rect.m_Top / (float)atlas->m_Height);
 	++atlas->m_RefCount;
 	
-	// TODO update existing texture
-	CreateTexture(&atlas->m_Texture, atlas->m_Bitmap, atlas->m_Width, atlas->m_Height);
-
+	// TODO search for similar images pending atlas and insert into this atlas before texture upload
+	
+	Texture* texture = s_Impl->m_Textures.Get(atlas->m_Texture);
+	UpdateTexture(texture, atlas->m_Bitmap);
 	image->m_Texture = atlas->m_Texture;
 }
 

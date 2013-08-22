@@ -34,7 +34,7 @@ namespace Bacon {
 				return 0;
 			
 			unsigned short index = (unsigned short)(value - &m_Elements[0].m_Value);
-			return CreateHandle(index);
+			return index | (m_Elements[index].m_Version << 16);
 		}
 		
 		int Alloc()
