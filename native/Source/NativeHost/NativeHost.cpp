@@ -44,6 +44,12 @@ void Tick()
     Bacon_GetImageSize(g_Kitten, &kw, &kh);
     Bacon_DrawImage(g_Kitten, 100.f, 100.f, 100.f + kw, 100.f + kh);
 	
+	Bacon_SetBlending(Bacon_Blend_One, Bacon_Blend_One);
+	Bacon_SetColor(1, 0, 0, 1);
+	Bacon_FillRect(25, 225, 50, 250);
+	Bacon_SetColor(0, 1, 1, 1);
+	Bacon_DrawRect(25, 225, 50, 250);
+	
     int keyState;
     Bacon_GetKeyState(Key_Space, &keyState);
     if (keyState)

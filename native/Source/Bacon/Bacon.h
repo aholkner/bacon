@@ -345,6 +345,8 @@ extern "C" {
 				            			float ix1, float iy1, float ix2, float iy2);
 	BACON_API int Bacon_DrawImageQuad(int image, float* positions, float* texCoords, float* colors);
 	BACON_API int Bacon_DrawLine(float x1, float y1, float x2, float y2);
+	BACON_API int Bacon_DrawRect(float x1, float y1, float x2, float y2);
+	BACON_API int Bacon_FillRect(float x1, float y1, float x2, float y2);
 	
 	BACON_API int Bacon_DrawDebugOverlay();
 	

@@ -1751,13 +1751,55 @@ int Bacon_DrawLine(float x1, float y1, float x2, float y2)
 	vector<Vertex>& vertices = s_Impl->m_Vertices;
 	unsigned short index = vertices.size();
 	vertices.push_back(Vertex(transform * vec3f(x1, y1, z), vec2f(0, 0), color));
-	vertices.push_back(Vertex(transform * vec3f(x2, y2, z), vec2f(1, 0), color));
+	vertices.push_back(Vertex(transform * vec3f(x2, y2, z), vec2f(1, 1), color));
 
 	vector<unsigned short>& indices = s_Impl->m_Indices;
 	indices.push_back(index + 0);
 	indices.push_back(index + 1);
 	
 	return Bacon_Error_None;
+}
+
+static unsigned short DrawRectIndices[] = {
+	0, 1,
+	1, 2,
+	0, 3,
+	3, 2
+};
+
+int Bacon_DrawRect(float x1, float y1, float x2, float y2)
+{
+	float z = s_Impl->m_CurrentZ;
+
+	// Magic coordinate jiggle to get all pixel corners filled
+	x1 += 0.375f;
+	y2 -= 0.375f;
+	
+	Image* image = s_Impl->m_Images.Get(s_Impl->m_BlankImage);
+	if (!image)
+		return Bacon_Error_InvalidHandle;
+	
+	SetCurrentImage(image);
+	SetCurrentMode(GL_LINES);
+	mat4f const& transform = s_Impl->m_TransformStack.back();
+	vec4f const& color = s_Impl->m_ColorStack.back();
+	vector<Vertex>& vertices = s_Impl->m_Vertices;
+	unsigned short index = vertices.size();
+	vertices.push_back(Vertex(transform * vec3f(x1, y1, z), image->m_UVScaleBias.Apply(vec2f(0, 1)), color));
+	vertices.push_back(Vertex(transform * vec3f(x1, y2, z), image->m_UVScaleBias.Apply(vec2f(0, 0)), color));
+	vertices.push_back(Vertex(transform * vec3f(x2, y2, z), image->m_UVScaleBias.Apply(vec2f(1, 0)), color));
+	vertices.push_back(Vertex(transform * vec3f(x2, y1, z), image->m_UVScaleBias.Apply(vec2f(1, 1)), color));
+	
+	vector<unsigned short>& indices = s_Impl->m_Indices;
+	for (int i = 0; i < BACON_ARRAY_COUNT(DrawRectIndices); ++i)
+		indices.push_back(DrawRectIndices[i] + index);
+	
+	return Bacon_Error_None;
+}
+
+int Bacon_FillRect(float x1, float y1, float x2, float y2)
+{
+	return Bacon_DrawImage(s_Impl->m_BlankImage, x1, y1, x2, y2);
 }
 
 int Bacon_Flush()
@@ -1796,5 +1838,12 @@ void Graphics_DrawDebugOverlay()
 		Bacon_DrawImage(s_Impl->m_BlankImage, 0, 0, atlas.m_Width, atlas.m_Height);
 		Bacon_SetColor(1, 1, 1, 1);
 		Graphics_DrawTexture(atlas.m_Texture, 0, 0, atlas.m_Width, atlas.m_Height);
+		
+		Bacon_SetColor(0.f, 1.f, 0.f, 1.f);
+		for (Rect r : atlas.m_Allocator.GetFreeRects())
+		{
+			r = r.Inset(2);
+			Bacon_DrawRect(r.m_Left, r.m_Top, r.m_Right, r.m_Bottom);
+		}
 	}
 }
