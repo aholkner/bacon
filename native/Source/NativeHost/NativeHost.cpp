@@ -15,7 +15,9 @@ struct Glyph
 	float m_OffsetX, m_OffsetY;
 	float m_Advance;
 };
-Glyph g_Glyphs[16];
+Glyph g_Glyphs[26];
+
+int s_NumGlyphs = 0;
 
 void Tick()
 {
@@ -25,7 +27,7 @@ void Tick()
 	Bacon_SetColor(1, 1, 1, 1);
 	
 	float x = 10.f, y = 82.f;
-	for (int i = 0; i < 16; ++i)
+	for (int i = 0; i < s_NumGlyphs; ++i)
 	{
 		if (!g_Glyphs[i].m_Image)
 			break;
@@ -82,6 +84,10 @@ void OnKey(int key, int value)
         fullscreen = !fullscreen;
         Bacon_SetWindowFullscreen(fullscreen);
     }
+	if (key == 'z' && value)
+	{
+		++s_NumGlyphs;
+	}
 }
 
 void OnLogMessage(int level, const char* message)
@@ -98,6 +104,7 @@ int main(int argc, const char * argv[])
 	Bacon_SetControllerAxisEventHandler(OnControllerAxis);
 	Bacon_SetControllerConnectedEventHandler(OnControllerConnected);
 	Bacon_SetWindowResizable(true);
+	Bacon_SetWindowSize(512, 512);
 
 	int error;
 
@@ -118,15 +125,15 @@ int main(int argc, const char * argv[])
 	error = Bacon_GetFontMetrics(g_Font, 64.f, &ascent, &descent);
 
 	int g = 0;
-	for (char c : "abcdefgh")
+	for (char c : "abcdefghijklmnopqrstuvwxyz")
 	{
 		if (!c)
 			break;
 		Glyph& glyph = g_Glyphs[g++];
-		error = Bacon_GetGlyph(g_Font, 64.f, c, &glyph.m_Image, &glyph.m_OffsetX, &glyph.m_OffsetY, &glyph.m_Advance);
+		error = Bacon_GetGlyph(g_Font, 16, c, &glyph.m_Image, &glyph.m_OffsetX, &glyph.m_OffsetY, &glyph.m_Advance);
 	}
 	
-	Bacon_LoadImage(&g_Kitten, "res/kitten.png", Bacon_ImageFlags_PremultiplyAlpha | Bacon_ImageFlags_DiscardBitmap | Bacon_ImageFlags_Atlas);
+	Bacon_LoadImage(&g_Kitten, "res/ball.png", Bacon_ImageFlags_PremultiplyAlpha | Bacon_ImageFlags_DiscardBitmap | Bacon_ImageFlags_Atlas);
 	
 	Bacon_SetTickCallback(Tick);
 	Bacon_Run();

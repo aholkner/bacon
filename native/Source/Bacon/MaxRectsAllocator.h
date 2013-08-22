@@ -18,6 +18,8 @@ namespace Bacon
 		std::vector<Rect> m_FreeRects;
 		
 		bool Alloc(Rect& outRect, int width, int height);
+		bool GetBestFreeRect(Rect& outRect, int width, int height);
+		void AddFreeRect(Rect const& f);
 	};
 	
 }

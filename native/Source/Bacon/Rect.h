@@ -24,22 +24,22 @@ namespace Bacon {
 		int GetHeight() const { return m_Bottom - m_Top; }
 		int GetArea() const { return GetWidth() * GetHeight(); }
 
-		Rect Inset(int s)
+		Rect Inset(int s) const
 		{
 			return Rect(m_Left + s, m_Top + s, m_Right - s, m_Bottom - s);
 		}
 		
-		Rect Expand(int s)
+		Rect Expand(int s) const
 		{
 			return Rect(m_Left - s, m_Top - s, m_Right + s, m_Bottom + s);
 		}
 		
-		Rect Offset(int s)
+		Rect Offset(int s) const
 		{
 			return Rect(m_Left + s, m_Top + s, m_Right + s, m_Bottom + s);
 		}
 		
-		bool Intersects(Rect const& r)
+		bool Intersects(Rect const& r) const
 		{
 			return	(m_Left < r.m_Right &&
 					 m_Right > r.m_Left &&
@@ -47,7 +47,7 @@ namespace Bacon {
 					 m_Bottom > r.m_Top);
 		}
 
-		bool Contains(Rect const& r)
+		bool Contains(Rect const& r) const
 		{
 			return	(m_Left <= r.m_Left &&
 					 m_Right >= r.m_Right &&

@@ -1837,7 +1837,7 @@ void Graphics_DrawDebugOverlay()
 		Bacon_SetColor(0, 0, 0, 1);
 		Bacon_DrawImage(s_Impl->m_BlankImage, 0, 0, atlas.m_Width, atlas.m_Height);
 		Bacon_SetColor(1, 1, 1, 1);
-		Graphics_DrawTexture(atlas.m_Texture, 0, 0, atlas.m_Width, atlas.m_Height);
+		Graphics_DrawTexture(atlas.m_Texture, 0, atlas.m_Height, atlas.m_Width, 0);
 		
 		Bacon_SetColor(0.f, 1.f, 0.f, 1.f);
 		for (Rect r : atlas.m_Allocator.GetFreeRects())
