@@ -1,6 +1,7 @@
 from bacon import native
 from bacon.readonly_collections import ReadOnlyDict
 from ctypes import *
+import collections
 import os
 import logging
 import time
@@ -706,19 +707,29 @@ class Style(object):
         self.background_color = background_color
 
 class GlyphRun(object):
-    def __init__(self, style, text):
-        self.glyphs = style.font.get_glyphs(text)
+    def __init__(self, style, text, glyphs=None):
+        if glyphs is None:
+            glyphs = style.font.get_glyphs(text)
+        self.glyphs = glyphs
         self.style = style
         self.advance = sum(g.advance for g in self.glyphs)
 
+    def __repr__(self):
+        return 'GlyphRun("%s")' % (''.join(g.char for g in self.glyphs))
+
 class GlyphLine(object):
-    def __init__(self, runs, content_width, ascent, descent):
+    def __init__(self, runs, content_width = None):
         self.runs = runs
+        if content_width is None:
+            content_width = sum(run.advance for run in runs)
         self.content_width = content_width
-        self.ascent = ascent
-        self.descent = descent
+        self.ascent = min(run.style.font.ascent for run in runs)
+        self.descent = max(run.style.font.descent for run in runs)
         self.x = 0
         self.y = 0
+
+    def __repr__(self):
+        return 'GlyphLine(runs=%r)' % self.runs
 
 
 @native.enum
@@ -738,6 +749,7 @@ class VerticalAlignment(object):
 class Overflow(object):
     none = 0
     wrap = 1
+    wrap_characters = 2
 
 class GlyphLayout(object):
     '''Caches a layout of glyphs rendering a given string with bounding rectangle, layout metrics.
@@ -841,18 +853,89 @@ class GlyphLayout(object):
     def _update(self):
         self._dirty = False
 
-        if self._width is None:
+        content_width = sum(run.advance for run in self._runs)
+        if (self._width is None or 
+            self._overflow == Overflow.none or
+            content_width <= self._width):
             self._lines = [GlyphLine(self._runs, 
-                                     content_width=sum(run.advance for run in self._runs), 
-                                     ascent=min(run.style.font.ascent for run in self._runs),
-                                     descent=max(run.style.font.descent for run in self._runs))]
+                                     content_width=content_width)]
         else:
-            raise NotImplemented()
+            self._update_overflow()
 
         self._content_width = sum(line.content_width for line in self.lines)
         self._content_height = sum(line.descent - line.ascent for line in self.lines)
 
         self._update_line_position()
+
+    def _update_overflow(self):
+        remaining_runs = collections.deque(self._runs)
+        line_runs = []
+        lines = []
+        x = 0
+        while remaining_runs:
+            line_runs.append(remaining_runs.popleft())
+            x += line_runs[-1].advance
+            if x > self._width:
+                if self._overflow == Overflow.wrap:
+                    self._break_runs_word(x, line_runs, remaining_runs)
+                elif self._overflow == Overflow.wrap_characters:
+                    self._break_runs_character(x, line_runs, remaining_runs)
+                if line_runs:
+                    lines.append(GlyphLine(line_runs))
+                    line_runs = []
+                    x = 0
+
+        if line_runs:
+            lines.append(GlyphLine(line_runs))
+        self._lines = lines
+
+    def _break_runs_word(self, x, line_runs, remaining_runs):
+        # Scan backwards through each glyph in line_runs until suitable break
+        # is found.  Push remaining glyphs into remaining_runs
+        start_x = x
+        width = self._width
+        for run_i in range(len(line_runs) - 1, -1, -1):
+            run = line_runs[run_i]
+            glyphs = run.glyphs
+            for i in range(len(glyphs) - 1, -1, -1):
+                x -= glyphs[i].advance
+                if x >= width:
+                    continue
+                
+                if glyphs[i]._char in u' \u200B':
+                    if run_i != 0 or i != 0:
+                        return self._break(line_runs, remaining_runs, run_i, i, i + 1)
+
+        # No breaks found.  Repeat scan, break on character
+        self._break_runs_character(start_x, line_runs, remaining_runs)
+
+    def _break_runs_character(self, x, line_runs, remaining_runs):
+        # Scan backwards through each glyph in line_runs until suitable break
+        # is found.  Push remaining glyphs into remaining_runs
+        width = self._width
+        for run_i in range(len(line_runs) - 1, -1, -1):
+            run = line_runs[run_i]
+            glyphs = run.glyphs
+            for i in range(len(glyphs) - 1, -1, -1):
+                x -= glyphs[i].advance
+                if x >= width:
+                    continue
+
+                return self._break(line_runs, remaining_runs, run_i, i, i)
+
+    def _break(self, line_runs, remaining_runs, run_i, end_glyph_i, start_glyph_i):
+        split_run = line_runs[run_i]
+        
+        # Move entire runs to the right of run_i into remaining_runs
+        for i in range(len(line_runs) - 1, run_i, -1):
+            remaining_runs.appendleft(line_runs[i])
+        del line_runs[run_i + 1:]
+
+        # line_runs gets glyphs up to end_glyph_i of split_run
+        line_runs[-1] = GlyphRun(split_run.style, '', split_run.glyphs[:end_glyph_i])
+
+        # remaining_runs gets the right side of start_glyph_i
+        remaining_runs.appendleft(GlyphRun(split_run.style, '', split_run.glyphs[start_glyph_i:]))
 
     def _update_line_position(self):
         if not self._lines:
@@ -868,9 +951,9 @@ class GlyphLayout(object):
         if self._width is not None:
             # Align relative to box, not pivot
             if align == Alignment.center:
-                start_x += width / 2
+                x += width / 2
             elif align == Alignment.right:
-                start_x += width
+                x += width
 
         if height is not None:
             # Align relative to box, not pivot
@@ -1615,7 +1698,6 @@ def _first_tick_callback():
         raise
 
 def _error_tick_callback():
-    logger.fatal('Stopping execution due to exception in startup frame')
     lib.Stop()
 
 def _tick_callback():
@@ -1629,7 +1711,13 @@ def _tick_callback():
     _time_uniform.value = now_time
 
     mouse._update_position()
-    _game.on_tick()
+
+    try:
+        _game.on_tick()
+    except:
+        _tick_callback_handle = lib.TickCallback(_error_tick_callback)
+        lib.SetTickCallback(_tick_callback_handle)
+        raise
 
 _game = None
 
