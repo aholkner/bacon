@@ -12,10 +12,12 @@ runs = [
     bacon.GlyphRun(bacon.Style(font2, color=(1, 0.5, 0.5, 1)), 'Bacon'),
     bacon.GlyphRun(bacon.Style(font), '!'),
 ]
-glyph_layout = bacon.GlyphLayout(runs)
+glyph_layout = bacon.GlyphLayout(runs, bacon.window.width / 2, bacon.window.height / 2, align=bacon.Alignment.center, vertical_align=bacon.VerticalAlignment.center)
 
 class Game(bacon.Game):
     def on_tick(self):
         bacon.clear(0, 0, 0, 1)
-        bacon.draw_glyph_layout(glyph_layout, bacon.window.width / 2, bacon.window.height / 2, align=bacon.TextAlignment.center | bacon.TextAlignment.vertical_center)
+        glyph_layout.x = bacon.window.width / 2
+        glyph_layout.y = bacon.window.height / 2
+        bacon.draw_glyph_layout(glyph_layout)
 bacon.run(Game())

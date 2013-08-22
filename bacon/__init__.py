@@ -109,17 +109,6 @@ ControllerAxes = native.ControllerAxes
 Keys = native.Keys
 MouseButtons = native.MouseButtons
 
-@native.flags
-class TextAlignment(object):
-    left = 1 << 0
-    center = 1 << 1
-    right = 1 << 2
-
-    top = 1 << 8
-    vertical_center = 1 << 9
-    baseline = 1 << 10
-    bottom = 1 << 11
-
 class Game(object):
     '''Base class for all Bacon games.  An instance of this class is passed to :func:`run`.  Override methods on
     this class to handle game events such as :func:`on_tick`.  A complete example of a game::
@@ -728,23 +717,192 @@ class GlyphLine(object):
         self.content_width = content_width
         self.ascent = ascent
         self.descent = descent
+        self.x = 0
+        self.y = 0
+
+
+@native.enum
+class Alignment(object):
+    left = 0
+    center = 1
+    right = 2
+
+@native.enum
+class VerticalAlignment(object):
+    baseline = 0
+    top = 1
+    center = 2
+    bottom = 3
+
+@native.enum
+class Overflow(object):
+    none = 0
+    wrap = 1
 
 class GlyphLayout(object):
     '''Caches a layout of glyphs rendering a given string with bounding rectangle, layout metrics.
-
-    :note: Incomplete, word-wrapping and alignment are not implemented.
     '''
-    def __init__(self, runs, width=None):
-        if width is None:
-            self.lines = [GlyphLine(runs, 
-                                    content_width=sum(run.advance for run in runs), 
-                                    ascent=min(run.style.font.ascent for run in runs),
-                                    descent=max(run.style.font.descent for run in runs))]
+    def __init__(self, runs, x, y, width=None, height=None, align=Alignment.left, vertical_align=VerticalAlignment.baseline, overflow=Overflow.wrap):
+        self._runs = runs
+        self._x = x
+        self._y = y
+        self._width = width
+        self._height = height
+        self._align = align
+        self._vertical_align = vertical_align
+        self._overflow = overflow
+        self._dirty = True
+
+        self._content_width = None
+        self._content_height = None
+        self._lines = None
+
+    def _get_runs(self):
+        return self._runs
+    def _set_runs(self, runs):
+        self._runs = runs
+        self._dirty = True
+    runs = property(_get_runs, _set_runs)
+
+    def _get_x(self):
+        return self._x
+    def _set_x(self, x):
+        if x != self._x:
+            self._x = x
+            self._dirty = True
+    x = property(_get_x, _set_x)
+
+    def _get_y(self):
+        return self._y
+    def _set_y(self, y):
+        if y != self._y:
+            self._y = y
+            self._dirty = True
+    y = property(_get_y, _set_y)
+    
+    def _get_width(self):
+        return self._width
+    def _set_width(self, width):
+        if width != self._width:
+            self._width = width
+            self._dirty = True
+    width = property(_get_width, _set_width)
+
+    def _get_height(self):
+        return self._height
+    def _set_height(self, height):
+        if height != self._height:
+            self._height = height
+            self._dirty = True
+    height = property(_get_height, _set_height)
+
+    def _get_align(self):
+        return self._align
+    def _set_align(self, align):
+        if align != self._align:
+            self._align = align
+            self._dirty = True
+    align = property(_get_align, _set_align)
+
+    def _get_vertical_align(self):
+        return self._vertical_align
+    def _set_vertical_align(self, vertical_align):
+        if vertical_align != self._vertical_align:
+            self._vertical_align = vertical_align
+            self._dirty = True
+    vertical_align = property(_get_vertical_align, _set_vertical_align)
+
+    def _get_overflow(self):
+        return self._overflow
+    def _set_overflow(self, overflow):
+        if overflow != self._overflow:
+            self._overflow = overflow
+            self._dirty = True
+    overflow = property(_get_overflow, _set_height)
+
+    @property
+    def lines(self):
+        if self._dirty:
+            self._update()
+        return self._lines
+
+    @property
+    def content_width(self):
+        if self._dirty:
+            self._update()
+        return self._content_width
+
+    @property
+    def content_height(self):
+        if self._dirty:
+            self._update()
+        return self._content_height
+
+    def _update(self):
+        self._dirty = False
+
+        if self._width is None:
+            self._lines = [GlyphLine(self._runs, 
+                                     content_width=sum(run.advance for run in self._runs), 
+                                     ascent=min(run.style.font.ascent for run in self._runs),
+                                     descent=max(run.style.font.descent for run in self._runs))]
         else:
             raise NotImplemented()
 
-        self.content_width = sum(line.content_width for line in self.lines)
-        self.content_height = sum(line.descent - line.ascent for line in self.lines)
+        self._content_width = sum(line.content_width for line in self.lines)
+        self._content_height = sum(line.descent - line.ascent for line in self.lines)
+
+        self._update_line_position()
+
+    def _update_line_position(self):
+        if not self._lines:
+            return
+
+        x = self._x
+        y = self._y
+        width = self._width
+        height = self._height
+        align = self._align
+        vertical_align = self._vertical_align
+
+        if self._width is not None:
+            # Align relative to box, not pivot
+            if align == Alignment.center:
+                start_x += width / 2
+            elif align == Alignment.right:
+                start_x += width
+
+        if height is not None:
+            # Align relative to box, not pivot
+            if vertical_align == VerticalAlignment.center:
+                y += height / 2
+            elif vertical_align == VerticalAlignment.bottom:
+                y += height
+            elif vertical_align == VerticalAlignment.baseline:
+                vertical_align = VerticalAlignment.top
+
+        # Align first baseline vertically against pivot
+        line = self.lines[0]
+        if vertical_align == VerticalAlignment.center:
+            y -= self._content_height / 2
+        elif vertical_align == VerticalAlignment.bottom:
+            y -= self._content_height + line.descent
+        elif vertical_align == VerticalAlignment.baseline:
+            y += line.ascent
+
+        # Layout lines
+        start_x = x
+        for line in self._lines:
+            x = start_x
+            if align == Alignment.center:
+                x -= line.content_width / 2
+            elif align == Alignment.right:
+                x -= line.content_width
+
+            y -= self._lines[0].ascent
+
+            line.x = x
+            line.y = y
 
 class Sound(object):
     '''Loads a sound from disk.  Supported formats are WAV (``.wav``) and Ogg Vorbis (``.ogg``).
@@ -1744,7 +1902,7 @@ fill_rect.__doc__ = '''Fill a rectangle bounding coordinates ``(x1, y1)`` to ``(
 No texture is applied.
 '''
 
-def draw_string(font, text, x, y, width=None, height=None, align=(TextAlignment.baseline | TextAlignment.left)):
+def draw_string(font, text, x, y, width=None, height=None, align=Alignment.left, vertical_align=VerticalAlignment.baseline):
     '''Draw a string with the given font.
 
     :note: Text alignment and word-wrapping is not yet implemented.  The text is rendered with the left edge and
@@ -1755,51 +1913,19 @@ def draw_string(font, text, x, y, width=None, height=None, align=(TextAlignment.
     '''
     style = Style(font)
     run = GlyphRun(style, text)
-    glyph_layout = GlyphLayout([run], width)
-    draw_glyph_layout(glyph_layout, x, y, width, height, align)
+    glyph_layout = GlyphLayout([run], x, y, width, height, align, vertical_align)
+    draw_glyph_layout(glyph_layout)
 
-def draw_glyph_layout(glyph_layout, x, y, width=None, height=None, align=(TextAlignment.baseline | TextAlignment.left)):
-    '''Draw a prepared :class:`GlyphLayout` at the given coordinates.
+def draw_glyph_layout(glyph_layout):
+    '''Draw a prepared :class:`GlyphLayout`
     '''
-    start_x = x
-
-    if width is not None:
-        # Align relative to box, not pivot
-        if align & TextAlignment.center:
-            start_x += width / 2
-        elif align & TextAlignment.right:
-            start_x += width
-
-    if height is not None:
-        # Align relative to box, not pivot
-        if align & TextAlignment.vertical_center:
-            y += height / 2
-        elif align & TextAlignment.bottom:
-            y += height
-        elif align & TextAlignment.baseline:
-            align = (align & ~TextAlignment.baseline) | TextAlignment.top
-
-    # Align first baseline vertically against pivot
-    line = glyph_layout.lines[0]
-    if align & TextAlignment.vertical_center:
-        y -= glyph_layout.content_height / 2
-    elif align & TextAlignment.bottom:
-        y -= glyph_layout.content_height + line.descent
-    elif align & TextAlignment.baseline:
-        y += line.ascent
-            
     pushed_color = False
 
     # Draw lines
     for line in glyph_layout.lines:
-        x = start_x
-        if align & TextAlignment.center:
-            x -= line.content_width / 2
-        elif align & TextAlignment.right:
-            x -= line.content_width
-
-        y -= glyph_layout.lines[0].ascent
-
+        x = line.x
+        y = line.y
+        
         for run in line.runs:
             style = run.style
             if style.color is not None:
