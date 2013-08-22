@@ -42,11 +42,12 @@ void Tick()
 
     int kw, kh;
     Bacon_GetImageSize(g_Kitten, &kw, &kh);
-
+    Bacon_DrawImage(g_Kitten, 100.f, 100.f, 100.f + kw, 100.f + kh);
+	
     int keyState;
     Bacon_GetKeyState(Key_Space, &keyState);
     if (keyState)
-        Bacon_DrawImage(g_Kitten, 100.f, 100.f, 100.f + kw, 100.f + kh);
+		Bacon_DrawDebugOverlay();
 }
 
 void OnControllerConnected(int controller, int connected)
@@ -111,7 +112,7 @@ int main(int argc, const char * argv[])
 	error = Bacon_GetFontMetrics(g_Font, 64.f, &ascent, &descent);
 
 	int g = 0;
-	for (char c : "Abcdefg")
+	for (char c : "abcdefgh")
 	{
 		if (!c)
 			break;

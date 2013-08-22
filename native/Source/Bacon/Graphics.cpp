@@ -90,7 +90,7 @@ namespace {
 		float m_BiasX;
 		float m_BiasY;
 		
-		vec2f Apply(vec2f const& v)
+		vec2f Apply(vec2f const& v) const
 		{
 			return vec2f(m_BiasX + v.x() * m_ScaleX,
 						 m_BiasY + v.y() * m_ScaleY);
@@ -122,7 +122,6 @@ namespace {
 		int m_Flags;
 		int m_Width;
 		int m_Height;
-		// TODO packing rects
 	};
 	
 	struct Image
@@ -283,7 +282,10 @@ void Graphics_Init()
 	s_Impl->m_TransformStack.push_back(mat4f::IDENTITY);
 	s_Impl->m_SharedUniformsVersion = 0;
 	
-	Bacon_CreateImage(&s_Impl->m_BlankImage, 1, 1, 0); // TODO fix
+	Bacon_CreateImage(&s_Impl->m_BlankImage, 1, 1, Bacon_ImageFlags_DiscardBitmap | Bacon_ImageFlags_Atlas);
+	FIBITMAP* blankBitmap = FreeImage_Allocate(1, 1, 32);
+	memset(FreeImage_GetBits(blankBitmap), 255, 4);
+	Graphics_SetImageBitmap(s_Impl->m_BlankImage, blankBitmap);
 	
 	FreeImage_Initialise(TRUE);
 	
@@ -1172,8 +1174,8 @@ static void Blit32Line(char* destData, int destPitch, const char* srcData, int s
 	const char* src = srcData + srcPitch * srcY + srcX * 4;
 	
 	// Left margin
-	for (int x = destX - margin; x < destX; ++x)
-		memcpy(dest - (margin - x) * 4, src, 4);
+	for (int x = -margin; x < 0; ++x)
+		memcpy(dest + x * 4, src, 4);
 		
 	// Row
 	memcpy(dest, src, size * 4);
@@ -1595,6 +1597,20 @@ int Bacon_Clear(float r, float g, float b, float a)
 	return Bacon_Error_None;
 }
 
+static float DefaultQuadTexCoords[] = {
+	0, 1,
+	0, 0,
+	1, 0,
+	1, 1
+};
+
+static float DefaultQuadColors[] = {
+	1.f, 1.f, 1.f, 1.f,
+	1.f, 1.f, 1.f, 1.f,
+	1.f, 1.f, 1.f, 1.f,
+	1.f, 1.f, 1.f, 1.f,
+};
+
 int Bacon_DrawImage(int image, float x1, float y1, float x2, float y2)
 {
 	float z = s_Impl->m_CurrentZ;
@@ -1604,20 +1620,8 @@ int Bacon_DrawImage(int image, float x1, float y1, float x2, float y2)
 		x2, y2, z,
 		x2, y1, z
 	};
-	float texCoords[] = {
-		0, 1,
-		0, 0,
-		1, 0,
-		1, 1
-	};
-	float colors[] = {
-		1.f, 1.f, 1.f, 1.f,
-		1.f, 1.f, 1.f, 1.f,
-		1.f, 1.f, 1.f, 1.f,
-		1.f, 1.f, 1.f, 1.f,
-	};
 	
-	return Bacon_DrawImageQuad(image, positions, texCoords, colors);
+	return Bacon_DrawImageQuad(image, positions, DefaultQuadTexCoords, DefaultQuadColors);
 }
 
 int Bacon_DrawImageRegion(int imageHandle, float x1, float y1, float x2, float y2,
@@ -1666,10 +1670,39 @@ inline void SetCurrentMode(GLuint mode)
 	}
 }
 
+inline void SetCurrentTexture(int textureHandle)
+{
+	SetSharedUniformValue(s_Impl->m_Texture0Uniform, textureHandle);
+}
+
 inline void SetCurrentImage(Image* image)
 {
 	RealizeTexture(image);
-	SetSharedUniformValue(s_Impl->m_Texture0Uniform, image->m_Texture);
+	SetCurrentTexture(image->m_Texture);
+}
+
+void Graphics_DrawQuad(float* positions, float* texCoords, float* colors, UVScaleBias const& uvScaleBias)
+{
+	SetCurrentMode(GL_TRIANGLES);
+	
+	mat4f const& transform = s_Impl->m_TransformStack.back();
+	vec4f const& color = s_Impl->m_ColorStack.back();
+	vector<Vertex>& vertices = s_Impl->m_Vertices;
+	unsigned short index = vertices.size();
+	for (int i = 0; i < 4; ++i)
+		vertices.push_back(Vertex(
+								  transform * vec3f(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]),
+								  uvScaleBias.Apply(vec2f(texCoords[i * 2], texCoords[i * 2 + 1])),
+								  color * vec4f(colors[i * 4], colors[i * 4 + 1], colors[i * 4 + 2], colors[i * 4 + 3])
+								  ));
+	
+	vector<unsigned short>& indices = s_Impl->m_Indices;
+	indices.push_back(index + 0);
+	indices.push_back(index + 1);
+	indices.push_back(index + 2);
+	indices.push_back(index + 0);
+	indices.push_back(index + 2);
+	indices.push_back(index + 3);
 }
 
 int Bacon_DrawImageQuad(int imageHandle, float* positions, float* texCoords, float* colors)
@@ -1681,28 +1714,24 @@ int Bacon_DrawImageQuad(int imageHandle, float* positions, float* texCoords, flo
 		return Bacon_Error_InvalidHandle;
 
 	SetCurrentImage(image);
-	SetCurrentMode(GL_TRIANGLES);
-	
-	mat4f const& transform = s_Impl->m_TransformStack.back();
-	vec4f const& color = s_Impl->m_ColorStack.back();
-	vector<Vertex>& vertices = s_Impl->m_Vertices;
-	unsigned short index = vertices.size();
-	for (int i = 0; i < 4; ++i)
-		vertices.push_back(Vertex(
-			transform * vec3f(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]),
-			image->m_UVScaleBias.Apply(vec2f(texCoords[i * 2], texCoords[i * 2 + 1])),
-			color * vec4f(colors[i * 4], colors[i * 4 + 1], colors[i * 4 + 2], colors[i * 4 + 3])
-		));
-	
-	vector<unsigned short>& indices = s_Impl->m_Indices;
-	indices.push_back(index + 0);
-	indices.push_back(index + 1);
-	indices.push_back(index + 2);
-	indices.push_back(index + 0);
-	indices.push_back(index + 2);
-	indices.push_back(index + 3);
+	Graphics_DrawQuad(positions, texCoords, colors, image->m_UVScaleBias);
 	
 	return Bacon_Error_None;
+}
+
+
+void Graphics_DrawTexture(int texture, float x1, float y1, float x2, float y2)
+{
+	float z = s_Impl->m_CurrentZ;
+	float positions[] = {
+		x1, y1, z,
+		x1, y2, z,
+		x2, y2, z,
+		x2, y1, z
+	};
+	
+	SetCurrentTexture(texture);
+	Graphics_DrawQuad(positions, DefaultQuadTexCoords, DefaultQuadColors, UVScaleBias());
 }
 
 int Bacon_DrawLine(float x1, float y1, float x2, float y2)
@@ -1753,4 +1782,19 @@ int Bacon_Flush()
 	s_Impl->m_Vertices.clear();
 	
 	return Bacon_Error_None;
+}
+
+void Graphics_DrawDebugOverlay()
+{
+	int drawTextureAtlas = 0;
+	for (TextureAtlas& atlas : s_Impl->m_TextureAtlases)
+	{
+		if (drawTextureAtlas-- != 0)
+			continue;
+	
+		Bacon_SetColor(0, 0, 0, 1);
+		Bacon_DrawImage(s_Impl->m_BlankImage, 0, 0, atlas.m_Width, atlas.m_Height);
+		Bacon_SetColor(1, 1, 1, 1);
+		Graphics_DrawTexture(atlas.m_Texture, 0, 0, atlas.m_Width, atlas.m_Height);
+	}
 }

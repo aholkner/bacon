@@ -25,6 +25,7 @@ void Graphics_BeginFrame(int width, int height);
 void Graphics_EndFrame();
 int Graphics_GetImageBitmap(int handle, FIBITMAP** bitmap);
 int Graphics_SetImageBitmap(int handle, FIBITMAP* bitmap);
+void Graphics_DrawDebugOverlay();
 
 void Keyboard_Init();
 void Keyboard_Shutdown();
@@ -45,3 +46,4 @@ void Platform_Stop();
 void Window_Init();
 void Window_Shutdown();
 void Window_OnSizeChanged(int width, int height);
+

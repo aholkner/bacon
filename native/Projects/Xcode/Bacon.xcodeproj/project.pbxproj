@@ -815,6 +815,7 @@
 		FA867F2F17B492260027B6E4 /* ArrayBoundsClamper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA867F2B17B492260027B6E4 /* ArrayBoundsClamper.cpp */; };
 		FA867F3017B492260027B6E4 /* ArrayBoundsClamper.h in Headers */ = {isa = PBXBuildFile; fileRef = FA867F2C17B492260027B6E4 /* ArrayBoundsClamper.h */; };
 		FA940F6717C4EAA500B5FF13 /* MaxRectsAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA940F6517C4EAA000B5FF13 /* MaxRectsAllocator.cpp */; };
+		FA940F6A17C596A700B5FF13 /* DebugOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA940F6817C596A700B5FF13 /* DebugOverlay.cpp */; };
 		FADE9ECA17ABEEEC008F54B5 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADE9EC917ABEEEC008F54B5 /* OpenGL.framework */; };
 		FADE9ECC17ABEEFC008F54B5 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADE9ECB17ABEEFC008F54B5 /* CoreVideo.framework */; };
 		FAE5DF0F17A4F224008013E5 /* tif_unix.c in Sources */ = {isa = PBXBuildFile; fileRef = FA2B621617A4ED7D00C96A83 /* tif_unix.c */; };
@@ -1975,6 +1976,7 @@
 		FA940F5917C2CB8C00B5FF13 /* Rect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Rect.h; sourceTree = "<group>"; };
 		FA940F6417C4EA5D00B5FF13 /* MaxRectsAllocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaxRectsAllocator.h; sourceTree = "<group>"; };
 		FA940F6517C4EAA000B5FF13 /* MaxRectsAllocator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MaxRectsAllocator.cpp; sourceTree = "<group>"; };
+		FA940F6817C596A700B5FF13 /* DebugOverlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebugOverlay.cpp; sourceTree = "<group>"; };
 		FADE9EC917ABEEEC008F54B5 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		FADE9ECB17ABEEFC008F54B5 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		FAE5DF1C17A53D5F008013E5 /* NativeHost */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NativeHost; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2387,6 +2389,7 @@
 				FA940F5917C2CB8C00B5FF13 /* Rect.h */,
 				FA940F6417C4EA5D00B5FF13 /* MaxRectsAllocator.h */,
 				FA940F6517C4EAA000B5FF13 /* MaxRectsAllocator.cpp */,
+				FA940F6817C596A700B5FF13 /* DebugOverlay.cpp */,
 			);
 			path = Bacon;
 			sourceTree = "<group>";
@@ -4659,6 +4662,7 @@
 				FA1E172817ADE47900CFDFC8 /* Window.cpp in Sources */,
 				FA1E172617ADE47900CFDFC8 /* View.mm in Sources */,
 				FA940F6717C4EAA500B5FF13 /* MaxRectsAllocator.cpp in Sources */,
+				FA940F6A17C596A700B5FF13 /* DebugOverlay.cpp in Sources */,
 				FA1E172517ADE47900CFDFC8 /* Platform.mm in Sources */,
 				FA1E172117ADE47900CFDFC8 /* Keyboard.cpp in Sources */,
 				FA1E171A17ADE47900CFDFC8 /* Audio.cpp in Sources */,
