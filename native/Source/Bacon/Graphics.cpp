@@ -1780,8 +1780,8 @@ int Bacon_DrawLine(float x1, float y1, float x2, float y2)
 	vec4f const& color = s_Impl->m_ColorStack.back();
 	vector<Vertex>& vertices = s_Impl->m_Vertices;
 	unsigned short index = vertices.size();
-	vertices.push_back(Vertex(transform * vec3f(x1, y1, z), vec2f(0, 0), color));
-	vertices.push_back(Vertex(transform * vec3f(x2, y2, z), vec2f(1, 1), color));
+	vertices.push_back(Vertex(transform * vec3f(x1, y1, z), image->m_UVScaleBias.Apply(vec2f(0, 0)), color));
+	vertices.push_back(Vertex(transform * vec3f(x2, y2, z), image->m_UVScaleBias.Apply(vec2f(1, 1)), color));
 
 	vector<unsigned short>& indices = s_Impl->m_Indices;
 	indices.push_back(index + 0);
