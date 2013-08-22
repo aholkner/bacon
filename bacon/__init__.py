@@ -109,6 +109,17 @@ ControllerAxes = native.ControllerAxes
 Keys = native.Keys
 MouseButtons = native.MouseButtons
 
+@native.flags
+class TextAlignment(object):
+    left = 1 << 0
+    center = 1 << 1
+    right = 1 << 2
+
+    top = 1 << 8
+    vertical_center = 1 << 9
+    baseline = 1 << 10
+    bottom = 1 << 11
+
 class Game(object):
     '''Base class for all Bacon games.  An instance of this class is passed to :func:`run`.  Override methods on
     this class to handle game events such as :func:`on_tick`.  A complete example of a game::
@@ -699,14 +710,41 @@ class Font(object):
         '''
         return [self.get_glyph(c) for c in str]
 
+class Style(object):
+    def __init__(self, font, color=None, background_color=None):
+        self.font = font
+        self.color = color
+        self.background_color = background_color
+
+class GlyphRun(object):
+    def __init__(self, style, text):
+        self.glyphs = style.font.get_glyphs(text)
+        self.style = style
+        self.advance = sum(g.advance for g in self.glyphs)
+
+class GlyphLine(object):
+    def __init__(self, runs, content_width, ascent, descent):
+        self.runs = runs
+        self.content_width = content_width
+        self.ascent = ascent
+        self.descent = descent
+
 class GlyphLayout(object):
     '''Caches a layout of glyphs rendering a given string with bounding rectangle, layout metrics.
 
     :note: Incomplete, word-wrapping and alignment are not implemented.
     '''
-    def __init__(self, glyphs, width=None):
-        self.lines = [glyphs]
-        # TODO word-wrapping
+    def __init__(self, runs, width=None):
+        if width is None:
+            self.lines = [GlyphLine(runs, 
+                                    content_width=sum(run.advance for run in runs), 
+                                    ascent=min(run.style.font.ascent for run in runs),
+                                    descent=max(run.style.font.descent for run in runs))]
+        else:
+            raise NotImplemented()
+
+        self.content_width = sum(line.content_width for line in self.lines)
+        self.content_height = sum(line.descent - line.ascent for line in self.lines)
 
 class Sound(object):
     '''Loads a sound from disk.  Supported formats are WAV (``.wav``) and Ogg Vorbis (``.ogg``).
@@ -1414,9 +1452,13 @@ def _first_tick_callback():
         _game.on_init()
         _tick_callback()
     except:
-        logger.exception('Exception raised before first frame rendered')
-        lib.Stop()
+        _tick_callback_handle = lib.TickCallback(_error_tick_callback)
+        lib.SetTickCallback(_tick_callback_handle)
         raise
+
+def _error_tick_callback():
+    logger.fatal('Stopping execution due to exception in startup frame')
+    lib.Stop()
 
 def _tick_callback():
     global _last_frame_time
@@ -1702,7 +1744,7 @@ fill_rect.__doc__ = '''Fill a rectangle bounding coordinates ``(x1, y1)`` to ``(
 No texture is applied.
 '''
 
-def draw_string(font, text, x, y):
+def draw_string(font, text, x, y, width=None, height=None, align=(TextAlignment.baseline | TextAlignment.left)):
     '''Draw a string with the given font.
 
     :note: Text alignment and word-wrapping is not yet implemented.  The text is rendered with the left edge and
@@ -1711,21 +1753,71 @@ def draw_string(font, text, x, y):
     :param font: the :class:`Font` to render text with
     :param text: a string of text to render.
     '''
-    glyphs = font.get_glyphs(text)
-    glyph_layout = GlyphLayout(glyphs)
-    draw_glyph_layout(glyph_layout, x, y)
+    style = Style(font)
+    run = GlyphRun(style, text)
+    glyph_layout = GlyphLayout([run], width)
+    draw_glyph_layout(glyph_layout, x, y, width, height, align)
 
-def draw_glyph_layout(glyph_layout, x, y):
+def draw_glyph_layout(glyph_layout, x, y, width=None, height=None, align=(TextAlignment.baseline | TextAlignment.left)):
     '''Draw a prepared :class:`GlyphLayout` at the given coordinates.
     '''
     start_x = x
+
+    if width is not None:
+        # Align relative to box, not pivot
+        if align & TextAlignment.center:
+            start_x += width / 2
+        elif align & TextAlignment.right:
+            start_x += width
+
+    if height is not None:
+        # Align relative to box, not pivot
+        if align & TextAlignment.vertical_center:
+            y += height / 2
+        elif align & TextAlignment.bottom:
+            y += height
+        elif align & TextAlignment.baseline:
+            align = (align & ~TextAlignment.baseline) | TextAlignment.top
+
+    # Align first baseline vertically against pivot
+    line = glyph_layout.lines[0]
+    if align & TextAlignment.vertical_center:
+        y -= glyph_layout.content_height / 2
+    elif align & TextAlignment.bottom:
+        y -= glyph_layout.content_height + line.descent
+    elif align & TextAlignment.baseline:
+        y += line.ascent
+            
+    pushed_color = False
+
+    # Draw lines
     for line in glyph_layout.lines:
         x = start_x
-        for glyph in line:
-            if glyph.image:
-                draw_image(glyph.image, x + glyph.offset_x, y - glyph.offset_y)
-            x += glyph.advance
+        if align & TextAlignment.center:
+            x -= line.content_width / 2
+        elif align & TextAlignment.right:
+            x -= line.content_width
 
+        y -= glyph_layout.lines[0].ascent
+
+        for run in line.runs:
+            style = run.style
+            if style.color is not None:
+                if not pushed_color:
+                    bacon.push_color()
+                    pushed_color = True
+                bacon.set_color(*style.color)
+            elif pushed_color:
+                bacon.pop_color()
+                pushed_color = False
+
+            for glyph in run.glyphs:
+                if glyph.image:
+                    draw_image(glyph.image, x + glyph.offset_x, y - glyph.offset_y)
+                x += glyph.advance
+
+    if pushed_color:
+        bacon.pop_color()
 
 # Initialize library now
 if not _mock_native:
