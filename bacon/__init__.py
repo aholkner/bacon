@@ -606,17 +606,17 @@ class _FontFile(object):
         self._handle = -1
 
     def get_metrics(self, size):
-        ascent = c_float()
-        descent = c_float()
+        ascent = c_int()
+        descent = c_int()
         lib.GetFontMetrics(self._handle, size, byref(ascent), byref(descent))
-        return FontMetrics(-round(ascent.value), -round(descent.value))
+        return FontMetrics(-ascent.value, -descent.value)
 
-    def get_glyph(self, size, char):
+    def get_glyph(self, size, char, flags):
         image_handle = c_int()
-        offset_x = c_float()
-        offset_y = c_float()
-        advance = c_float()
-        lib.GetGlyph(self._handle, size, ord(char), 
+        offset_x = c_int()
+        offset_y = c_int()
+        advance = c_int()
+        lib.GetGlyph(self._handle, size, ord(char), flags,
             byref(image_handle), byref(offset_x), byref(offset_y), byref(advance))
 
         if image_handle.value:
@@ -653,13 +653,17 @@ class Font(object):
     :param file: path to a font file to load.  Supported formats include TrueType, OpenType, PostScript, etc.
     :param size: the point size to load the font at
     '''
-    def __init__(self, file, size):
+    def __init__(self, file, size, light_hinting=False):
         if type(file) is _FontFile:
             self._font_file = file
         else:
             self._font_file = _FontFile.get_font_file(file)
         self._size = size
         self._glyphs = { }
+        self._flags = 0
+
+        if light_hinting:
+            self._flags |= native.FontFlags.light_hinting
 
         self._metrics = self._font_file.get_metrics(size)
 
@@ -689,7 +693,7 @@ class Font(object):
         try:
             return self._glyphs[char]
         except KeyError:
-            glyph = self._font_file.get_glyph(self._size, char)
+            glyph = self._font_file.get_glyph(self._size, char, self._flags)
             self._glyphs[char] = glyph
             return glyph
 

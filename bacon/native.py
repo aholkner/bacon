@@ -112,6 +112,10 @@ class ImageFlags(object):
     discard_bitmap = 1 << 1
     atlas = 1 << 2
 
+@flags
+class FontFlags(object):
+    light_hinting = 1 << 0
+
 @enum
 class ShaderUniformType(object):
     none            = 0
@@ -466,8 +470,8 @@ def load(function_wrapper = None):
 
     LoadFont = fn(_lib.Bacon_LoadFont, POINTER(c_int), c_char_p)
     UnloadFont = fn(_lib.Bacon_UnloadFont, c_int)
-    GetFontMetrics = fn(_lib.Bacon_GetFontMetrics, c_int, c_float, POINTER(c_float), POINTER(c_float))
-    GetGlyph = fn(_lib.Bacon_GetGlyph, c_int, c_float, c_int, POINTER(c_int), POINTER(c_float), POINTER(c_float), POINTER(c_float))
+    GetFontMetrics = fn(_lib.Bacon_GetFontMetrics, c_int, c_float, POINTER(c_int), POINTER(c_int))
+    GetGlyph = fn(_lib.Bacon_GetGlyph, c_int, c_float, c_int, c_int, POINTER(c_int), POINTER(c_int), POINTER(c_int), POINTER(c_int))
 
     GetKeyState = fn(_lib.Bacon_GetKeyState, c_int, POINTER(c_int))
     SetKeyEventHandler = fn(_lib.Bacon_SetKeyEventHandler, KeyEventHandler)

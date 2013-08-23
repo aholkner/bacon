@@ -139,6 +139,11 @@ enum Bacon_ImageFlags
 	Bacon_ImageFlags_Reserved = 1 << 16
 };
 
+enum Bacon_FontFlags
+{
+	Bacon_FontFlags_LightHinting = 1 << 0
+};
+
 enum Bacon_ShaderUniformTypes
 {
 	// Values must match ShDataType in ShaderLang.h
@@ -353,9 +358,9 @@ extern "C" {
 	// Fonts
 	BACON_API int Bacon_LoadFont(int* outHandle, const char* path);
 	BACON_API int Bacon_UnloadFont(int font);
-	BACON_API int Bacon_GetFontMetrics(int font, float size, float* outAscent, float* outDescent);
-	BACON_API int Bacon_GetGlyph(int font, float size, int character, int* outImage,
-					             float* outOffsetX, float* outOffsetY, float* outAdvance);
+	BACON_API int Bacon_GetFontMetrics(int font, float size, int* outAscent, int* outDescent);
+	BACON_API int Bacon_GetGlyph(int font, float size, int character, int flags, int* outImage,
+					             int* outOffsetX, int* outOffsetY, int* outAdvance);
 
 	
 	// Keyboard

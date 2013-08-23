@@ -3,6 +3,8 @@
 #include "HandleArray.h"
 using namespace Bacon;
 
+#include <string.h>
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -73,7 +75,7 @@ int Bacon_UnloadFont(int handle)
 	return Bacon_Error_None;
 }
 
-int Bacon_GetFontMetrics(int handle, float size, float* outAscent, float* outDescent)
+int Bacon_GetFontMetrics(int handle, float size, int* outAscent, int* outDescent)
 {
 	if (!outAscent || !outDescent || size <= 0.f)
 		return Bacon_Error_InvalidArgument;
@@ -86,14 +88,14 @@ int Bacon_GetFontMetrics(int handle, float size, float* outAscent, float* outDes
 	if (FT_Set_Char_Size(face, 0, (int)(size * 64), Dpi, Dpi))
 		return Bacon_Error_InvalidFontSize;
 	
-	*outAscent = face->size->metrics.ascender / 64.f;
-	*outDescent = face->size->metrics.descender / 64.f;
+	*outAscent = (int)(face->size->metrics.ascender / 64);
+	*outDescent = (int)(face->size->metrics.descender / 64);
 	
 	return Bacon_Error_None;
 }
 
-int Bacon_GetGlyph(int handle, float size, int character, int* outImage,
-			 float* outOffsetX, float* outOffsetY, float* outAdvance)
+int Bacon_GetGlyph(int handle, float size, int character, int flags, int* outImage,
+			 int* outOffsetX, int* outOffsetY, int* outAdvance)
 {
 	if (!outImage || !outOffsetX || !outOffsetY || !outAdvance)
 		return Bacon_Error_InvalidArgument;
@@ -106,7 +108,10 @@ int Bacon_GetGlyph(int handle, float size, int character, int* outImage,
 	if (FT_Set_Char_Size(face, 0, (int)(size * 64), Dpi, Dpi))
 		return Bacon_Error_InvalidFontSize;
 
-	FT_Load_Char(face, character, FT_LOAD_RENDER | FT_LOAD_COLOR);
+	int loadFlags = FT_LOAD_RENDER | FT_LOAD_COLOR;
+	if (flags & Bacon_FontFlags_LightHinting)
+		loadFlags |= FT_LOAD_TARGET_LIGHT;
+	FT_Load_Char(face, character, loadFlags);
 
 	if (face->glyph->bitmap.width && face->glyph->bitmap.rows)
 	{
@@ -133,6 +138,12 @@ int Bacon_GetGlyph(int handle, float size, int character, int* outImage,
 		
 		FIBITMAP* bmp = FreeImage_ConvertFromRawBits(face->glyph->bitmap.buffer,
 													 width, height, face->glyph->bitmap.pitch, bpp, 0, 0, 0, TRUE);
+		if (bpp == 1)
+		{
+			RGBQUAD *palette = FreeImage_GetPalette(bmp);
+			memset(&palette[0], 0, sizeof(RGBQUAD));
+			memset(&palette[1], 255, sizeof(RGBQUAD));
+		}
 		FIBITMAP* bmp32 = FreeImage_ConvertTo32Bits(bmp);
 		FreeImage_SetChannel(bmp32, bmp, FICC_ALPHA);
 		FreeImage_Unload(bmp);
@@ -146,7 +157,7 @@ int Bacon_GetGlyph(int handle, float size, int character, int* outImage,
 		*outImage = 0;
 	}
 	
-	*outAdvance = face->glyph->advance.x / 64.f;
+	*outAdvance = (int)(face->glyph->advance.x / 64);
 	
 	return Bacon_Error_None;
 }
