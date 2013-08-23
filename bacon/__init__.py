@@ -652,6 +652,8 @@ class Font(object):
 
     :param file: path to a font file to load.  Supported formats include TrueType, OpenType, PostScript, etc.
     :param size: the point size to load the font at
+    :param light_hinting: applies minimal autohinting to the outline; suitable for fonts designed 
+       for OS X
     '''
     def __init__(self, file, size, light_hinting=False):
         if type(file) is _FontFile:
