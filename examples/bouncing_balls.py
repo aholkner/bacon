@@ -8,11 +8,18 @@ logging.basicConfig(level=logging.INFO)
 import bacon
 import random
 
-font = bacon.Font('res/DejaVuSans.ttf', 64)
-ball_image = bacon.Image('res/ball.png')
-ball_sound = bacon.Sound('res/ball.wav')
+res = 'res'
+try:
+    if sys.frozen:
+        res = os.path.join(os.path.dirname(sys.executable), 'res')
+except AttributeError:
+    pass
 
-music = bacon.Voice(bacon.Sound('res/PowerChorus2.ogg', stream=True), loop=True)
+font = bacon.Font(res + '/DejaVuSans.ttf', 64)
+ball_image = bacon.Image(res + '/ball.png')
+ball_sound = bacon.Sound(res + '/ball.wav')
+
+music = bacon.Voice(bacon.Sound(res + '/PowerChorus2.ogg', stream=True), loop=True)
 music.play()
 
 bacon.window.resizable = True

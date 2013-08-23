@@ -354,6 +354,12 @@ osx_dll = 'Bacon.dylib'
 
 def get_dll_dir():
     try:
+        if sys.frozen:
+            return os.path.dirname(sys.executable)
+    except AttributeError:
+        pass
+
+    try:
         import pkg_resources
         if sys.platform == 'win32':
             # Extract all DLLs to temporary directory if necessary
