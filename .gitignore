@@ -32,6 +32,7 @@ build
 dist
 bacon.egg-info
 bacon/Bacon.dylib
+bacon/Bacon64.dylib
 bacon/Bacon.dll
 MANIFEST
 

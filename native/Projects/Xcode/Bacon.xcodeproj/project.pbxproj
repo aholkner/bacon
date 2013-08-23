@@ -677,6 +677,33 @@
 		FA49CA7517A78CE4003DFFFE /* psaux.c in Sources */ = {isa = PBXBuildFile; fileRef = FA49C7C117A77751003DFFFE /* psaux.c */; };
 		FA49CA7617A78CF1003DFFFE /* pshinter.c in Sources */ = {isa = PBXBuildFile; fileRef = FA49C7D517A77751003DFFFE /* pshinter.c */; };
 		FA49CA7717A78CF8003DFFFE /* psnames.c in Sources */ = {isa = PBXBuildFile; fileRef = FA49C7E417A77751003DFFFE /* psnames.c */; };
+		FA712E5D17C81FEB008024F9 /* Window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA1E171717ADE47900CFDFC8 /* Window.cpp */; };
+		FA712E5E17C81FEB008024F9 /* View.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA1E171417ADE47900CFDFC8 /* View.mm */; };
+		FA712E5F17C81FEB008024F9 /* MaxRectsAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA940F6517C4EAA000B5FF13 /* MaxRectsAllocator.cpp */; };
+		FA712E6017C81FEB008024F9 /* DebugOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA940F6817C596A700B5FF13 /* DebugOverlay.cpp */; };
+		FA712E6117C81FEB008024F9 /* Platform.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA1E171317ADE47800CFDFC8 /* Platform.mm */; };
+		FA712E6217C81FEB008024F9 /* Keyboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA1E170E17ADE47800CFDFC8 /* Keyboard.cpp */; };
+		FA712E6317C81FEB008024F9 /* Audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA1E170717ADE47800CFDFC8 /* Audio.cpp */; };
+		FA712E6417C81FEB008024F9 /* Fonts.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA1E170B17ADE47800CFDFC8 /* Fonts.cpp */; };
+		FA712E6517C81FEB008024F9 /* Mouse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA1E170F17ADE47800CFDFC8 /* Mouse.cpp */; };
+		FA712E6617C81FEB008024F9 /* Graphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA1E170C17ADE47800CFDFC8 /* Graphics.cpp */; };
+		FA712E6717C81FEB008024F9 /* HIDController.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA1E171117ADE47800CFDFC8 /* HIDController.mm */; };
+		FA712E6817C81FEB008024F9 /* Bacon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA1E170817ADE47800CFDFC8 /* Bacon.cpp */; };
+		FA712E6917C81FEB008024F9 /* Window.mm in Sources */ = {isa = PBXBuildFile; fileRef = FA1E171517ADE47900CFDFC8 /* Window.mm */; };
+		FA712E6B17C81FEB008024F9 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA7B5FBC17AC6FDF00A32A68 /* IOKit.framework */; };
+		FA712E6C17C81FEB008024F9 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADE9ECB17ABEEFC008F54B5 /* CoreVideo.framework */; };
+		FA712E6D17C81FEB008024F9 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADE9EC917ABEEEC008F54B5 /* OpenGL.framework */; };
+		FA712E6E17C81FEB008024F9 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA16421317A9439800113E18 /* OpenAL.framework */; };
+		FA712E6F17C81FEB008024F9 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA2B5BB717A4B72C00C96A83 /* Cocoa.framework */; };
+		FA712E7017C81FEB008024F9 /* libFreeImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FA2B601017A4ED3200C96A83 /* libFreeImage.a */; };
+		FA712E7117C81FEB008024F9 /* libFreeType.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FA49C63D17A77732003DFFFE /* libFreeType.a */; };
+		FA712E7217C81FEB008024F9 /* libGorillaAudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FA16412117A9422400113E18 /* libGorillaAudio.a */; };
+		FA712E7317C81FEB008024F9 /* libAngleShaderTranslater.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FA867DF417B48A010027B6E4 /* libAngleShaderTranslater.a */; };
+		FA712E7517C81FEB008024F9 /* Bacon-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = FA1E172B17ADE52900CFDFC8 /* Bacon-Prefix.pch */; };
+		FA712E7617C81FEB008024F9 /* HandleArray.h in Headers */ = {isa = PBXBuildFile; fileRef = FA1E170D17ADE47800CFDFC8 /* HandleArray.h */; };
+		FA712E7717C81FEB008024F9 /* Platform.h in Headers */ = {isa = PBXBuildFile; fileRef = FA1E171217ADE47800CFDFC8 /* Platform.h */; };
+		FA712E7817C81FEB008024F9 /* Bacon.h in Headers */ = {isa = PBXBuildFile; fileRef = FA1E170917ADE47800CFDFC8 /* Bacon.h */; };
+		FA712E7917C81FEB008024F9 /* BaconInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = FA1E170A17ADE47800CFDFC8 /* BaconInternal.h */; };
 		FA7B5FBD17AC6FDF00A32A68 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA7B5FBC17AC6FDF00A32A68 /* IOKit.framework */; };
 		FA867E9417B48A290027B6E4 /* angleutils.h in Headers */ = {isa = PBXBuildFile; fileRef = FA867DF917B48A290027B6E4 /* angleutils.h */; };
 		FA867E9617B48A2A0027B6E4 /* debug.h in Headers */ = {isa = PBXBuildFile; fileRef = FA867DFB17B48A290027B6E4 /* debug.h */; };
@@ -1827,6 +1854,7 @@
 		FA49C86E17A77751003DFFFE /* rules.mk */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = rules.mk; sourceTree = "<group>"; };
 		FA49C86F17A77751003DFFFE /* winfnt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = winfnt.c; sourceTree = "<group>"; };
 		FA49C87017A77751003DFFFE /* winfnt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = winfnt.h; sourceTree = "<group>"; };
+		FA712E7D17C81FEB008024F9 /* Bacon64.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Bacon64.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA7B5FBC17AC6FDF00A32A68 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		FA867DF417B48A010027B6E4 /* libAngleShaderTranslater.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAngleShaderTranslater.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA867DF917B48A290027B6E4 /* angleutils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = angleutils.h; sourceTree = "<group>"; };
@@ -2073,6 +2101,22 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA712E6A17C81FEB008024F9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA712E6B17C81FEB008024F9 /* IOKit.framework in Frameworks */,
+				FA712E6C17C81FEB008024F9 /* CoreVideo.framework in Frameworks */,
+				FA712E6D17C81FEB008024F9 /* OpenGL.framework in Frameworks */,
+				FA712E6E17C81FEB008024F9 /* OpenAL.framework in Frameworks */,
+				FA712E6F17C81FEB008024F9 /* Cocoa.framework in Frameworks */,
+				FA712E7017C81FEB008024F9 /* libFreeImage.a in Frameworks */,
+				FA712E7117C81FEB008024F9 /* libFreeType.a in Frameworks */,
+				FA712E7217C81FEB008024F9 /* libGorillaAudio.a in Frameworks */,
+				FA712E7317C81FEB008024F9 /* libAngleShaderTranslater.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2441,6 +2485,7 @@
 				FA49C63D17A77732003DFFFE /* libFreeType.a */,
 				FA16412117A9422400113E18 /* libGorillaAudio.a */,
 				FA867DF417B48A010027B6E4 /* libAngleShaderTranslater.a */,
+				FA712E7D17C81FEB008024F9 /* Bacon64.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -4398,6 +4443,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FA712E7417C81FEB008024F9 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA712E7517C81FEB008024F9 /* Bacon-Prefix.pch in Headers */,
+				FA712E7617C81FEB008024F9 /* HandleArray.h in Headers */,
+				FA712E7717C81FEB008024F9 /* Platform.h in Headers */,
+				FA712E7817C81FEB008024F9 /* Bacon.h in Headers */,
+				FA712E7917C81FEB008024F9 /* BaconInternal.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FA867DF217B48A010027B6E4 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -4550,6 +4607,23 @@
 			productReference = FA49C63D17A77732003DFFFE /* libFreeType.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		FA712E5B17C81FEB008024F9 /* Bacon64 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FA712E7A17C81FEB008024F9 /* Build configuration list for PBXNativeTarget "Bacon64" */;
+			buildPhases = (
+				FA712E5C17C81FEB008024F9 /* Sources */,
+				FA712E6A17C81FEB008024F9 /* Frameworks */,
+				FA712E7417C81FEB008024F9 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Bacon64;
+			productName = Bacon;
+			productReference = FA712E7D17C81FEB008024F9 /* Bacon64.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
 		FA867DF317B48A010027B6E4 /* AngleShaderTranslater */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FA867DF517B48A010027B6E4 /* Build configuration list for PBXNativeTarget "AngleShaderTranslater" */;
@@ -4607,6 +4681,7 @@
 			targets = (
 				FA867DF317B48A010027B6E4 /* AngleShaderTranslater */,
 				FA2B5BB317A4B72C00C96A83 /* Bacon */,
+				FA712E5B17C81FEB008024F9 /* Bacon64 */,
 				FA2B600F17A4ED3200C96A83 /* FreeImage */,
 				FA49C63C17A77732003DFFFE /* FreeType */,
 				FA16412017A9422400113E18 /* GorillaAudio */,
@@ -4955,6 +5030,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FA712E5C17C81FEB008024F9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA712E5D17C81FEB008024F9 /* Window.cpp in Sources */,
+				FA712E5E17C81FEB008024F9 /* View.mm in Sources */,
+				FA712E5F17C81FEB008024F9 /* MaxRectsAllocator.cpp in Sources */,
+				FA712E6017C81FEB008024F9 /* DebugOverlay.cpp in Sources */,
+				FA712E6117C81FEB008024F9 /* Platform.mm in Sources */,
+				FA712E6217C81FEB008024F9 /* Keyboard.cpp in Sources */,
+				FA712E6317C81FEB008024F9 /* Audio.cpp in Sources */,
+				FA712E6417C81FEB008024F9 /* Fonts.cpp in Sources */,
+				FA712E6517C81FEB008024F9 /* Mouse.cpp in Sources */,
+				FA712E6617C81FEB008024F9 /* Graphics.cpp in Sources */,
+				FA712E6717C81FEB008024F9 /* HIDController.mm in Sources */,
+				FA712E6817C81FEB008024F9 /* Bacon.cpp in Sources */,
+				FA712E6917C81FEB008024F9 /* Window.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FA867DF017B48A010027B6E4 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -5092,6 +5187,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libstdc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -5130,6 +5226,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libstdc++";
 				CLANG_ENABLE_MODULES = YES;
@@ -5143,6 +5240,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -5161,7 +5259,7 @@
 		FA2B5BD917A4B72C00C96A83 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = NO;
 				DEPLOYMENT_LOCATION = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -5183,7 +5281,7 @@
 		FA2B5BDA17A4B72C00C96A83 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = NO;
 				DEPLOYMENT_LOCATION = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -5256,6 +5354,49 @@
 				GCC_PREPROCESSOR_DEFINITIONS = FT2_BUILD_LIBRARY;
 				HEADER_SEARCH_PATHS = ../../Vendor/FreeType/include;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		FA712E7B17C81FEB008024F9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				DEPLOYMENT_LOCATION = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Bacon-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					../../Vendor,
+					../../Vendor/FreeType/include,
+					../../Vendor/GorillaAudio/include,
+					../../Vendor/Angle/include,
+				);
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-lstdc++";
+				PRODUCT_NAME = Bacon64;
+			};
+			name = Debug;
+		};
+		FA712E7C17C81FEB008024F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				DEPLOYMENT_LOCATION = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "Bacon-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					../../Vendor,
+					../../Vendor/FreeType/include,
+					../../Vendor/GorillaAudio/include,
+					../../Vendor/Angle/include,
+				);
+				OTHER_LDFLAGS = "-lstdc++";
+				PRODUCT_NAME = Bacon64;
 			};
 			name = Release;
 		};
@@ -5354,6 +5495,15 @@
 			buildConfigurations = (
 				FA49C63F17A77732003DFFFE /* Debug */,
 				FA49C64017A77732003DFFFE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FA712E7A17C81FEB008024F9 /* Build configuration list for PBXNativeTarget "Bacon64" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA712E7B17C81FEB008024F9 /* Debug */,
+				FA712E7C17C81FEB008024F9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
