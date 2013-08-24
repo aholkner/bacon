@@ -338,44 +338,71 @@ def create_fn(function_wrapper):
             return f    
     return fn
 
-windows_dlls = [
-    'Bacon.dll',
-    'libEGL.dll',
-    'libGLESv2.dll',
-    'd3dcompiler_46.dll'
-]
+class _DllPath(object):
+    def __init__(self, module, files):
+        self.module = module
+        self.files = files
 
-osx_dll = 'Bacon.dylib'
+    def get_dir(self):
+        # In frozen executable, assume DLLs are alongside executable
+        try:
+            if sys.frozen:
+                return os.path.dirname(sys.executable)
+        except AttributeError:
+            pass
 
-def get_dll_dir():
-    try:
-        import pkg_resources
-        if sys.platform == 'win32':
-            # Extract all DLLs to temporary directory if necessary
-            dll_dir = os.path.dirname(pkg_resources.resource_filename('bacon', windows_dlls[0]))
-            for dll in windows_dlls[1:]:
-                if os.path.dirname(pkg_resources.resource_filename('bacon', dll)) != dll_dir:
+        # In pkg_resources, we may need to extract DLLs into temporary directory
+        # via resource_filename
+        try:
+            from  pkg_resources import resource_filename
+            package = 'bacon.' + self.module
+            dll_dir = os.path.dirname(resource_filename(package, self.files[0]))
+            for file in self.files:
+                if os.path.dirname(resource_filename(package, file)) != dll_dir:
                     raise ValueError('Supporting DLLs extracted to inconsistent directory')
             return dll_dir
-        elif sys.platform == 'darwin':
-            return pkg_resources.resource_filename(osx_dll, 'r')
+        except ImportError:
+            pass
+        
+        # In development installation, or if pkg_resources not available, DLLs
+        # are in their directory    
+        return os.path.join(os.path.dirname(__file__), self.module)
+
+    def get_lib(self):
+        dll_dir = self.get_dir()
+        if sys.platform == 'win32':
+            # Dependent DLLs loaded by Bacon.dll also need to be loaded from this path, use
+            # SetDllDirectory to affect the library search path; requires XP SP 1 or Vista.
+            windll.kernel32.SetDllDirectoryA(dll_dir.encode('utf-8'))
+            dll = self.files[0]
         else:
-            raise ValueError('Unsupported platform %s' % sys.platform)
-    except ImportError:
-        # pkg_resources not available, use path of this module
-        return os.path.dirname(__file__)
-                    
-def get_dll_name():
-    dll_dir = get_dll_dir()
-    if sys.platform == 'win32':
-        # Dependent DLLs loaded by Bacon.dll also need to be loaded from this path, use
-        # SetDllDirectory to affect the library search path; requires XP SP 1 or Vista.
-        windll.kernel32.SetDllDirectoryA(dll_dir.encode('utf-8'))
-        return 'Bacon.dll'
-    elif sys.platform == 'darwin':
-        return os.path.join(dll_dir, osx_dll)
+            dll = os.path.join(dll_dir, self.files[0])
+        return cdll.LoadLibrary(dll)
+
+if sys.platform == 'win32':
+    if sizeof(c_void_p) == 4:
+        _dll_path = _DllPath('windows32', [
+            'Bacon.dll',
+            'libEGL.dll',
+            'libGLESv2.dll',
+            'd3dcompiler_46.dll'
+            'msvcp110.dll',
+            'msvcr110.dll',
+            'vccorlib110.dll',
+        ])
     else:
-        raise ValueError('Unsupported platform %s' % sys.platform)
+        raise NotImplemented('Windows 64-bit not supported')
+elif sys.platform == 'darwin':
+    if sizeof(c_void_p) == 4:
+        _dll_path = _DllPath('darwin32', [
+            'Bacon.dylib',
+        ])
+    else:
+        _dll_path = _DllPath('darwin64', [
+            'Bacon64.dylib',
+        ])
+else:
+    raise NotImplemented('Unsupported platform %s' % sys.platform)
 
 class MockCDLL(object):
     def __call__(self, *args, **kwargs):
@@ -393,7 +420,7 @@ def load(function_wrapper = None):
         fn = mock_function_wrapper
         can_init = False
     else:
-        _lib = cdll.LoadLibrary(get_dll_name())
+        _lib = _dll_path.get_lib()
         fn = create_fn(function_wrapper)
         can_init = True
 
