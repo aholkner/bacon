@@ -10,7 +10,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "exec &gt; /tmp/bacon.build.log 2&gt;&amp;1&#10;cp $BUILT_PRODUCTS_DIR/Bacon64.dylib $PROJECT_DIR/../../../bacon/">
+               scriptText = "exec &gt; /tmp/bacon.build.log 2&gt;&amp;1&#10;mkdir -p $PROJECT_DIR/../../../bacon/osx64&#10;cp $BUILT_PRODUCTS_DIR/Bacon64.dylib $PROJECT_DIR/../../../bacon/darwin64/">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"
