@@ -11,12 +11,18 @@ namespace Bacon {
         HandleArray()
             : m_Free(0xffff)
             , m_NextVersion(1)
+			, m_Count(0)
         {
         }
 
 		void Reserve(std::size_t count)
 		{
 			m_Elements.reserve(count);
+		}
+		
+		int GetCount() const
+		{
+			return m_Count;
 		}
 		
 		T* Get(int handle)
@@ -28,6 +34,15 @@ namespace Bacon {
 			return &m_Elements[index].m_Value;
 		}
 		
+		int GetHandle(T* value)
+		{
+			if (value < &m_Elements[0].m_Value || value >= &m_Elements[0].m_Value + m_Elements.size())
+				return 0;
+			
+			unsigned short index = (unsigned short)(value - &m_Elements[0].m_Value);
+			return index | (m_Elements[index].m_Version << 16);
+		}
+		
 		int Alloc()
 		{
 			int index;
@@ -36,6 +51,8 @@ namespace Bacon {
 				index = m_Free;
 				m_Free = m_Elements[index].m_NextFree;
 				m_Elements[index].m_NextFree = 0xffff;
+				new (&m_Elements[index].m_Value) T;
+				++m_Count;
 				return CreateHandle(index);
 			}
 			
@@ -44,6 +61,8 @@ namespace Bacon {
 			
 			index = (int)m_Elements.size();
 			m_Elements.push_back(Element(T(), 0, 0xffff));
+			new (&m_Elements[index].m_Value) T;
+			++m_Count;
 			return CreateHandle(index);
 		}
 		
@@ -55,10 +74,57 @@ namespace Bacon {
 			
 			Element& element = m_Elements[index];
 			element.m_NextFree = m_Free;
+			element.m_Value.~T();
+			
+			#if DEBUG
+			memset(&element.m_Value, 0xdd, sizeof(T));
+			#endif
+			
 			m_Free = index;
+			--m_Count;
 			return true;
 		}
 		
+		class Iterator
+		{
+		public:
+			Iterator(HandleArray<T>& array, int index)
+			: m_Array(array)
+			, m_Index(index)
+			{ }
+			
+			T* operator->() { return &m_Array.m_Elements[m_Index].m_Value; }
+			T& operator*() { return m_Array.m_Elements[m_Index].m_Value; }
+			
+			bool operator!=(const Iterator& other) const
+			{
+				return (&m_Array != &other.m_Array ||
+						m_Index != other.m_Index);
+			}
+			
+			Iterator& operator++()
+			{
+				do {
+					++m_Index;
+				} while (m_Index < m_Array.m_Elements.size() &&
+						 m_Array.m_Elements[m_Index].m_NextFree != 0xffff);
+				return *this;
+			}
+			
+		private:
+			HandleArray<T>& m_Array;
+			int m_Index;
+		};
+		
+		Iterator begin()
+		{
+			return ++Iterator(*this, -1);
+		}
+		
+		Iterator end()
+		{
+			return Iterator(*this, (int)m_Elements.size());
+		}
 		
 	private:
 		struct Element
@@ -78,6 +144,7 @@ namespace Bacon {
 		std::vector<Element> m_Elements;
 		unsigned short m_Free;		// 0xffff if none free
 		unsigned short m_NextVersion;
+		int m_Count;
 		
 		int CreateHandle(unsigned short index)
 		{

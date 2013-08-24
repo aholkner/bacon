@@ -132,7 +132,16 @@ enum Bacon_Blend
 enum Bacon_ImageFlags
 {
 	Bacon_ImageFlags_PremultiplyAlpha = 1 << 0,
-	Bacon_ImageFlags_DiscardBitmap = 1 << 1
+	Bacon_ImageFlags_DiscardBitmap = 1 << 1,
+	Bacon_ImageFlags_Atlas = 1 << 2,
+	
+	// Reserved for internal use
+	Bacon_ImageFlags_Reserved = 1 << 16
+};
+
+enum Bacon_FontFlags
+{
+	Bacon_FontFlags_LightHinting = 1 << 0
 };
 
 enum Bacon_ShaderUniformTypes
@@ -309,11 +318,14 @@ extern "C" {
 	BACON_API int Bacon_CreateShader(int* outHandle, const char* vertexSource, const char* fragmentSource);
 	BACON_API int Bacon_EnumShaderUniforms(int handle, Bacon_EnumShaderUniformsCallback callback, void* arg);
 	BACON_API int Bacon_SetShaderUniform(int handle, int uniform, const void* value, int size);
+	BACON_API int Bacon_CreateSharedShaderUniform(int* outHandle, const char* name, int type, int arrayCount);
+	BACON_API int Bacon_SetSharedShaderUniform(int handle, const void* value, int size);
 
-	BACON_API int Bacon_CreateImage(int* outHandle, int width, int height);
-	BACON_API int Bacon_LoadImage(int* outHandle, const char* path, int flags);
-	BACON_API int Bacon_UnloadImage(int handle);
-	BACON_API int Bacon_GetImageSize(int handle, int* width, int* height);
+	BACON_API int Bacon_CreateImage(int* outImage, int width, int height, int flags);
+	BACON_API int Bacon_LoadImage(int* outImage, const char* path, int flags);
+	BACON_API int Bacon_GetImageRegion(int* outImage, int image, int x1, int y1, int x2, int y2);
+	BACON_API int Bacon_UnloadImage(int image);
+	BACON_API int Bacon_GetImageSize(int image, int* width, int* height);
 	
 	BACON_API int Bacon_PushTransform();
 	BACON_API int Bacon_PopTransform();
@@ -338,13 +350,17 @@ extern "C" {
 				            			float ix1, float iy1, float ix2, float iy2);
 	BACON_API int Bacon_DrawImageQuad(int image, float* positions, float* texCoords, float* colors);
 	BACON_API int Bacon_DrawLine(float x1, float y1, float x2, float y2);
+	BACON_API int Bacon_DrawRect(float x1, float y1, float x2, float y2);
+	BACON_API int Bacon_FillRect(float x1, float y1, float x2, float y2);
+	
+	BACON_API int Bacon_DrawDebugOverlay();
 	
 	// Fonts
 	BACON_API int Bacon_LoadFont(int* outHandle, const char* path);
 	BACON_API int Bacon_UnloadFont(int font);
-	BACON_API int Bacon_GetFontMetrics(int font, float size, float* outAscent, float* outDescent);
-	BACON_API int Bacon_GetGlyph(int font, float size, int character, int* outImage,
-					             float* outOffsetX, float* outOffsetY, float* outAdvance);
+	BACON_API int Bacon_GetFontMetrics(int font, float size, int* outAscent, int* outDescent);
+	BACON_API int Bacon_GetGlyph(int font, float size, int character, int flags, int* outImage,
+					             int* outOffsetX, int* outOffsetY, int* outAdvance);
 
 	
 	// Keyboard

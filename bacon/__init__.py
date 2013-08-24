@@ -1,6 +1,7 @@
 from bacon import native
 from bacon.readonly_collections import ReadOnlyDict
 from ctypes import *
+import collections
 import os
 import logging
 import time
@@ -100,26 +101,6 @@ def _log_callback(level, message):
     except KeyError:
         level = logging.ERROR
     logger.log(level, message.decode('utf-8'))
-
-# Initialize library now
-if not _mock_native:
-    _log_callback_handle = lib.LogCallback(_log_callback)
-    lib.SetLogCallback(_log_callback_handle)
-    lib.Init()
-
-    # Expose library version
-    major_version = c_int()
-    minor_version = c_int()
-    patch_version = c_int()
-    lib.GetVersion(byref(major_version), byref(minor_version), byref(patch_version))
-    major_version = major_version.value     #: Major version number of the Bacon dynamic library that was loaded, as an integer.
-    minor_version = minor_version.value     #: Minor version number of the Bacon dynamic library that was loaded, as an integer.
-    patch_version = patch_version.value     #: Patch version number of the Bacon dynamic library that was loaded, as an integer.
-else:
-    major_version, minor_version, patch_version = (0, 1, 0)
-
-#: Version of the Bacon dynamic library that was loaded, in the form ``"major.minor.patch"``.
-version = '%d.%d.%d' % (major_version, minor_version, patch_version)
 
 BlendFlags = native.BlendFlags
 ShaderUniformType = native.ShaderUniformType
@@ -280,9 +261,18 @@ class Shader(object):
 
         self._uniforms = ReadOnlyDict(self.uniforms)
 
+    _shared_uniforms = {}
+
     def _on_enum_uniform(self, shader, uniform, name, type, array_count, arg):
         name = name.decode('utf-8')
-        self._uniforms[name] = ShaderUniform(self, uniform, name, type, array_count)
+        if name.startswith('g_'):
+            shared_uniforms = self.__class__._shared_uniforms
+            if name not in shared_uniforms:
+                self._uniforms[name] = shared_uniforms[name] = ShaderUniform(name, type, array_count, _shader=self, _uniform=uniform)
+            else:
+                self._uniforms[name] = shared_uniforms[name]
+        else:
+            self._uniforms[name] = ShaderUniform(name, type, array_count, _shader=self, _uniform=uniform)
 
     @property
     def uniforms(self):
@@ -339,13 +329,32 @@ _shader_uniform_native_types = {
 }
 
 class ShaderUniform(object):
-    '''A uniform variable assocated with a single shader.
+    '''A uniform variable, either shared between all shaders (if its name begins with ``g_``),
+    specific to a particular shader.
 
     :see: :attr:`Shader.uniforms`
+
+    :param name: name of the shared shader uniform to create, must begin with ``g_``
+    :param type: type of the uniform variable, a member of :class:`ShaderUniformType`
+    :param array_count: number of elements in the uniform array, or 1 if the uniform is not an array
     '''
-    def __init__(self, shader, uniform, name, type, array_count):
-        self._shader_handle = shader._handle
-        self._uniform_handle = uniform
+    def __init__(self, name, type, array_count=1, _shader=None, _uniform=None):
+        if _shader:
+            # Create a non-shared uniform already bound to a shader
+            self._shader_handle = _shader._handle
+            self._uniform_handle = _uniform
+        else:
+            # Create a shared uniform not yet bound to any shader
+            if not name.startswith('g_'):
+                raise ValueError('Shader uniforms constructed manually must be shared, so the name must begin with "g_"')
+            if name in Shader._shared_uniforms:
+                raise ValueError('Shared shader uniform already exists')
+            self._shader_handle = None
+            _uniform = c_int()
+            lib.CreateSharedShaderUniform(byref(_uniform), name.encode('utf-8'), type, array_count)
+            self._uniform_handle = _uniform.value
+            Shader._shared_uniforms[name] = self
+
         self._name = name
         self._type = type
         self._array_count = array_count
@@ -366,13 +375,27 @@ class ShaderUniform(object):
     def __repr__(self):
         return 'ShaderUniform(%d, %s, %s, %d)' % (self._shader_handle, self.name, native.ShaderUniformType.tostring(self.type), self.array_count)
 
+    @property
+    def shared(self):
+        '''Boolean indicating if this shader uniform's value is shared between all shaders
+
+        :type: ``bool``
+        '''
+        return self._name.startswith('g_')
+
     def _get_value(self):
         return self._value
     def _set_value(self, value):
         self._value = value
         native_value = self._converter(value)
-        lib.SetShaderUniform(self._shader_handle, self._uniform_handle, byref(native_value), sizeof(native_value))
+        if self._shader_handle is not None:
+            lib.SetShaderUniform(self._shader_handle, self._uniform_handle, byref(native_value), sizeof(native_value))
+        else:
+            lib.SetSharedShaderUniform(self._uniform_handle, byref(native_value), sizeof(native_value))
     value = property(_get_value, _set_value, doc='''Current value of the uniform as seen by the shader.
+
+        Uniforms with names beginning with ``g_`` (e.g., ``g_Projection``) share their value across all shaders.  Otherwise,
+        the uniform value is unique to this shader.
 
         The type of the value depends on the type of the uniform:
 
@@ -441,17 +464,19 @@ class Image(object):
     :param height: height of the image to creat, in texels
     '''
 
-    def __init__(self, file=None, premultiply_alpha=True, discard_bitmap=True, width=None, height=None, handle=None):
+    def __init__(self, file=None, premultiply_alpha=True, discard_bitmap=True, separate_texture=False, width=None, height=None, handle=None):
+        flags = 0
+        if premultiply_alpha:
+            flags |= native.ImageFlags.premultiply_alpha
+        if discard_bitmap:
+            flags |= native.ImageFlags.discard_bitmap
+        if not separate_texture:
+            flags |= native.ImageFlags.atlas
+            
         if file:
             # Load image from file
             if handle:
                 raise ValueError('`handle` is not a not valid argument if `file` is given')
-
-            flags = 0
-            if premultiply_alpha:
-                flags |= native.ImageFlags.premultiply_alpha
-            if discard_bitmap:
-                flags |= native.ImageFlags.discard_bitmap
 
             handle = c_int()
             lib.LoadImage(byref(handle), file.encode('utf-8'), flags)
@@ -467,7 +492,7 @@ class Image(object):
         elif width and height and not handle:
             # Create empty image of given dimensions
             handle = c_int()
-            lib.CreateImage(byref(handle), width, height)
+            lib.CreateImage(byref(handle), width, height, flags)
             handle = handle.value
 
         if not handle:
@@ -484,13 +509,27 @@ class Image(object):
 
     @property
     def width(self):
-        ''' The width of the image, in texels (read-only).'''
+        '''The width of the image, in texels (read-only).'''
         return self._width
 
     @property
     def height(self):
-        ''' The height of the image, in texels (read-only).'''
+        '''The height of the image, in texels (read-only).'''
         return self._height
+
+    def get_region(self, x1, y1, x2, y2):
+        '''Get an image that refers to the given rectangle within this image.  The image data is not actually
+        copied; if the image region is rendered into, it will affect this image.
+
+        :param int x1: left edge of the image region to return
+        :param int y1: top edge of the image region to return
+        :param int x2: right edge of the image region to return
+        :param int y2: bottom edge of the image region to return
+        :return: :class:`Image`
+        '''
+        handle = c_int()
+        lib.GetImageRegion(byref(handle), self._handle, x1, y1, x2, y2)
+        return Image(width = x2 - x1, height = y2 - y1, handle = handle)
 
 class FontMetrics(object):
     '''Aggregates pixel metrics for a font loaded at a particular size.  See :attr:`Font.metrics`
@@ -567,17 +606,17 @@ class _FontFile(object):
         self._handle = -1
 
     def get_metrics(self, size):
-        ascent = c_float()
-        descent = c_float()
+        ascent = c_int()
+        descent = c_int()
         lib.GetFontMetrics(self._handle, size, byref(ascent), byref(descent))
-        return FontMetrics(-round(ascent.value), -round(descent.value))
+        return FontMetrics(-ascent.value, -descent.value)
 
-    def get_glyph(self, size, char):
+    def get_glyph(self, size, char, flags):
         image_handle = c_int()
-        offset_x = c_float()
-        offset_y = c_float()
-        advance = c_float()
-        lib.GetGlyph(self._handle, size, ord(char), 
+        offset_x = c_int()
+        offset_y = c_int()
+        advance = c_int()
+        lib.GetGlyph(self._handle, size, ord(char), flags,
             byref(image_handle), byref(offset_x), byref(offset_y), byref(advance))
 
         if image_handle.value:
@@ -613,14 +652,20 @@ class Font(object):
 
     :param file: path to a font file to load.  Supported formats include TrueType, OpenType, PostScript, etc.
     :param size: the point size to load the font at
+    :param light_hinting: applies minimal autohinting to the outline; suitable for fonts designed 
+       for OS X
     '''
-    def __init__(self, file, size):
+    def __init__(self, file, size, light_hinting=False):
         if type(file) is _FontFile:
             self._font_file = file
         else:
             self._font_file = _FontFile.get_font_file(file)
         self._size = size
         self._glyphs = { }
+        self._flags = 0
+
+        if light_hinting:
+            self._flags |= native.FontFlags.light_hinting
 
         self._metrics = self._font_file.get_metrics(size)
 
@@ -650,7 +695,7 @@ class Font(object):
         try:
             return self._glyphs[char]
         except KeyError:
-            glyph = self._font_file.get_glyph(self._size, char)
+            glyph = self._font_file.get_glyph(self._size, char, self._flags)
             self._glyphs[char] = glyph
             return glyph
 
@@ -661,14 +706,294 @@ class Font(object):
         '''
         return [self.get_glyph(c) for c in str]
 
+class Style(object):
+    def __init__(self, font, color=None, background_color=None):
+        self.font = font
+        self.color = color
+        self.background_color = background_color
+
+class GlyphRun(object):
+    def __init__(self, style, text, glyphs=None):
+        if glyphs is None:
+            glyphs = style.font.get_glyphs(text)
+        self.glyphs = glyphs
+        self.style = style
+        self.advance = sum(g.advance for g in self.glyphs)
+
+    def __repr__(self):
+        return 'GlyphRun("%s")' % (''.join(g.char for g in self.glyphs))
+
+class GlyphLine(object):
+    def __init__(self, runs, content_width = None):
+        self.runs = runs
+        if content_width is None:
+            content_width = sum(run.advance for run in runs)
+        self.content_width = content_width
+        self.ascent = min(run.style.font.ascent for run in runs)
+        self.descent = max(run.style.font.descent for run in runs)
+        self.x = 0
+        self.y = 0
+
+    def __repr__(self):
+        return 'GlyphLine(runs=%r)' % self.runs
+
+
+@native.enum
+class Alignment(object):
+    left = 0
+    center = 1
+    right = 2
+
+@native.enum
+class VerticalAlignment(object):
+    baseline = 0
+    top = 1
+    center = 2
+    bottom = 3
+
+@native.enum
+class Overflow(object):
+    none = 0
+    wrap = 1
+    wrap_characters = 2
+
 class GlyphLayout(object):
     '''Caches a layout of glyphs rendering a given string with bounding rectangle, layout metrics.
-
-    :note: Incomplete, word-wrapping and alignment are not implemented.
     '''
-    def __init__(self, glyphs, width=None):
-        self.lines = [glyphs]
-        # TODO word-wrapping
+    def __init__(self, runs, x, y, width=None, height=None, align=Alignment.left, vertical_align=VerticalAlignment.baseline, overflow=Overflow.wrap):
+        self._runs = runs
+        self._x = x
+        self._y = y
+        self._width = width
+        self._height = height
+        self._align = align
+        self._vertical_align = vertical_align
+        self._overflow = overflow
+        self._dirty = True
+
+        self._content_width = None
+        self._content_height = None
+        self._lines = None
+
+    def _get_runs(self):
+        return self._runs
+    def _set_runs(self, runs):
+        self._runs = runs
+        self._dirty = True
+    runs = property(_get_runs, _set_runs)
+
+    def _get_x(self):
+        return self._x
+    def _set_x(self, x):
+        if x != self._x:
+            self._x = x
+            self._dirty = True
+    x = property(_get_x, _set_x)
+
+    def _get_y(self):
+        return self._y
+    def _set_y(self, y):
+        if y != self._y:
+            self._y = y
+            self._dirty = True
+    y = property(_get_y, _set_y)
+    
+    def _get_width(self):
+        return self._width
+    def _set_width(self, width):
+        if width != self._width:
+            self._width = width
+            self._dirty = True
+    width = property(_get_width, _set_width)
+
+    def _get_height(self):
+        return self._height
+    def _set_height(self, height):
+        if height != self._height:
+            self._height = height
+            self._dirty = True
+    height = property(_get_height, _set_height)
+
+    def _get_align(self):
+        return self._align
+    def _set_align(self, align):
+        if align != self._align:
+            self._align = align
+            self._dirty = True
+    align = property(_get_align, _set_align)
+
+    def _get_vertical_align(self):
+        return self._vertical_align
+    def _set_vertical_align(self, vertical_align):
+        if vertical_align != self._vertical_align:
+            self._vertical_align = vertical_align
+            self._dirty = True
+    vertical_align = property(_get_vertical_align, _set_vertical_align)
+
+    def _get_overflow(self):
+        return self._overflow
+    def _set_overflow(self, overflow):
+        if overflow != self._overflow:
+            self._overflow = overflow
+            self._dirty = True
+    overflow = property(_get_overflow, _set_height)
+
+    @property
+    def lines(self):
+        if self._dirty:
+            self._update()
+        return self._lines
+
+    @property
+    def content_width(self):
+        if self._dirty:
+            self._update()
+        return self._content_width
+
+    @property
+    def content_height(self):
+        if self._dirty:
+            self._update()
+        return self._content_height
+
+    def _update(self):
+        self._dirty = False
+
+        content_width = sum(run.advance for run in self._runs)
+        if (self._width is None or 
+            self._overflow == Overflow.none or
+            content_width <= self._width):
+            self._lines = [GlyphLine(self._runs, 
+                                     content_width=content_width)]
+        else:
+            self._update_overflow()
+
+        self._content_width = sum(line.content_width for line in self.lines)
+        self._content_height = sum(line.descent - line.ascent for line in self.lines)
+
+        self._update_line_position()
+
+    def _update_overflow(self):
+        remaining_runs = collections.deque(self._runs)
+        line_runs = []
+        lines = []
+        x = 0
+        while remaining_runs:
+            line_runs.append(remaining_runs.popleft())
+            x += line_runs[-1].advance
+            if x > self._width:
+                if self._overflow == Overflow.wrap:
+                    self._break_runs_word(x, line_runs, remaining_runs)
+                elif self._overflow == Overflow.wrap_characters:
+                    self._break_runs_character(x, line_runs, remaining_runs)
+                if line_runs:
+                    lines.append(GlyphLine(line_runs))
+                    line_runs = []
+                    x = 0
+
+        if line_runs:
+            lines.append(GlyphLine(line_runs))
+        self._lines = lines
+
+    def _break_runs_word(self, x, line_runs, remaining_runs):
+        # Scan backwards through each glyph in line_runs until suitable break
+        # is found.  Push remaining glyphs into remaining_runs
+        start_x = x
+        width = self._width
+        for run_i in range(len(line_runs) - 1, -1, -1):
+            run = line_runs[run_i]
+            glyphs = run.glyphs
+            for i in range(len(glyphs) - 1, -1, -1):
+                x -= glyphs[i].advance
+                if x >= width:
+                    continue
+                
+                if glyphs[i]._char in u' \u200B':
+                    if run_i != 0 or i != 0:
+                        return self._break(line_runs, remaining_runs, run_i, i, i + 1)
+
+        # No breaks found.  Repeat scan, break on character
+        self._break_runs_character(start_x, line_runs, remaining_runs)
+
+    def _break_runs_character(self, x, line_runs, remaining_runs):
+        # Scan backwards through each glyph in line_runs until suitable break
+        # is found.  Push remaining glyphs into remaining_runs
+        width = self._width
+        for run_i in range(len(line_runs) - 1, -1, -1):
+            run = line_runs[run_i]
+            glyphs = run.glyphs
+            for i in range(len(glyphs) - 1, -1, -1):
+                x -= glyphs[i].advance
+                if x >= width:
+                    continue
+
+                return self._break(line_runs, remaining_runs, run_i, i, i)
+
+    def _break(self, line_runs, remaining_runs, run_i, end_glyph_i, start_glyph_i):
+        split_run = line_runs[run_i]
+        
+        # Move entire runs to the right of run_i into remaining_runs
+        for i in range(len(line_runs) - 1, run_i, -1):
+            remaining_runs.appendleft(line_runs[i])
+        del line_runs[run_i + 1:]
+
+        # line_runs gets glyphs up to end_glyph_i of split_run
+        line_runs[-1] = GlyphRun(split_run.style, '', split_run.glyphs[:end_glyph_i])
+
+        # remaining_runs gets the right side of start_glyph_i
+        remaining_runs.appendleft(GlyphRun(split_run.style, '', split_run.glyphs[start_glyph_i:]))
+
+    def _update_line_position(self):
+        if not self._lines:
+            return
+
+        x = self._x
+        y = self._y
+        width = self._width
+        height = self._height
+        align = self._align
+        vertical_align = self._vertical_align
+
+        if self._width is not None:
+            # Align relative to box, not pivot
+            if align == Alignment.center:
+                x += width / 2
+            elif align == Alignment.right:
+                x += width
+
+        if height is not None:
+            # Align relative to box, not pivot
+            if vertical_align == VerticalAlignment.center:
+                y += height / 2
+            elif vertical_align == VerticalAlignment.bottom:
+                y += height
+            elif vertical_align == VerticalAlignment.baseline:
+                vertical_align = VerticalAlignment.top
+
+        # Align first baseline vertically against pivot
+        line = self.lines[0]
+        if vertical_align == VerticalAlignment.center:
+            y -= self._content_height / 2
+        elif vertical_align == VerticalAlignment.bottom:
+            y -= self._content_height + line.descent
+        elif vertical_align == VerticalAlignment.baseline:
+            y += line.ascent
+
+        # Layout lines
+        start_x = x
+        for line in self._lines:
+            x = start_x
+            if align == Alignment.center:
+                x -= line.content_width / 2
+            elif align == Alignment.right:
+                x -= line.content_width
+
+            y -= self._lines[0].ascent
+
+            line.x = x
+            line.y = y
+
+            y += self._lines[0].descent
 
 class Sound(object):
     '''Loads a sound from disk.  Supported formats are WAV (``.wav``) and Ogg Vorbis (``.ogg``).
@@ -1360,9 +1685,11 @@ timestep = 0.0
 def _first_tick_callback():
     global _tick_callback_handle
     global _last_frame_time
+    global _start_time
     global timestep
 
-    _last_frame_time = time.time()
+    _start_time = time.time()
+    _last_frame_time = _start_time
     timestep = 0.0
 
     _tick_callback_handle = lib.TickCallback(_tick_callback)
@@ -1374,19 +1701,31 @@ def _first_tick_callback():
         _game.on_init()
         _tick_callback()
     except:
-        lib.Stop()
+        _tick_callback_handle = lib.TickCallback(_error_tick_callback)
+        lib.SetTickCallback(_tick_callback_handle)
         raise
+
+def _error_tick_callback():
+    lib.Stop()
 
 def _tick_callback():
     global _last_frame_time
     global timestep
 
-    now_time = time.time()
+    now_time = time.time() - _start_time
     timestep = now_time - _last_frame_time
     _last_frame_time = now_time
 
+    _time_uniform.value = now_time
+
     mouse._update_position()
-    _game.on_tick()
+
+    try:
+        _game.on_tick()
+    except:
+        _tick_callback_handle = lib.TickCallback(_error_tick_callback)
+        lib.SetTickCallback(_tick_callback_handle)
+        raise
 
 _game = None
 
@@ -1612,6 +1951,7 @@ def draw_image(image, x1, y1, x2 = None, y2 = None):
     if y2 is None:
         y2 = y1 + image.height
     lib.DrawImage(image._handle, x1, y1, x2, y2)
+
 def draw_image_region(image, x1, y1, x2, y2,
                       ix1, iy1, ix2, iy2):
     '''Draw a rectangular region of an image.
@@ -1626,7 +1966,7 @@ def draw_image_region(image, x1, y1, x2, y2,
 
     :param image: an :class:`Image` to draw
     '''
-    lib.DrawImage(image._handle, x1, y1, x2, y2, ix1, iy1, ix2, iy2)
+    lib.DrawImageRegion(image._handle, x1, y1, x2, y2, ix1, iy1, ix2, iy2)
 
 if _mock_native:
     def draw_line(x1, y1, x2, y2):
@@ -1638,7 +1978,27 @@ draw_line.__doc__ = '''Draw a line from coordinates ``(x1, y1)`` to ``(x2, y2)``
 No texture is applied.
 '''
 
-def draw_string(font, text, x, y):
+if _mock_native:
+    def draw_rect(x1, y1, x2, y2):
+        pass
+else:
+    draw_rect = lib.DrawRect
+draw_rect.__doc__ = '''Draw a rectangle bounding coordinates ``(x1, y1)`` to ``(x2, y2)``.
+
+No texture is applied.
+'''
+
+if _mock_native:
+    def fill_rect(x1, y1, x2, y2):
+        pass
+else:
+    fill_rect = lib.FillRect
+fill_rect.__doc__ = '''Fill a rectangle bounding coordinates ``(x1, y1)`` to ``(x2, y2)``.
+
+No texture is applied.
+'''
+
+def draw_string(font, text, x, y, width=None, height=None, align=Alignment.left, vertical_align=VerticalAlignment.baseline):
     '''Draw a string with the given font.
 
     :note: Text alignment and word-wrapping is not yet implemented.  The text is rendered with the left edge and
@@ -1647,17 +2007,59 @@ def draw_string(font, text, x, y):
     :param font: the :class:`Font` to render text with
     :param text: a string of text to render.
     '''
-    glyphs = font.get_glyphs(text)
-    glyph_layout = GlyphLayout(glyphs)
-    draw_glyph_layout(glyph_layout, x, y)
+    style = Style(font)
+    run = GlyphRun(style, text)
+    glyph_layout = GlyphLayout([run], x, y, width, height, align, vertical_align)
+    draw_glyph_layout(glyph_layout)
 
-def draw_glyph_layout(glyph_layout, x, y):
-    '''Draw a prepared :class:`GlyphLayout` at the given coordinates.
+def draw_glyph_layout(glyph_layout):
+    '''Draw a prepared :class:`GlyphLayout`
     '''
-    start_x = x
+    pushed_color = False
+
+    # Draw lines
     for line in glyph_layout.lines:
-        x = start_x
-        for glyph in line:
-            if glyph.image:
-                draw_image(glyph.image, x + glyph.offset_x, y - glyph.offset_y)
-            x += glyph.advance
+        x = line.x
+        y = line.y
+        
+        for run in line.runs:
+            style = run.style
+            if style.color is not None:
+                if not pushed_color:
+                    bacon.push_color()
+                    pushed_color = True
+                bacon.set_color(*style.color)
+            elif pushed_color:
+                bacon.pop_color()
+                pushed_color = False
+
+            for glyph in run.glyphs:
+                if glyph.image:
+                    draw_image(glyph.image, x + glyph.offset_x, y - glyph.offset_y)
+                x += glyph.advance
+
+    if pushed_color:
+        bacon.pop_color()
+
+# Initialize library now
+if not _mock_native:
+    _log_callback_handle = lib.LogCallback(_log_callback)
+    lib.SetLogCallback(_log_callback_handle)
+    lib.Init()
+
+    # Expose library version
+    major_version = c_int()
+    minor_version = c_int()
+    patch_version = c_int()
+    lib.GetVersion(byref(major_version), byref(minor_version), byref(patch_version))
+    major_version = major_version.value     #: Major version number of the Bacon dynamic library that was loaded, as an integer.
+    minor_version = minor_version.value     #: Minor version number of the Bacon dynamic library that was loaded, as an integer.
+    patch_version = patch_version.value     #: Patch version number of the Bacon dynamic library that was loaded, as an integer.
+
+    _time_uniform = ShaderUniform('g_Time', ShaderUniformType.float_)
+else:
+    major_version, minor_version, patch_version = (0, 1, 0)
+
+#: Version of the Bacon dynamic library that was loaded, in the form ``"major.minor.patch"``.
+version = '%d.%d.%d' % (major_version, minor_version, patch_version)
+

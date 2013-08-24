@@ -113,6 +113,11 @@ class BlendFlags(object):
 class ImageFlags(object):
     premultiply_alpha = 1 << 0
     discard_bitmap = 1 << 1
+    atlas = 1 << 2
+
+@flags
+class FontFlags(object):
+    light_hinting = 1 << 0
 
 @enum
 class ShaderUniformType(object):
@@ -472,9 +477,13 @@ def load(function_wrapper = None):
     CreateShader = fn(_lib.Bacon_CreateShader, POINTER(c_int), c_char_p, c_char_p)
     EnumShaderUniforms = fn(_lib.Bacon_EnumShaderUniforms, c_int, EnumShaderUniformsCallback, c_void_p)
     SetShaderUniform = fn(_lib.Bacon_SetShaderUniform, c_int, c_int, c_void_p, c_int)
+    CreateSharedShaderUniform = fn(_lib.Bacon_CreateSharedShaderUniform, POINTER(c_int), c_char_p, c_int, c_int)
+    SetSharedShaderUniform = fn(_lib.Bacon_SetSharedShaderUniform, c_int, c_void_p, c_int)
 
-    CreateImage = fn(_lib.Bacon_CreateImage, POINTER(c_int), c_int, c_int)
+    CreateImage = fn(_lib.Bacon_CreateImage, POINTER(c_int), c_int, c_int, c_int)
     LoadImage = fn(_lib.Bacon_LoadImage, POINTER(c_int), c_char_p, c_int)
+    GetImageRegion = fn(_lib.Bacon_GetImageRegion, POINTER(c_int), c_int, c_int, c_int, c_int, c_int)
+
     UnloadImage = fn(_lib.Bacon_UnloadImage, c_int)
     GetImageSize = fn(_lib.Bacon_GetImageSize, c_int, POINTER(c_int))
 
@@ -498,11 +507,13 @@ def load(function_wrapper = None):
     DrawImage = fn(_lib.Bacon_DrawImage, c_int, c_float, c_float, c_float, c_float)
     DrawImageRegion = fn(_lib.Bacon_DrawImageRegion, c_int, c_float, c_float, c_float, c_float, c_float, c_float, c_float, c_float)
     DrawLine = fn(_lib.Bacon_DrawLine, c_float, c_float, c_float, c_float)
+    DrawRect = fn(_lib.Bacon_DrawRect, c_float, c_float, c_float, c_float)
+    FillRect = fn(_lib.Bacon_FillRect, c_float, c_float, c_float, c_float)
 
     LoadFont = fn(_lib.Bacon_LoadFont, POINTER(c_int), c_char_p)
     UnloadFont = fn(_lib.Bacon_UnloadFont, c_int)
-    GetFontMetrics = fn(_lib.Bacon_GetFontMetrics, c_int, c_float, POINTER(c_float), POINTER(c_float))
-    GetGlyph = fn(_lib.Bacon_GetGlyph, c_int, c_float, c_int, POINTER(c_int), POINTER(c_float), POINTER(c_float), POINTER(c_float))
+    GetFontMetrics = fn(_lib.Bacon_GetFontMetrics, c_int, c_float, POINTER(c_int), POINTER(c_int))
+    GetGlyph = fn(_lib.Bacon_GetGlyph, c_int, c_float, c_int, c_int, POINTER(c_int), POINTER(c_int), POINTER(c_int), POINTER(c_int))
 
     GetKeyState = fn(_lib.Bacon_GetKeyState, c_int, POINTER(c_int))
     SetKeyEventHandler = fn(_lib.Bacon_SetKeyEventHandler, KeyEventHandler)

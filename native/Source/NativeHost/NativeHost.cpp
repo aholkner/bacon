@@ -7,7 +7,18 @@ using namespace std;
 int g_Kitten;
 int g_Font;
 int g_Buffer;
-int g_Glyph;
+
+struct Glyph
+{
+	Glyph() : m_Image(0) { }
+	int m_Image;
+	float m_OffsetX, m_OffsetY;
+	float m_Advance;
+};
+Glyph g_Glyphs[26];
+
+int s_NumGlyphs = 1;
+
 void Tick()
 {
 	static float time = 0.f;
@@ -15,17 +26,36 @@ void Tick()
 	Bacon_Clear(0.3f, 0.3f, 0.3f, 1.f);
 	Bacon_SetColor(1, 1, 1, 1);
 	
-	int w, h;
-	Bacon_GetImageSize(g_Glyph, &w, &h);
-	Bacon_DrawImage(g_Glyph, 10.f, 10.f, 10.f + w, 10.f + h);
+	float x = 10.f, y = 82.f;
+	for (int i = 0; i < s_NumGlyphs; ++i)
+	{
+		if (!g_Glyphs[i].m_Image)
+			break;
+		
+		int w, h;
+		Bacon_GetImageSize(g_Glyphs[i].m_Image, &w, &h);
+		Bacon_DrawImage(g_Glyphs[i].m_Image,
+						x + g_Glyphs[i].m_OffsetX,
+						y - g_Glyphs[i].m_OffsetY,
+						x + g_Glyphs[i].m_OffsetX + w,
+						y - g_Glyphs[i].m_OffsetY + h);
+		x += g_Glyphs[i].m_Advance;
+	}
 
     int kw, kh;
     Bacon_GetImageSize(g_Kitten, &kw, &kh);
-
+    Bacon_DrawImage(g_Kitten, 100.f, 100.f, 100.f + kw, 100.f + kh);
+	
+	Bacon_SetBlending(Bacon_Blend_One, Bacon_Blend_One);
+	Bacon_SetColor(1, 0, 0, 1);
+	Bacon_FillRect(25, 225, 50, 250);
+	Bacon_SetColor(0, 1, 1, 1);
+	Bacon_DrawRect(25, 225, 50, 250);
+	
     int keyState;
     Bacon_GetKeyState(Key_Space, &keyState);
     if (keyState)
-        Bacon_DrawImage(g_Kitten, 100.f, 100.f, 100.f + kw, 100.f + kh);
+		Bacon_DrawDebugOverlay();
 }
 
 void OnControllerConnected(int controller, int connected)
@@ -54,6 +84,14 @@ void OnKey(int key, int value)
         fullscreen = !fullscreen;
         Bacon_SetWindowFullscreen(fullscreen);
     }
+	if (key == 'z' && value)
+	{
+		static float s = 64.f;
+		Glyph& glyph = g_Glyphs[0];
+		Bacon_UnloadImage(glyph.m_Image);
+		Bacon_GetGlyph(g_Font, s, 'a', &glyph.m_Image, &glyph.m_OffsetX, &glyph.m_OffsetY, &glyph.m_Advance);
+		s += 10.f;
+	}
 }
 
 void OnLogMessage(int level, const char* message)
@@ -70,6 +108,7 @@ int main(int argc, const char * argv[])
 	Bacon_SetControllerAxisEventHandler(OnControllerAxis);
 	Bacon_SetControllerConnectedEventHandler(OnControllerConnected);
 	Bacon_SetWindowResizable(true);
+	Bacon_SetWindowSize(512, 512);
 
 	int error;
 
@@ -88,11 +127,17 @@ int main(int argc, const char * argv[])
 	
 	float ascent, descent;
 	error = Bacon_GetFontMetrics(g_Font, 64.f, &ascent, &descent);
+
+	int g = 0;
+	for (char c : "a")
+	{
+		if (!c)
+			break;
+		Glyph& glyph = g_Glyphs[g++];
+		error = Bacon_GetGlyph(g_Font, 32, c, &glyph.m_Image, &glyph.m_OffsetX, &glyph.m_OffsetY, &glyph.m_Advance);
+	}
 	
-	float offsetX, offsetY, advance;
-	error = Bacon_GetGlyph(g_Font, 64.f, 'A', &g_Glyph, &offsetX, &offsetY, &advance);
-	
-	Bacon_LoadImage(&g_Kitten, "res/kitten.png", Bacon_ImageFlags_PremultiplyAlpha | Bacon_ImageFlags_DiscardBitmap);
+	Bacon_LoadImage(&g_Kitten, "res/ball.png", Bacon_ImageFlags_PremultiplyAlpha | Bacon_ImageFlags_DiscardBitmap | Bacon_ImageFlags_Atlas);
 	
 	Bacon_SetTickCallback(Tick);
 	Bacon_Run();

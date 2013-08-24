@@ -13,6 +13,17 @@ At the beginning of each frame (before doing any other rendering in ``on_tick``)
 
 .. autofunction:: clear
 
+Basic shapes
+============
+
+Lines and rectangles can drawn with these functions:
+
+.. literalinclude:: ../examples/rect.py
+    :emphasize-lines: 7,9
+
+.. autofunction:: draw_line
+.. autofunction:: draw_rect
+.. autofunction:: fill_rect
 
 Images
 ======
@@ -121,9 +132,12 @@ drawing commands:
 
 * ``uniform mat4 g_Projection``: projection matrix, typically mapping screen space to NDC
 * ``uniform sampler2D g_Texture0``: texture for the image drawn with :func:`draw_image`
+* ``uniform float g_Time``: number of seconds since the game started
 
 These uniforms may not be set directly, however others you define in the shader can be manipulated through the :attr:`Shader.uniforms`
-map as shown in the example above.
+map as shown in the example above.  Note that the naming convention of shader uniforms is important: uniforms with names that begin with
+``g_`` share their value across all shaders (for example, ``g_Projection`` and ``g_Texture0`` above).  Other uniforms have values that
+must be set per-shader.
     
 .. autofunction:: set_shader
 
