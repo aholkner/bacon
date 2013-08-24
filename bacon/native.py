@@ -422,7 +422,7 @@ elif sys.platform == 'darwin':
             'Bacon64.dylib',
         ])
 else:
-    raise NotImplemented('Unsupported platform %s' % sys.platform)
+    _dll_path = None
 
 class MockCDLL(object):
     def __call__(self, *args, **kwargs):
@@ -439,6 +439,8 @@ def load(function_wrapper = None):
         _lib = MockCDLL()
         fn = mock_function_wrapper
         can_init = False
+    elif not _dll_path:
+        raise ImportError('Unsupported platform %s' % sys.platform)
     else:
         _lib = _dll_path.get_lib()
         fn = create_fn(function_wrapper)
