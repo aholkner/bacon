@@ -398,7 +398,15 @@ if sys.platform == 'win32':
             'vccorlib110.dll',
         ])
     else:
-        raise NotImplemented('Windows 64-bit not supported')
+        _dll_path = _DllPath('windows64', [
+            'Bacon.dll',
+            'libEGL.dll',
+            'libGLESv2.dll',
+            'd3dcompiler_46.dll',
+            'msvcp110.dll',
+            'msvcr110.dll',
+            'vccorlib110.dll',
+        ])
 elif sys.platform == 'darwin':
     if sizeof(c_void_p) == 4:
         _dll_path = _DllPath('darwin32', [

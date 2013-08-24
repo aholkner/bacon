@@ -148,7 +148,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>"$(ProjectDir)CopyNativeFiles.bat" "$(ProjectDir)..\..\..\bacon\windows64" "$(TargetPath)" "$(OutDir)" "$(VCInstallDir)redist\x86\Microsoft.VC110.CRT" "$(FrameworkSdkDir)Redist\D3D\x86"</Command>
+      <Command>"$(ProjectDir)CopyNativeFiles.bat" "$(ProjectDir)..\..\..\bacon\windows32" "$(TargetPath)" "$(OutDir)" "$(VCInstallDir)redist\x86\Microsoft.VC110.CRT" "$(FrameworkSdkDir)Redist\D3D\x86"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -187,7 +187,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>"$(ProjectDir)CopyNativeFiles.bat" "$(ProjectDir)..\..\..\bacon\windows64" "$(TargetPath)" "$(OutDir)" "$(VCInstallDir)redist\x86\Microsoft.VC110.CRT" "$(FrameworkSdkDir)Redist\D3D\x86"</Command>
+      <Command>"$(ProjectDir)CopyNativeFiles.bat" "$(ProjectDir)..\..\..\bacon\windows32" "$(TargetPath)" "$(OutDir)" "$(VCInstallDir)redist\x86\Microsoft.VC110.CRT" "$(FrameworkSdkDir)Redist\D3D\x86"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
