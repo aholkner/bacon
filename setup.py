@@ -22,6 +22,15 @@ add_native_module('bacon/windows32', [
   'msvcr110.dll',
   'vccorlib110.dll'
 ])
+add_native_module('bacon/windows64', [
+  'Bacon.dll',
+  'libEGL.dll',
+  'libGLESv2.dll',
+  'd3dcompiler_46.dll',
+  'msvcp110.dll',
+  'msvcr110.dll',
+  'vccorlib110.dll'
+])
 add_native_module('bacon/darwin32', [
   'Bacon.dylib'
 ])
@@ -32,7 +41,7 @@ add_native_module('bacon/darwin64', [
 if __name__ == '__main__':
     setup(name='bacon',
           description='Bacon Game Engine',
-          long_description='Bacon Game Engine', # TODO
+          long_description=open(os.path.join(script_dir, 'README'), 'r').read(),
           license='MIT',
           classifiers=[
             'Development Status :: 2 - Pre-Alpha',
