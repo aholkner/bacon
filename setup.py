@@ -2,18 +2,32 @@ import distutils
 from distutils.core import setup
 import os
 
-version = '0.1.8'
+version = '0.2.0'
 
-windows_dlls = [
-    'bacon/Bacon.dll',
-    'bacon/libEGL.dll',
-    'bacon/libGLESv2.dll',
-    'bacon/d3dcompiler_46.dll'
-]
+script_dir = os.path.dirname(__file__)
+lib_dir = distutils.sysconfig.get_python_lib()
+data_files = []
 
-osx_dlls = [
-    'bacon/Bacon.dylib'
-]
+def add_native_module(module, files):
+  module_dir = os.path.join(script_dir, module)
+  files = [os.path.join(module_dir, file) for file in files]
+  data_files.append((os.path.join(lib_dir, module), files))
+
+add_native_module('bacon/windows32', [
+  'Bacon.dll',
+  'libEGL.dll',
+  'libGLESv2.dll',
+  'd3dcompiler_46.dll',
+  'msvcp110.dll',
+  'msvcr110.dll',
+  'vccorlib110.dll'
+])
+add_native_module('bacon/darwin32', [
+  'Bacon.dylib'
+])
+add_native_module('bacon/darwin64', [
+  'Bacon64.dylib'
+])
 
 if __name__ == '__main__':
     setup(name='bacon',
@@ -39,7 +53,5 @@ if __name__ == '__main__':
           author_email='alex.holkner@gmail.com',
           url='https://github.com/aholkner/bacon',
           packages=['bacon'],
-          data_files=[
-            (os.path.join(distutils.sysconfig.get_python_lib(), 'bacon'), windows_dlls + osx_dlls),
-          ],
+          data_files=data_files,
     )
