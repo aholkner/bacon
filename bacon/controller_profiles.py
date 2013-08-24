@@ -1,7 +1,7 @@
-import bacon
+import bacon.controller
 
 # Xbox 360 controller via http://tattiebogle.net OS X driver
-bacon.ControllerMapping.register(0x45e, 0x28e, bacon.ControllerMapping(
+bacon.controller.ControllerMapping.register(0x45e, 0x28e, bacon.controller.ControllerMapping(
     buttons=dict(
             button3 = 'action_down',
             button4 = 'action_right',
