@@ -1,14 +1,12 @@
-Quick Start
------------
 
-Getting and installing Bacon
-============================
+Installation
+------------
 
 Bacon can be installed from the Python Package Index ::
 
 	$ pip install -U bacon
 
-See the `PIP documentation <http://www.pip-installer.org/en/latest/installing.html>` for more information on using PIP to install Python packages.
+See the `PIP documentation <http://www.pip-installer.org/en/latest/installing.html>`_ for more information on using PIP to install Python packages.
 
 Bacon can work equally well without installation, by packaging its source anywhere in your ``PYTHONPATH``.  You can download the latest distribution from
 
@@ -25,7 +23,7 @@ OS X
 
 * Your game will require OS X 10.6 or later
 
-* If your game requires an Xbox 360 controller, the user must install a specific driver, as the device does not register as a game controller by itself: http://tattiebogle.net/index.php/ProjectRoot/Xbox360Controller/OsxDriver#toc1
+* If your game requires an Xbox 360 controller, the user must install an `Xbox 360 Game Controller driver <http://tattiebogle.net/index.php/ProjectRoot/Xbox360Controller/OsxDriver>`_ , as the device does not register as a game controller by itself.
 
 Windows
 %%%%%%%
@@ -35,7 +33,7 @@ Windows
 .. note:: Bacon has not yet been tested on versions of Windows before Windows 7, and may require patches.
 
 Example game
-============
+------------
 
 Let's start with a simple example:
 
