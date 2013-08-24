@@ -132,6 +132,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>BACON_DLL_EXPORT;FREEIMAGE_LIB;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)\..\..\Vendor\Angle\include;$(ProjectDir)\..\..\Vendor\GorillaAudio\include;$(ProjectDir)\..\..\Vendor\FreeType\include;$(ProjectDir)\..\..\Vendor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
