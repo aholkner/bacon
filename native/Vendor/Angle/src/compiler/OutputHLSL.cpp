@@ -2705,7 +2705,7 @@ void OutputHLSL::addConstructor(const TType &type, const TString &name, const TI
             const size_t parameterSize = parameter.getObjectSize();
             bool moreParameters = parameterIndex + 1 < ctorParameters.size();
 
-            constructor += "x" + str(parameterIndex);
+            constructor += "x" + str((int)parameterIndex);
 
             if (parameter.isScalar())
             {
