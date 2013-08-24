@@ -1,21 +1,30 @@
 from PyInstaller.compat import is_win, is_darwin
-from hookutils import collect_data_files
+from hookutils import get_package_paths
 
+import os
 import sys
 import ctypes
-print 'hello'
+
+def collect_native_files(package, files):
+    pkg_base, pkg_dir = get_package_paths(package)
+    return [(os.path.join(pkg_dir, file), '') for file in files]
 
 if is_win:
+    files = ['Bacon.dll', 
+             'd3dcompiler_46.dll',
+             'libEGL.dll',
+             'libGLESv2.dll',
+             'msvcp110.dll',
+             'msvcr110.dll',
+             'vccorllib110.dll']
     if ctypes.sizeof(ctypes.c_void_p) == 4:
-        from . import windows32
-        datas = collect_data_files(windows32)
+        datas = collect_native_files('bacon.windows32', files)
     else:
-        from . import windows64
-        datas = collect_data_files(windows64)
+        datas = collect_native_files('bacon.windows64', files)
 elif is_darwin:
     if ctypes.sizeof(ctypes.c_void_p) == 4:
-        from . import darwin32
-        datas = collect_data_files(darwin32)
+        files = ['Bacon.dylib']
+        datas = collect_native_files('bacon.darwin32', files)
     else:
-        from . import darwin64
-        datas = collect_data_files(darwin64)
+        files = ['Bacon64.dylib']
+        datas = collect_native_files('bacon.darwin64', files)
