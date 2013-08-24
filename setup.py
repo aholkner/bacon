@@ -52,6 +52,11 @@ if __name__ == '__main__':
           author='Alex Holkner',
           author_email='alex.holkner@gmail.com',
           url='https://github.com/aholkner/bacon',
-          packages=['bacon'],
+          packages=[
+            'bacon', 
+            'bacon.windows32',
+            'bacon.windows64',
+            'bacon.darwin32',
+            'bacon.darwin64'],
           data_files=data_files,
     )

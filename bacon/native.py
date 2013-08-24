@@ -3,6 +3,9 @@ import math
 import os
 import sys
 
+import logging
+logger = logging.getLogger(__name__)
+
 _mock_native = False
 if 'BACON_MOCK_NATIVE' in os.environ and os.environ['BACON_MOCK_NATIVE']:
     _mock_native = True
@@ -377,7 +380,11 @@ class _DllPath(object):
             dll = self.files[0]
         else:
             dll = os.path.join(dll_dir, self.files[0])
-        return cdll.LoadLibrary(dll)
+        try:
+            return cdll.LoadLibrary(dll)
+        except:
+            logger.exception('dll_dir is %s' % dll_dir)
+            raise ImportError('Failed to load DLL %s' % dll)
 
 if sys.platform == 'win32':
     if sizeof(c_void_p) == 4:
@@ -385,7 +392,7 @@ if sys.platform == 'win32':
             'Bacon.dll',
             'libEGL.dll',
             'libGLESv2.dll',
-            'd3dcompiler_46.dll'
+            'd3dcompiler_46.dll',
             'msvcp110.dll',
             'msvcr110.dll',
             'vccorlib110.dll',
