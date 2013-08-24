@@ -21,9 +21,11 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Bacon\Audio.cpp" />
     <ClCompile Include="..\..\Source\Bacon\Bacon.cpp" />
+    <ClCompile Include="..\..\Source\Bacon\DebugOverlay.cpp" />
     <ClCompile Include="..\..\Source\Bacon\Fonts.cpp" />
     <ClCompile Include="..\..\Source\Bacon\Graphics.cpp" />
     <ClCompile Include="..\..\Source\Bacon\Keyboard.cpp" />
+    <ClCompile Include="..\..\Source\Bacon\MaxRectsAllocator.cpp" />
     <ClCompile Include="..\..\Source\Bacon\Mouse.cpp" />
     <ClCompile Include="..\..\Source\Bacon\Window.cpp" />
     <ClCompile Include="..\..\Source\Bacon\windows\DirectInputController.cpp" />
@@ -35,6 +37,7 @@
     <ClInclude Include="..\..\Source\Bacon\Bacon.h" />
     <ClInclude Include="..\..\Source\Bacon\BaconInternal.h" />
     <ClInclude Include="..\..\Source\Bacon\HandleArray.h" />
+    <ClInclude Include="..\..\Source\Bacon\MaxRectsAllocator.h" />
     <ClInclude Include="..\..\Source\Bacon\windows\Controller.h" />
     <ClInclude Include="..\..\Source\Bacon\windows\Platform.h" />
   </ItemGroup>

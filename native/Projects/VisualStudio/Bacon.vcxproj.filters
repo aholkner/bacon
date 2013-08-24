@@ -42,6 +42,12 @@
     <ClCompile Include="..\..\Source\Bacon\windows\XInputController.cpp">
       <Filter>Source\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Bacon\DebugOverlay.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Bacon\MaxRectsAllocator.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Bacon\Bacon.h">
@@ -58,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="..\..\Source\Bacon\windows\Controller.h">
       <Filter>Source\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Bacon\MaxRectsAllocator.h">
+      <Filter>Source</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
