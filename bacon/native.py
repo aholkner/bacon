@@ -439,7 +439,7 @@ def load(function_wrapper = None):
         _lib = MockCDLL()
         fn = mock_function_wrapper
         can_init = False
-    if not _dll_path:
+    elif not _dll_path:
         raise ImportError('Unsupported platform %s' % sys.platform)
     else:
         _lib = _dll_path.get_lib()
