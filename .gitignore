@@ -31,8 +31,7 @@ debug.txt
 build
 dist
 bacon.egg-info
-bacon/Bacon.dylib
-bacon/Bacon.dll
+*.dylib
 MANIFEST
 
 # Built docs
