@@ -338,7 +338,6 @@ static void LogVersionInfo()
 
 int Platform_Run()
 {
-    AllocConsole();
     LogVersionInfo();
     InitKeyMap();
 
