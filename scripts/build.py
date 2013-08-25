@@ -23,12 +23,10 @@ class Dropbox(object):
         pss
 
     def put(self, src_path, share_path):
-        shutil.copytree(src_path, os.path.join(dropbox_dir, share_path))
+        shutil.copytree(src_path, share_path)
         
     def get(self, share_path, dest_path):
-        shutil.copytree(os.path.join(dropbox_dir, share_path), dest_path)
-        
-dropbox = Dropbox()
+        shutil.copytree(share_path, dest_path)
     
 def build_osx():
     subprocess.call([
@@ -59,31 +57,25 @@ def build_windows():
         cwd=os.path.join(base_dir, 'native/Projects/VisualStudio'))
 
 def publish_build_files(version, commit, files):
-    share_path = '/bacon-%s/%s/' % (version, commit)
     print('Copying local build files to dropbox...')
     for file in files:
-        print(file)
-        dropbox.put(os.path.join(base_dir, file), share_path + file)
+        shutil.copytree(os.path.join(base_dir, file), share_path + file)
 
 def download_build_files(version, commit, alt_files):
     print('Copying alternative platform files from dropbox...')
-    share_path = '/bacon-%s/%s/' % (version, commit)
     try:
         for file in alt_files:
-            dropbox.get(share_path + file, os.path.join(base_dir, file))
-    except rest.ErrorResponse:
+            shutil.copytree(share_path + file, os.path.join(base_dir, file))
+    except OSError:
         print('...not found, finished build')
         return False
 
     return True
 
 def has_build_files(version, commit, files):
-    share_path = '/bacon-%s/%s/' % (version, commit)
-    try:
-        for file in alt_files:
-            dropbox.get(share_path + file, os.path.join(base_dir, file))
-    except IOError:
-        return False
+    for file in files:
+        if not os.path.exists(share_path + file):
+            return False
     return True
 
 def build():
@@ -139,6 +131,7 @@ if __name__ == '__main__':
         raise Exception('Native version does not match setup.py (%s vs %s)' % (native_version, version))
 
     commit = get_master_commit()
+    share_path = os.path.join(dropbox_dir, 'bacon-%s/%s/' % (version, commit))
 
     print('Version %s' % version)
     print('Commit %s' % commit)
