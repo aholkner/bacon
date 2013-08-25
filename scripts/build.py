@@ -4,58 +4,31 @@ base_dir = os.path.join(os.path.dirname(__file__), '..')
 sys.path.insert(0, base_dir)
 
 import setup
+import shutil
 import git
 import subprocess
 
-from dropbox import client, rest
 
-
-# Dropbox auth details are not checked in, you must create
-# them locally according to your Dropbox developer account.
+# Dropbox details are not checked in, you must create
+# them locally according to your Dropbox installation
 try:
-    from build_auth import app_key, app_secret
+    from build_auth import dropbox_dir
 except ImportError:
-    raise ImportError('build_auth.py must be provided with Dropbox app_key and app_secret strings')
+    raise ImportError('build_auth.py must be provided with dropbox_dir')
 
 class Dropbox(object):
-    TOKEN_FILE = os.path.join(os.path.dirname(__file__), 'build_auth.token.txt')
-
     def __init__(self):
-        self.api_client = None
-        try:
-            token = open(self.TOKEN_FILE).read()
-            self.api_client = client.DropboxClient(token)
-            print("[loaded access token]")
-        except:
-            self.login()
+        pass
 
     def login(self):
-        flow = client.DropboxOAuth2FlowNoRedirect(app_key, app_secret)
-        authorize_url = flow.start()
-        sys.stdout.write("1. Go to: " + authorize_url + "\n")
-        sys.stdout.write("2. Click \"Allow\" (you might have to log in first).\n")
-        sys.stdout.write("3. Copy the authorization code.\n")
-        code = raw_input("Enter the authorization code here: ").strip()
-
-        try:
-            access_token, user_id = flow.finish(code)
-        except rest.ErrorResponse:
-            raise
-
-        with open(self.TOKEN_FILE, 'w') as f:
-            f.write(access_token)
-        self.api_client = client.DropboxClient(access_token)
+        pss
 
     def put(self, src_path, share_path):
-        f = open(src_path, 'rb')
-        self.api_client.put_file(share_path, f)
-        f.close()
-
+        shutil.copytree(src_path, os.path.join(dropbox_dir, share_path))
+        
     def get(self, share_path, dest_path):
-        f, metadata = self.api_client.get_file_and_metadata(share_path)
-        to_file = open(dest_path, 'wb')
-        to_file.write(f.read())
-        to_file.close()
+        shutil.copytree(os.path.join(dropbox_dir, share_path), dest_path)
+        
 dropbox = Dropbox()
     
 def build_osx():
@@ -64,13 +37,25 @@ def build_osx():
         '-scheme', 'Bacon'
         ], 
         cwd=os.path.join(base_dir, 'native/Projects/Xcode'))
+    subprocess.call([
+        'xcodebuild', 
+        '-scheme', 'Bacon64'
+        ], 
+        cwd=os.path.join(base_dir, 'native/Projects/Xcode'))
 
 def build_windows():
     subprocess.call([
         'C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe',
         'Bacon.sln',
-        '/p:Configuration=Debug',
+        '/p:Configuration=Release',
         '/p:Platform=Win32'
+        ],
+        cwd=os.path.join(base_dir, 'native/Projects/VisualStudio'))
+    subprocess.call([
+        'C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe',
+        'Bacon.sln',
+        '/p:Configuration=Release',
+        '/p:Platform=x64'
         ],
         cwd=os.path.join(base_dir, 'native/Projects/VisualStudio'))
 
@@ -98,7 +83,7 @@ def has_build_files(version, commit, files):
     try:
         for file in alt_files:
             dropbox.get(share_path + file, os.path.join(base_dir, file))
-    except rest.ErrorResponse:
+    except IOError:
         return False
     return True
 
@@ -115,12 +100,14 @@ def publish():
     subprocess.call(['python', 'setup.py', 'sdist', '--formats=zip', 'upload'], cwd=base_dir)
 
 def get_build_files():
+    windows_files = ['bacon/windows32', 'bacon/windows64']
+    darwin_files = ['bacon/darwin32', 'bacon/darwin64']
     if sys.platform == 'win32':
-        files = setup.windows_dlls
-        alt_files = setup.osx_dlls
+        files = windows_files
+        alt_files = darwin_files
     elif sys.platform == 'darwin':
-        files = setup.osx_dlls
-        alt_files = setup.windows_dlls
+        files = darwin_files
+        alt_files = windows_files
     else:
         raise Exception('Unsupported platform %s' % sys.platform)
 
