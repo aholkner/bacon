@@ -44,7 +44,10 @@ def build_windows():
         cwd=os.path.join(base_dir, 'native/Projects/VisualStudio'))
 
 def copy_dir_files(src, dest):
-    os.makedirs(dest)
+    try:
+        os.makedirs(dest)
+    except OSError:
+        pass
     for file in os.listdir(src):
         if not os.path.exists(os.path.join(dest, file)):
             shutil.copy2(os.path.join(src, file), os.path.join(dest, file))
@@ -57,7 +60,7 @@ def publish_build_dirs(version, commit, dirs):
 def download_build_dirs(version, commit, alt_dirs):
     print('Copying alternative platform dirs from dropbox...')
     for dir in alt_dirs:
-        if not os.path.exists(dir):
+        if not os.path.exists(share_path + dir):
             print('...not found, finished build')
             return False
         copy_dir_files(share_path + dir, os.path.join(base_dir, dir))
