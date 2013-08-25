@@ -111,7 +111,7 @@ easy to render to an image, though.  This is useful for compositing elements in 
 special effects.  
 
 .. literalinclude:: ../examples/render_to_image.py
-    :emphasize-lines: 21, 29
+    :emphasize-lines: 25, 33
 
 .. autofunction:: set_frame_buffer
 

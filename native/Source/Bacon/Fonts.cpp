@@ -117,7 +117,7 @@ int Bacon_GetGlyph(int handle, float size, int character, int flags, int* outIma
 	{
 		int width = face->glyph->bitmap.width;
 		int height = face->glyph->bitmap.rows;
-		if (Bacon_CreateImage(outImage, width, height, Bacon_ImageFlags_Atlas | Bacon_ImageFlags_DiscardBitmap))
+		if (Bacon_CreateImage(outImage, width, height, Bacon_ImageFlags_DiscardBitmap | (1 << Bacon_ImageFlags_AtlasGroupShift)))
 			return Bacon_Error_Unknown;
 		
 		int bpp = 0;

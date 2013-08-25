@@ -29,18 +29,18 @@ class Image(object):
         a GPU texture has been created (which happens automatically the first time the image is rendered).  This saves
         memory.  The parameter should be set to ``False`` if the source data will be required for reasons besides rendering
         (there is currently no API for using an image this way).
+    :param atlas: group index of the atlas to pack this image into.  If zero, the image is not packed into an atlas; otherwise,
+        the image is permitted to be packed into other images with the same atlas number (although this is not guaranteed).
     :param width: width of the image to create, in texels
-    :param height: height of the image to creat, in texels
+    :param height: height of the image to create, in texels
     '''
 
-    def __init__(self, file=None, premultiply_alpha=True, discard_bitmap=True, separate_texture=False, width=None, height=None, handle=None):
-        flags = 0
+    def __init__(self, file=None, premultiply_alpha=True, discard_bitmap=True, atlas=1, width=None, height=None, handle=None):
+        flags = atlas << native.ImageFlags_atlas_shift
         if premultiply_alpha:
             flags |= native.ImageFlags.premultiply_alpha
         if discard_bitmap:
             flags |= native.ImageFlags.discard_bitmap
-        if not separate_texture:
-            flags |= native.ImageFlags.atlas
             
         if file:
             # Load image from file

@@ -1,7 +1,11 @@
 import bacon
 
 font = bacon.Font('res/DejaVuSans.ttf', 48)
-offscreen = bacon.Image(width = 128, height = 128, separate_texture=True)
+
+# The offscreen texture must be created in a separate atlas to the glyphs
+# which will be drawn into it.  By specifying atlas=0, we disable atlasing
+# for the image entirely.
+offscreen = bacon.Image(width = 128, height = 128, atlas=0)
 
 class Game(bacon.Game):
     def draw_scene(self):

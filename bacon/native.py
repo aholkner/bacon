@@ -109,11 +109,13 @@ class BlendFlags(object):
     dst_alpha = 8
     one_minus_dst_alpha = 9
 
+ImageFlags_atlas_shift = 8
+
 @flags
 class ImageFlags(object):
     premultiply_alpha = 1 << 0
     discard_bitmap = 1 << 1
-    atlas = 1 << 2
+    atlas_mask = 0xff << 8
 
 @flags
 class FontFlags(object):

@@ -282,7 +282,7 @@ void Graphics_Init()
 	s_Impl->m_TransformStack.push_back(mat4f::IDENTITY);
 	s_Impl->m_SharedUniformsVersion = 0;
 	
-	Bacon_CreateImage(&s_Impl->m_BlankImage, 1, 1, Bacon_ImageFlags_DiscardBitmap | Bacon_ImageFlags_Atlas);
+	Bacon_CreateImage(&s_Impl->m_BlankImage, 1, 1, Bacon_ImageFlags_DiscardBitmap | (1 << Bacon_ImageFlags_AtlasGroupShift));
 	FIBITMAP* blankBitmap = FreeImage_Allocate(1, 1, 32);
 	memset(FreeImage_GetBits(blankBitmap), 255, 4);
 	Graphics_SetImageBitmap(s_Impl->m_BlankImage, blankBitmap);
@@ -1233,6 +1233,8 @@ static void Blit32(FIBITMAP* destBitmap, FIBITMAP* srcBitmap, Rect const& destRe
 
 static bool IsAtlasFlagsCompatible(TextureAtlas* atlas, Image* image)
 {
+	if ((atlas->m_Flags & Bacon_ImageFlags_AtlasGroupMask) != (image->m_Flags & Bacon_ImageFlags_AtlasGroupMask))
+		return false;
 	return true; // TODO filtering
 }
 
@@ -1279,6 +1281,7 @@ static void AddImageToTextureAtlas(Image* image)
 		atlasHandle = s_Impl->m_TextureAtlases.Alloc();
 		atlas = s_Impl->m_TextureAtlases.Get(atlasHandle);
 		atlas->m_Allocator.Init(size, size);
+		atlas->m_Flags = (image->m_Flags & Bacon_ImageFlags_AtlasGroupMask);
 		atlas->m_Texture = 0;
 		atlas->m_Width = size;
 		atlas->m_Height = size;
@@ -1302,7 +1305,7 @@ static void AddImageToTextureAtlas(Image* image)
 	image->m_Texture = atlas->m_Texture;
 }
 
-static void FillTextureAtlases()
+static void FillTextureAtlases(int group)
 {
 	// Collect images that need atlasing
 	vector<Image*> images;
@@ -1310,7 +1313,7 @@ static void FillTextureAtlases()
 	for (Image& image : s_Impl->m_Images)
 	{
 		if (image.m_Texture == 0 &&
-			image.m_Flags & Bacon_ImageFlags_Atlas)
+			(image.m_Flags & Bacon_ImageFlags_AtlasGroupMask) == group)
 		{
 			images.push_back(&image);
 		}
@@ -1360,9 +1363,9 @@ static Texture* RealizeTexture(Image* image)
 	{
 		Bacon_Flush();
 		
-		if (image->m_Flags & Bacon_ImageFlags_Atlas)
+		if (image->m_Flags & Bacon_ImageFlags_AtlasGroupMask)
 		{
-			FillTextureAtlases();
+			FillTextureAtlases(image->m_Flags & Bacon_ImageFlags_AtlasGroupMask);
 			texture = s_Impl->m_Textures.Get(image->m_Texture);
 		}
 		else
@@ -1417,8 +1420,10 @@ static int BindFrameBuffer(int imageHandle)
 		return Bacon_Error_Unknown;
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, texture->m_FrameBuffer);
-	vec2f origin = image->m_UVScaleBias.Apply(vec2f(0.f, 0.f)) * vec2f(texture->m_Width, texture->m_Height);
-	Bacon_SetViewport((int)origin.x(), (int)origin.y(), image->m_Width, image->m_Height);
+	float x = image->m_UVScaleBias.m_BiasX * texture->m_Width;
+	float bottom = texture->m_Height - image->m_UVScaleBias.m_BiasY * texture->m_Height;
+	float top = bottom - image->m_Height;
+	Bacon_SetViewport((int)x, (int)top, image->m_Width, image->m_Height);
 	return Bacon_Error_None;
 }
 

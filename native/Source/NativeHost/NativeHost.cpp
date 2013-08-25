@@ -6,7 +6,7 @@ using namespace std;
 
 int g_Kitten, g_Kitten2;
 int g_Font;
-int g_Buffer;
+int g_Buffer, g_Buffer2;
 
 struct Glyph
 {
@@ -42,9 +42,14 @@ void Tick()
 		x += g_Glyphs[i].m_Advance;
 	}
 
+	Bacon_SetFrameBuffer(g_Buffer2);
+	
     int kw, kh;
     Bacon_GetImageSize(g_Kitten, &kw, &kh);
-    Bacon_DrawImage(g_Kitten2, 100.f, 100.f, 100.f + kw, 100.f + kh);
+    Bacon_DrawImage(g_Kitten, 50, 50, kw, kh);
+	
+	Bacon_SetFrameBuffer(0);
+	Bacon_DrawImage(g_Buffer2, 0, 0, 256, 256);
 	
 	Bacon_SetBlending(Bacon_Blend_One, Bacon_Blend_One);
 	Bacon_SetColor(1, 0, 0, 1);
@@ -137,8 +142,11 @@ int main(int argc, const char * argv[])
 		error = Bacon_GetGlyph(g_Font, 32, c, 0, &glyph.m_Image, &glyph.m_OffsetX, &glyph.m_OffsetY, &glyph.m_Advance);
 	}
 	
-	Bacon_LoadImage(&g_Kitten, "res/kitten.png", Bacon_ImageFlags_PremultiplyAlpha | Bacon_ImageFlags_DiscardBitmap | Bacon_ImageFlags_Atlas);
+	Bacon_LoadImage(&g_Kitten, "res/kitten.png", Bacon_ImageFlags_PremultiplyAlpha | Bacon_ImageFlags_DiscardBitmap | (1 << Bacon_ImageFlags_AtlasGroupShift));
 	Bacon_GetImageRegion(&g_Kitten2, g_Kitten, 50, 50, 512-50, 512-50);
+
+	Bacon_CreateImage(&g_Buffer, 256, 256, (2 << Bacon_ImageFlags_AtlasGroupShift));
+	Bacon_CreateImage(&g_Buffer2, 256, 256, (2 << Bacon_ImageFlags_AtlasGroupShift));
 	
 	Bacon_SetTickCallback(Tick);
 	Bacon_Run();
