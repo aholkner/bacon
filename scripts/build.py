@@ -116,7 +116,7 @@ def get_native_version():
     return '%s.%s.%s' % (major, minor, patch)
 
 def tag(version):
-    subprocess.call(['git', 'tag', '-a', 'v%s' % version, 'Release %s' % version], shell=True)
+    subprocess.call(['git', 'tag', '-a', 'v%s' % version, '-m', 'Release %s' % version], shell=True)
 
 if __name__ == '__main__':
     version = get_version()
