@@ -1,4 +1,5 @@
 import distutils
+import distutils.sysconfig
 from distutils.core import setup
 import os
 
