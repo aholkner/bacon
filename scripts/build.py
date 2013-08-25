@@ -15,19 +15,6 @@ try:
 except ImportError:
     raise ImportError('build_auth.py must be provided with dropbox_dir')
 
-class Dropbox(object):
-    def __init__(self):
-        pass
-
-    def login(self):
-        pss
-
-    def put(self, src_path, share_path):
-        shutil.copytree(src_path, share_path)
-        
-    def get(self, share_path, dest_path):
-        shutil.copytree(share_path, dest_path)
-    
 def build_osx():
     subprocess.call([
         'xcodebuild', 
@@ -56,24 +43,28 @@ def build_windows():
         ],
         cwd=os.path.join(base_dir, 'native/Projects/VisualStudio'))
 
-def publish_build_files(version, commit, files):
-    print('Copying local build files to dropbox...')
-    for file in files:
-        shutil.copytree(os.path.join(base_dir, file), share_path + file)
+def copy_dir_files(src, dest):
+    os.makedirs(dest)
+    for file in os.listdir(src):
+        if not os.path.exists(os.path.join(dest, file)):
+            shutil.copy2(os.path.join(src, file), os.path.join(dest, file))
 
-def download_build_files(version, commit, alt_files):
-    print('Copying alternative platform files from dropbox...')
-    try:
-        for file in alt_files:
-            shutil.copytree(share_path + file, os.path.join(base_dir, file))
-    except OSError:
-        print('...not found, finished build')
-        return False
+def publish_build_dirs(version, commit, dirs):
+    print('Copying local build dirs to dropbox...')
+    for dir in dirs:
+        copy_dir_files(os.path.join(base_dir, dir), share_path + dir)
 
+def download_build_dirs(version, commit, alt_dirs):
+    print('Copying alternative platform dirs from dropbox...')
+    for dir in alt_dirs:
+        if not os.path.exists(dir):
+            print('...not found, finished build')
+            return False
+        copy_dir_files(share_path + dir, os.path.join(base_dir, dir))
     return True
 
-def has_build_files(version, commit, files):
-    for file in files:
+def has_build_dirs(version, commit, dirs):
+    for file in dirs:
         if not os.path.exists(share_path + file):
             return False
     return True
@@ -90,19 +81,19 @@ def publish():
     print('Publishing to PyPI')
     subprocess.call(['python', 'setup.py', 'sdist', '--formats=zip', 'upload'], cwd=base_dir)
 
-def get_build_files():
-    windows_files = ['bacon/windows32', 'bacon/windows64']
-    darwin_files = ['bacon/darwin32', 'bacon/darwin64']
+def get_build_dirs():
+    windows_dirs = ['bacon/windows32', 'bacon/windows64']
+    darwin_dirs = ['bacon/darwin32', 'bacon/darwin64']
     if sys.platform == 'win32':
-        files = windows_files
-        alt_files = darwin_files
+        dirs = windows_dirs
+        alt_dirs = darwin_dirs
     elif sys.platform == 'darwin':
-        files = darwin_files
-        alt_files = windows_files
+        dirs = darwin_dirs
+        alt_dirs = windows_dirs
     else:
         raise Exception('Unsupported platform %s' % sys.platform)
 
-    return files, alt_files
+    return dirs, alt_dirs
 
 def get_master_commit():
     changes = subprocess.Popen(['git', 'diff', '--shortstat'], stderr=None, stdout=subprocess.PIPE).communicate()[0]
@@ -137,12 +128,12 @@ if __name__ == '__main__':
     print('Commit %s' % commit)
     import time; time.sleep(1)
 
-    files, alt_files = get_build_files()
-    if not has_build_files(version, commit, files):
+    dirs, alt_dirs = get_build_dirs()
+    if not has_build_dirs(version, commit, dirs):
         build()
-        publish_build_files(version, commit, files)
+        publish_build_dirs(version, commit, dirs)
 
-    if download_build_files(version, commit, alt_files):
+    if download_build_dirs(version, commit, alt_dirs):
         publish()
         tag(version)
 
