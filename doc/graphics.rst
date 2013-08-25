@@ -53,6 +53,8 @@ To render text, first load a TrueType or OpenType font at a particular point siz
 .. autoclass:: Font
     :members:
 
+.. autofunction:: draw_text
+
 Transform stack
 ===============
 
