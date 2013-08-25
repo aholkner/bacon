@@ -5,7 +5,6 @@ sys.path.insert(0, base_dir)
 
 import setup
 import shutil
-import git
 import subprocess
 
 
@@ -114,10 +113,10 @@ def get_build_files():
     return files, alt_files
 
 def get_master_commit():
-    repo = git.Repo(base_dir)
-    if repo.is_dirty:
+    changes = subprocess.Popen(['git', 'diff', '--shortstat'], stderr=None, stdout=subprocess.PIPE).communicate()[0]
+    if changes:
         raise Exception('Git repo is dirty')
-    return repo.commit('master').id
+    return subprocess.Popen(['git', 'rev-parse', 'HEAD'], stderr=None, stdout=subprocess.PIPE).communicate()[0].strip()
 
 def get_version():
     return setup.version
