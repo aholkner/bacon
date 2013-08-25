@@ -102,7 +102,7 @@ def get_master_commit():
     changes = subprocess.Popen(['git', 'diff', '--shortstat'], stderr=None, stdout=subprocess.PIPE).communicate()[0]
     if changes:
         raise Exception('Git repo is dirty')
-    return subprocess.Popen(['git', 'rev-parse', 'HEAD'], stderr=None, stdout=subprocess.PIPE).communicate()[0].strip()
+    return subprocess.Popen(['git', 'rev-parse', 'HEAD'], stderr=None, stdout=subprocess.PIPE).communicate()[0].strip().decode('utf-8')
 
 def get_version():
     return setup.version
