@@ -134,7 +134,7 @@ int main(int argc, const char * argv[])
 	error = Bacon_GetFontMetrics(g_Font, 64.f, &ascent, &descent);
 
 	int g = 0;
-	for (char c : "a")
+	for (char c : "abcdefghijklmnopqrstuvwxyz")
 	{
 		if (!c)
 			break;
@@ -142,7 +142,7 @@ int main(int argc, const char * argv[])
 		error = Bacon_GetGlyph(g_Font, 32, c, 0, &glyph.m_Image, &glyph.m_OffsetX, &glyph.m_OffsetY, &glyph.m_Advance);
 	}
 	
-	Bacon_LoadImage(&g_Kitten, "res/kitten.png", Bacon_ImageFlags_PremultiplyAlpha | Bacon_ImageFlags_DiscardBitmap | (1 << Bacon_ImageFlags_AtlasGroupShift));
+	Bacon_LoadImage(&g_Kitten, "res/ball.png", Bacon_ImageFlags_PremultiplyAlpha | Bacon_ImageFlags_DiscardBitmap | (1 << Bacon_ImageFlags_AtlasGroupShift));
 	Bacon_GetImageRegion(&g_Kitten2, g_Kitten, 50, 50, 512-50, 512-50);
 
 	Bacon_CreateImage(&g_Buffer, 256, 256, (2 << Bacon_ImageFlags_AtlasGroupShift));

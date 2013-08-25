@@ -48,6 +48,7 @@ namespace {
 
 	const int TextureAtlasMargin = 2;
 	const int TextureAtlasMinSize = 128;
+	const int TextureAtlasMaxSize = 2048;
 
 	enum Bacon_ImageFlags_Internal
 	{
@@ -1263,7 +1264,7 @@ static int NextPowerOfTwo(int n)
 	return v;
 }
 
-static void AddImageToTextureAtlas(Image* image)
+static void AddImageToTextureAtlas(Image* image, int hintSize)
 {
 	Rect rect;
 	int atlasHandle;
@@ -1277,7 +1278,8 @@ static void AddImageToTextureAtlas(Image* image)
 	{
 		// Create a new atlas
 		// TODO allow image to run against edges w/out bleeding into margin
-		int size = NextPowerOfTwo(std::max(std::max(image->m_Width + TextureAtlasMargin * 2, image->m_Height + TextureAtlasMargin * 2),TextureAtlasMinSize));
+		hintSize = std::max(std::max(image->m_Width, image->m_Height) + TextureAtlasMargin * 2, hintSize);
+		int size = NextPowerOfTwo(std::max(std::min(hintSize, TextureAtlasMaxSize), TextureAtlasMinSize));
 		atlasHandle = s_Impl->m_TextureAtlases.Alloc();
 		atlas = s_Impl->m_TextureAtlases.Get(atlasHandle);
 		atlas->m_Allocator.Init(size, size);
@@ -1310,12 +1312,16 @@ static void FillTextureAtlases(int group)
 	// Collect images that need atlasing
 	vector<Image*> images;
 	images.reserve(s_Impl->m_Images.GetCount());
+	int totalArea = 0;
+	int minSize = 0;
 	for (Image& image : s_Impl->m_Images)
 	{
 		if (image.m_Texture == 0 &&
 			(image.m_Flags & Bacon_ImageFlags_AtlasGroupMask) == group)
 		{
 			images.push_back(&image);
+			totalArea += (image.m_Width + TextureAtlasMargin * 2) * (image.m_Height + TextureAtlasMargin * 2);
+			minSize = std::max(std::max(minSize, image.m_Width), image.m_Height);
 		}
 	}
 	
@@ -1326,9 +1332,12 @@ static void FillTextureAtlases(int group)
 		return sizeB < sizeA;
 	});
 	
+	// Size of new atlas if we have to make one
+	int hintSize = NextPowerOfTwo(std::max(minSize + TextureAtlasMargin * 2, (int)(sqrtf(totalArea * 1.3))));
+	
 	// Insert each image
 	for (Image* image : images)
-		AddImageToTextureAtlas(image);
+		AddImageToTextureAtlas(image, hintSize);
 
 	// Update all textures in texture atlases that have been invalidated
 	for (TextureAtlas& atlas : s_Impl->m_TextureAtlases)
@@ -1875,7 +1884,7 @@ int Bacon_Flush()
 
 void Graphics_DrawDebugOverlay()
 {
-	int drawTextureAtlas = 1;
+	int drawTextureAtlas = 0;
 	for (TextureAtlas& atlas : s_Impl->m_TextureAtlases)
 	{
 		if (drawTextureAtlas-- != 0)
