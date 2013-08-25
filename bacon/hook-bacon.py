@@ -1,5 +1,5 @@
 from PyInstaller.compat import is_win, is_darwin
-from hookutils import get_package_paths
+from PyInstaller.hooks.hookutils import get_package_paths
 
 import os
 import sys

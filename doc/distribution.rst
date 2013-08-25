@@ -9,9 +9,7 @@ PyInstaller must be told how to package Bacon; this is done with the following `
 
 .. literalinclude:: ../bacon/hook-bacon.py
 
-.. note:: The current version of PyInstaller does not respect its ``--additional-hooks-dir`` command line argument, you'll need to copy the above hooks file into the ``PyInstaller/hooks`` directory.
-
-The following is an example ``.spec`` file that PyInstaller can use to build the ``bouncing_balls`` example.  You can modify it to use your game's name and resources:
+The following is an example ``.spec`` file that PyInstaller can use to build the ``bouncing_balls`` example.  You can modify it to use your game's name and resources.  You must also change ``hookspath`` to point to the directory containing the above ``hook-bacon.py``.
 
 .. literalinclude:: ../examples/bouncing_balls.spec
 

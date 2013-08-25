@@ -2,7 +2,7 @@
 a = Analysis(['bouncing_balls.py'],
              pathex=['bouncing_balls'],
              hiddenimports=[],
-             hookspath=None)
+             hookspath=['../bacon'])
 pyz = PYZ(a.pure)
 res_tree = Tree('res', prefix='res')
 exe = EXE(pyz,
