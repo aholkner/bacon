@@ -1,7 +1,7 @@
 import bacon
 
 font = bacon.Font('res/DejaVuSans.ttf', 48)
-offscreen = bacon.Image(width = 128, height = 128)
+offscreen = bacon.Image(width = 128, height = 128, separate_texture=True)
 
 class Game(bacon.Game):
     def draw_scene(self):

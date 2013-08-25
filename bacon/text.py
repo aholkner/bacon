@@ -1,3 +1,5 @@
+import collections
+
 import bacon
 from bacon import native
 
@@ -330,7 +332,7 @@ def draw_glyph_layout(glyph_layout):
 
             for glyph in run.glyphs:
                 if glyph.image:
-                    draw_image(glyph.image, x + glyph.offset_x, y - glyph.offset_y)
+                    bacon.draw_image(glyph.image, x + glyph.offset_x, y - glyph.offset_y)
                 x += glyph.advance
 
     if pushed_color:

@@ -2,6 +2,7 @@ from ctypes import *
 
 from bacon.core import lib
 from bacon import native
+import bacon.image
 
 class FontMetrics(object):
     '''Aggregates pixel metrics for a font loaded at a particular size.  See :attr:`Font.metrics`
@@ -95,7 +96,7 @@ class _FontFile(object):
             width = c_int()
             height = c_int()
             lib.GetImageSize(image_handle, byref(width), byref(height))
-            image = Image(width = width.value, height = height.value, handle = image_handle.value)
+            image = bacon.image.Image(width = width.value, height = height.value, handle = image_handle.value)
         else:
             image = None
 

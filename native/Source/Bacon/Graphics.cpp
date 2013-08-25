@@ -1405,7 +1405,6 @@ static int BindFrameBuffer(int imageHandle)
 	
 	glBindFramebuffer(GL_FRAMEBUFFER, texture->m_FrameBuffer);
 	vec2f origin = image->m_UVScaleBias.Apply(vec2f(0.f, 0.f)) * vec2f(texture->m_Width, texture->m_Height);
-	printf("%f %f\n", origin.x(), -origin.y());
 	Bacon_SetViewport((int)origin.x(), (int)origin.y(), image->m_Width, image->m_Height);
 	return Bacon_Error_None;
 }

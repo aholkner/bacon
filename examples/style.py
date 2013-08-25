@@ -13,7 +13,7 @@ runs = [
     bacon.GlyphRun(bacon.Style(font), '!'),
 ]
 glyph_layout = bacon.GlyphLayout(runs, 
-    bacon.window.width / 2, 
+    0, 
     bacon.window.height / 2, 
     width=bacon.window.width,
     align=bacon.Alignment.center, 
@@ -23,7 +23,6 @@ glyph_layout = bacon.GlyphLayout(runs,
 class Game(bacon.Game):
     def on_tick(self):
         bacon.clear(0, 0, 0, 1)
-        glyph_layout.x = bacon.window.width / 2
         glyph_layout.y = bacon.window.height / 2
         glyph_layout.width = bacon.window.width
         bacon.draw_glyph_layout(glyph_layout)
