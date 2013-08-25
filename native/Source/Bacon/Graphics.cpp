@@ -1018,18 +1018,19 @@ int Bacon_GetImageRegion(int* outImage, int imageHandle, int x1, int y1, int x2,
 	region->m_Width = x2 - x1;
 	region->m_Height = y2 - y1;
 	
-	UVScaleBias const& sb = image->m_UVScaleBias;
-	region->m_UVScaleBias = UVScaleBias(sb.m_ScaleX * (float)(x2 - x1) / image->m_Width,
-										sb.m_ScaleY * (float)(y2 - y1) / image->m_Height,
-										sb.m_BiasX + x1 / (float) image->m_Width * sb.m_ScaleX,
-										sb.m_BiasY + y1 / (float) image->m_Height * sb.m_ScaleY);
-	
 	Texture* texture = s_Impl->m_Textures.Get(image->m_Texture);
 	if (texture)
 	{
 		// Share texture
 		region->m_Texture = image->m_Texture;
 		++texture->m_RefCount;
+		
+		// Parent texcoords are already valid, scale/bias by them
+		UVScaleBias const& sb = image->m_UVScaleBias;
+		region->m_UVScaleBias = UVScaleBias(sb.m_ScaleX * (float)(x2 - x1) / image->m_Width,
+											sb.m_ScaleY * (float)(y2 - y1) / image->m_Height,
+											sb.m_BiasX + x1 / (float) image->m_Width * sb.m_ScaleX,
+											sb.m_BiasY + y1 / (float) image->m_Height * sb.m_ScaleY);
 	}
 	else
 	{
@@ -1037,6 +1038,12 @@ int Bacon_GetImageRegion(int* outImage, int imageHandle, int x1, int y1, int x2,
 		// as such.
 		region->m_Texture = imageHandle;
 		region->m_Flags |= Bacon_ImageFlags_Internal_TextureIsImage;
+		
+		// Texcoords will get scale/bias'd by parent after parent is inserted into atlas (if applicable)
+		region->m_UVScaleBias = UVScaleBias((float)(x2 - x1) / image->m_Width,
+											(float)(y2 - y1) / image->m_Height,
+											x1 / (float) image->m_Width,
+											y1 / (float) image->m_Height);
 	}
 	
 	return Bacon_Error_None;
@@ -1338,6 +1345,12 @@ static Texture* RealizeTexture(Image* image)
 		Image* parent = s_Impl->m_Images.Get(image->m_Texture);
 		assert(parent);
 		RealizeTexture(parent);
+		UVScaleBias subScaleBias = image->m_UVScaleBias;
+		image->m_UVScaleBias = parent->m_UVScaleBias;
+		image->m_UVScaleBias.m_BiasX += subScaleBias.m_BiasX * parent->m_UVScaleBias.m_ScaleX;
+		image->m_UVScaleBias.m_BiasY += subScaleBias.m_BiasY * parent->m_UVScaleBias.m_ScaleX;
+		image->m_UVScaleBias.m_ScaleX *= subScaleBias.m_ScaleX;
+		image->m_UVScaleBias.m_ScaleY *= subScaleBias.m_ScaleY;
 		image->m_Texture = parent->m_Texture;
 		image->m_Flags &= ~Bacon_ImageFlags_Internal_TextureIsImage;
 	}
