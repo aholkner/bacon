@@ -20,6 +20,7 @@ ball_image = bacon.Image(res + '/ball.png')
 ball_sound = bacon.Sound(res + '/ball.wav')
 
 music = bacon.Voice(bacon.Sound(res + '/PowerChorus2.ogg', stream=True), loop=True)
+music.gain = 0.3
 music.play()
 
 bacon.window.resizable = True
@@ -32,7 +33,7 @@ class Ball(object):
     def __init__(self):
         self.x = random.random() * (bacon.window.width - self.width)
         self.y = random.random() * (bacon.window.height - self.height)
-
+        
         self.dx = (random.random() - 0.5) * 1000
         self.dy = (random.random() - 0.5) * 1000
 
@@ -52,7 +53,7 @@ class Ball(object):
     def on_bounce(self):
         pan = self.x / float(bacon.window.width - self.width) * 2 - 1
         pitch = 0.9 + random.random() * 0.2
-        #ball_sound.play(gain=0.1, pan=pan, pitch=pitch)
+        ball_sound.play(gain=0.1, pan=pan, pitch=pitch)
 
 player_controller = None
 
