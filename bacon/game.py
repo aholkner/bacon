@@ -125,6 +125,8 @@ def _first_tick_callback():
     # game loop immediately, since they're likely to be showstoppers.
     try:
         bacon._current_game.on_init()
+
+        _last_frame_time = time.time() - _start_time
         _tick_callback()
     except:
         _tick_callback_handle = lib.TickCallback(_error_tick_callback)
