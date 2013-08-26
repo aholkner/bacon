@@ -1,4 +1,4 @@
-.. module:: bacon
+.. currentmodule:: bacon
 
 Graphics
 --------
@@ -11,49 +11,34 @@ The coordinate system is top-down, with (0, 0) in the top-left corner.
 
 At the beginning of each frame (before doing any other rendering in ``on_tick``), you should clear the screen:
 
-.. autofunction:: clear
+.. note:: TODO clear example
 
 Basic shapes
 ============
 
-Lines and rectangles can drawn with these functions:
+Rectangles can drawn or filled in the current color with :func:`draw_rect` and :func:`fill_rect`:
 
 .. literalinclude:: ../examples/rect.py
     :emphasize-lines: 7,9
 
-.. autofunction:: draw_line
-.. autofunction:: draw_rect
-.. autofunction:: fill_rect
+Lines can similarly be drawn with :func:`draw_line`.
 
 Images
 ======
 
-Images can be loaded from most standard file types, for example PNG, BMP, TIFF, JPEG, etc.  For example:
+Images can be loaded from most standard file types, for example PNG, BMP, TIFF, JPEG, etc.  First create an :class:`Image`, then draw it with :func:`draw_image` or :func:`draw_image_region`:
 
 .. literalinclude:: ../examples/image.py
     :emphasize-lines: 3,4,9
 
-.. autoclass:: Image
-    :members:
-
-Draw an image with the functions:
-
-.. autofunction:: draw_image
-
-.. autofunction:: draw_image_region
-
 Fonts
 =====
 
-To render text, first load a TrueType or OpenType font at a particular point size, then render it with ``draw_string``:
+To render text, first load a TrueType or OpenType font at a particular point size by constructing a :class:`Font`, then render it with :func:`draw_string`:
 
 .. literalinclude:: ../examples/font.py
     :emphasize-lines: 3,4,9
 
-.. autoclass:: Font
-    :members:
-
-.. autofunction:: draw_text
 
 Transform stack
 ===============
@@ -68,20 +53,12 @@ the rotation pivot to the center of the image:
 .. literalinclude:: ../examples/transform_rotate.py
     :emphasize-lines: 9,10
 
-.. autofunction:: translate
-.. autofunction:: scale
-.. autofunction:: rotate
-
 The above functions operate only on the top matrix of the transform stack.  You can save and restore the current transform with 
 :func:`push_transform` and :func:`pop_transform`.  The following example shows how the rotation transform does not
 affect the text rendered, only the image.
 
 .. literalinclude:: ../examples/transform_push.py
     :emphasize-lines: 11,15
-
-.. autofunction:: push_transform
-.. autofunction:: pop_transform
-.. autofunction:: set_transform
 
 Color stack
 ===========
@@ -92,28 +69,19 @@ so no tinting is applied.  This example shows the image tinted red by modifying 
 .. literalinclude:: ../examples/color.py
     :emphasize-lines: 8
 
-.. autofunction:: set_color
-.. autofunction:: multiply_color
-
 By changing the alpha (the fourth color component), you can make images and text translucent.
 
-Just like the transform stack, the color stack allows you to save and restore the current color.
-
-.. autofunction:: push_color
-.. autofunction:: pop_color
+Just like the transform stack, the color stack allows you to save and restore the current color, using :func:`push_color` and :func:`pop_color`.
 
 
 Rendering to an image
 =====================
 
-By default all rendering is done on framebuffer that is flipped to the main window when your ``on_tick`` method returns.  It is
-easy to render to an image, though.  This is useful for compositing elements in a single layer for blending, and for certain
+By default all rendering is done on framebuffer that is flipped to the main window when your ``on_tick`` method returns.  You can render to an image instead using :func:`set_frame_buffer`.  This is useful for compositing elements in a single layer for blending, and for certain
 special effects.  
 
 .. literalinclude:: ../examples/render_to_image.py
     :emphasize-lines: 25, 33
-
-.. autofunction:: set_frame_buffer
 
 Shaders
 =======
@@ -140,32 +108,16 @@ These uniforms may not be set directly, however others you define in the shader 
 map as shown in the example above.  Note that the naming convention of shader uniforms is important: uniforms with names that begin with
 ``g_`` share their value across all shaders (for example, ``g_Projection`` and ``g_Texture0`` above).  Other uniforms have values that
 must be set per-shader.
-    
-.. autofunction:: set_shader
 
-.. autoclass:: Shader
-    :members:
-
-.. autoclass:: ShaderUniform
-    :members:
-
-.. autoclass:: ShaderUniformType
-    :members:
-    :undoc-members:
 
 Blend modes
 ===========
 
 The current blend state dictates how new elements are composited into the frame buffer.  The default blend mode is suitable
-for compositing images and glyphs with premultiplied alpha; changing the blend mode can be use for special effects.  In the
+for compositing images and glyphs with premultiplied alpha; changing the blend mode with :func:`set_blending` can be used for special effects.  In the
 following example, the same text is rendered over itself in different colors with an additive blend; where the colors 
 intersect, the color adds to white:
 
 .. literalinclude:: ../examples/blending.py
     :emphasize-lines: 8
 
-.. autofunction:: set_blending
-
-.. autoclass:: BlendFlags
-    :members:
-    :undoc-members:

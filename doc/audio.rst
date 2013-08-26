@@ -1,4 +1,4 @@
-.. module:: bacon
+.. currentmodule:: bacon
 
 Audio
 -----
@@ -12,8 +12,6 @@ you can play a sound as "one-shot" effect by calling :func:`Sound.play`:
 .. literalinclude:: ../examples/sound.py
     :emphasize-lines: 3,11
 
-.. autoclass:: Sound
-    :members:
 
 Music and looping sounds
 ========================
@@ -29,7 +27,4 @@ the position of the mouse in the window, and it can be paused and resumed with t
 .. literalinclude:: ../examples/music.py
     :emphasize-lines: 5,8,9,16,21
 
-
-.. autoclass:: Voice
-    :members:
 

@@ -12,14 +12,16 @@ for drawing graphics, playing sounds, and receiving input from the mouse, keyboa
 Contents:
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
+   install
    quickstart
    graphics
    events
    audio
    window
    distribution
+   reference
    keys
 
 Indices and tables

@@ -1,4 +1,4 @@
-.. module:: bacon
+.. currentmodule:: bacon
 
 Key code reference
 ------------------
@@ -6,3 +6,4 @@ Key code reference
 .. autoclass:: Keys
 	:members:
 	:undoc-members:
+	:noindex:

@@ -41,6 +41,9 @@ class Mouse(object):
         '''``True`` if the right mouse button is currently pressed.'''
         return self.button_mask & (1 << 2)
 
+    def __repr__(self):
+        return 'Mouse()'
+
 #: State of the system mouse or trackpad; an instance of :class:`Mouse`.
 #:
 #: For example, to query the current mouse position within the window::
