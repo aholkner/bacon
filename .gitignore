@@ -26,6 +26,7 @@ ipch
 
 # Debug logs
 debug.txt
+bacon.log
 
 # Distribution
 build
