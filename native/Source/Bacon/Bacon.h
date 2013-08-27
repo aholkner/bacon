@@ -361,6 +361,7 @@ extern "C" {
 	// Fonts
 	BACON_API int Bacon_LoadFont(int* outHandle, const char* path);
 	BACON_API int Bacon_UnloadFont(int font);
+    BACON_API int Bacon_GetDefaultFont(int* outHandle);
 	BACON_API int Bacon_GetFontMetrics(int font, float size, int* outAscent, int* outDescent);
 	BACON_API int Bacon_GetGlyph(int font, float size, int character, int flags, int* outImage,
 					             int* outOffsetX, int* outOffsetY, int* outAdvance);

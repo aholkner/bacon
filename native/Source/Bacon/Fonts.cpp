@@ -9,6 +9,9 @@ using namespace Bacon;
 #include FT_FREETYPE_H
 
 #include <FreeImage/FreeImage.h>
+#include <FreeImage/ZLib/zlib.h>
+
+#include "Resources/SourceCodePro_otf.h"
 
 using namespace std;
 
@@ -19,13 +22,14 @@ namespace {
 	struct Font
 	{
 		FT_Face m_Face;
+        void* m_FaceData;
 	};
 	
 	struct Impl
 	{
 		FT_Library m_Library;
-		
 		HandleArray<Font> m_Fonts;
+        int m_DefaultFont;
 	};
 	static Impl* s_Impl = nullptr;
 	
@@ -36,6 +40,7 @@ void Fonts_Init()
 	s_Impl = new Impl;
 	FT_Init_FreeType(&s_Impl->m_Library);
 	s_Impl->m_Fonts.Reserve(16);
+    s_Impl->m_DefaultFont = 0;
 }
 
 void Fonts_Shutdown()
@@ -59,6 +64,7 @@ int Bacon_LoadFont(int* outHandle, const char* path)
 	*outHandle = s_Impl->m_Fonts.Alloc();
 	Font* font = s_Impl->m_Fonts.Get(*outHandle);
 	font->m_Face = face;
+    font->m_FaceData = nullptr;
 
 	return Bacon_Error_None;
 }
@@ -69,17 +75,53 @@ int Bacon_UnloadFont(int handle)
 	if (!font)
 		return Bacon_Error_InvalidHandle;
 	
-	FT_Done_Face(font->m_Face);
+    if (font->m_Face)
+	    FT_Done_Face(font->m_Face);
+    if (font->m_FaceData)
+        free(font->m_FaceData);
 	s_Impl->m_Fonts.Free(handle);
 	
+    if (handle == s_Impl->m_DefaultFont)
+        s_Impl->m_DefaultFont = 0;
+
 	return Bacon_Error_None;
+}
+
+int LoadBuiltinFont(int* outHandle, const void* compressedData, unsigned int compressedDataSize, unsigned int size)
+{
+    *outHandle = s_Impl->m_Fonts.Alloc();
+    Font* font = s_Impl->m_Fonts.Get(*outHandle);
+    font->m_Face = nullptr;
+    font->m_FaceData = malloc(size);
+
+    uLongf uncompressedSize;
+    if (uncompress((Bytef*)font->m_FaceData, &uncompressedSize, (const Bytef*)compressedData, compressedDataSize) != Z_OK)
+        return Bacon_Error_Unknown;
+
+    FT_Face face;
+    FT_Error error = FT_New_Memory_Face(s_Impl->m_Library, (const FT_Byte*)font->m_FaceData, size, 0, &face);
+    if (error == FT_Err_Unknown_File_Format)
+        return Bacon_Error_UnsupportedFormat;
+    else if (error != FT_Err_Ok)
+        return Bacon_Error_Unknown;
+
+    font->m_Face = face;
+    return Bacon_Error_None;
+}
+
+int Bacon_GetDefaultFont(int* outHandle)
+{
+    if (!s_Impl->m_DefaultFont)
+        LoadBuiltinFont(&s_Impl->m_DefaultFont, g_SourceCodePro_otf_Compressed, g_SourceCodePro_otf_CompressedLength, g_SourceCodePro_otf_Length);
+    *outHandle = s_Impl->m_DefaultFont;
+    return Bacon_Error_None;
 }
 
 int Bacon_GetFontMetrics(int handle, float size, int* outAscent, int* outDescent)
 {
 	if (!outAscent || !outDescent || size <= 0.f)
 		return Bacon_Error_InvalidArgument;
-	
+
 	Font* font = s_Impl->m_Fonts.Get(handle);
 	if (!font)
 		return Bacon_Error_InvalidHandle;

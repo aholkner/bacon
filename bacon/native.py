@@ -518,6 +518,7 @@ def load(function_wrapper = None):
 
     LoadFont = fn(_lib.Bacon_LoadFont, POINTER(c_int), c_char_p)
     UnloadFont = fn(_lib.Bacon_UnloadFont, c_int)
+    GetDefaultFont = fn(_lib.Bacon_GetDefaultFont, POINTER(c_int))
     GetFontMetrics = fn(_lib.Bacon_GetFontMetrics, c_int, c_float, POINTER(c_int), POINTER(c_int))
     GetGlyph = fn(_lib.Bacon_GetGlyph, c_int, c_float, c_int, c_int, POINTER(c_int), POINTER(c_int), POINTER(c_int), POINTER(c_int))
 

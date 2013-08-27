@@ -127,7 +127,8 @@ int main(int argc, const char * argv[])
 	//error = Bacon_PlayVoice(voice);
 	assert(!error);
 
-	error = Bacon_LoadFont(&g_Font, "res/DejaVuSans.ttf");
+	//error = Bacon_LoadFont(&g_Font, "res/DejaVuSans.ttf");
+    error = Bacon_GetDefaultFont(&g_Font);
 	assert(!error);
 	
 	int ascent, descent;

@@ -68,11 +68,15 @@ class Glyph(object):
 
 class _FontFile(object):
     _font_files = {}
+    _default_font_file = None
 
-    def __init__(self, file):
-        handle = c_int()
-        lib.LoadFont(byref(handle), file.encode('utf-8'))
-        self._handle = handle.value
+    def __init__(self, file, handle=None):
+        if not handle:
+            handle = c_int()
+            lib.LoadFont(byref(handle), file.encode('utf-8'))
+            self._handle = handle.value
+        else:
+            self._handle = handle
 
     def unload(self):
         lib.UnloadFont(self._handle)
@@ -111,6 +115,14 @@ class _FontFile(object):
             cls._font_files[file] = ff
             return ff
 
+    @classmethod
+    def get_default_font_file(cls):
+        if not cls._default_font_file:
+            handle = c_int()
+            lib.GetDefaultFont(byref(handle))
+            cls._default_font_file = _FontFile(file=None, handle=handle)
+        return cls._default_font_file
+
 class Font(object):
     '''A font that can be used for rendering text.  Fonts are loaded from TrueType (``.ttf``) files at a
     particular point size::
@@ -123,7 +135,7 @@ class Font(object):
 
     Fonts are never unloaded.
 
-    :param file: path to a font file to load.  Supported formats include TrueType, OpenType, PostScript, etc.
+    :param file: path to a font file to load.  Supported formats include TrueType, OpenType, PostScript, etc.  If ``None``, a default font is used
     :param size: the point size to load the font at
     :param light_hinting: applies minimal autohinting to the outline; suitable for fonts designed 
        for OS X
@@ -131,6 +143,8 @@ class Font(object):
     def __init__(self, file, size, light_hinting=False):
         if type(file) is _FontFile:
             self._font_file = file
+        elif file is None:
+            self._font_file = _FontFile.get_default_font_file()
         else:
             self._font_file = _FontFile.get_font_file(file)
         self._size = size
