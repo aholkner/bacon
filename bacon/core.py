@@ -15,8 +15,14 @@ logger.setLevel(logging.INFO)
 if not logger.handlers:
     log_file = 'bacon.log'
 
-    if sys.platform == 'darwin':
-        # Python on OS X doesn't set up a default logging config at all
+    # Check for a console or null handler in the parent, if one hasn't been set up, set one
+    # up for bacon.  (This makes behaviour on Windows and OS X the same; Windows sets up a
+    # default console handler, OS X sets up nothing).
+    _has_console_handler = False
+    for handler in logger.parent.handlers:
+        if isinstance(handler, logging.NullHandler) or isinstance(handler, logging.StreamHandler):
+            _has_console_handler = True
+    if not _has_console_handler:
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.WARNING)
         console_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
