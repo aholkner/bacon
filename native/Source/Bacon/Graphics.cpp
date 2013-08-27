@@ -338,6 +338,7 @@ void Graphics_InitGL()
 
 	// Constant state
 	glDisable(GL_CULL_FACE);
+    glEnable(GL_SCISSOR_TEST);
 
 	// Vertex Buffer Object
 	glGenBuffers(1, &s_Impl->m_VBO);
@@ -1597,6 +1598,8 @@ int Bacon_SetViewport(int x, int y, int width, int height)
 	}
 	
 	glViewport(x, frameBufferHeight - (y + height), width, height);
+    glScissor(x, frameBufferHeight - (y + height), width, height);
+    
 	vmml::mat4f projection = frustumf(0.f, (float)width, (float)height, 0.f, -1.f, 1.f).compute_ortho_matrix();
 	SetSharedUniformValue(s_Impl->m_ProjectionUniform, projection, sizeof(mat4f));
 	return Bacon_Error_None;
