@@ -3,6 +3,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 static int s_LogLevel = Bacon_LogLevel_Info;
 static Bacon_LogCallback s_LogCallback = nullptr;
@@ -130,16 +131,31 @@ void Bacon_Log(Bacon_LogLevel level, const char* message, ...)
     if (s_LogLevel > level)
         return;
 
-    char buffer[1024];
+    char staticBuffer[1024];
+    char* allocatedBuffer = nullptr;
+    char* buffer = &staticBuffer[0];
 
     va_list args;
     va_start(args, message);
+
 #ifdef WIN32
-    vsnprintf_s(buffer, BACON_ARRAY_COUNT(buffer), _TRUNCATE, message, args);
+    int bufferSize = _vscprintf(message, args) + 1;
+    if (bufferSize > BACON_ARRAY_COUNT(staticBuffer))
+        allocatedBuffer = buffer = (char*)malloc(bufferSize);
+    vsnprintf_s(buffer, bufferSize, _TRUNCATE, message, args);
 #else
-    vsnprintf(buffer, BACON_ARRAY_COUNT(buffer), message, args);
+    int bufferSize = vsnprintf(buffer, BACON_ARRAY_COUNT(staticBuffer), message, args) + 1;
+    if (bufferSize >= BACON_ARRAY_COUNT)
+    {
+        allocatedBuffer = buffer = (char*)malloc(bufferSize);
+        vsnprintf(buffer, bufferSize, message, args);
+    }
 #endif
+
     va_end(args);
 
     s_LogCallback(level, buffer);
+
+    if (allocatedBuffer)
+        free(allocatedBuffer);
 }
