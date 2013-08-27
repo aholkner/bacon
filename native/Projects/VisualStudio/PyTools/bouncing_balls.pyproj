@@ -6,7 +6,7 @@
     <ProjectGuid>{dc734cdf-a1f8-4065-bf96-26347a80cf4a}</ProjectGuid>
     <ProjectHome />
     <StartupFile>..\..\..\..\examples\bouncing_balls.py</StartupFile>
-    <SearchPath>..\..\..\..\examples;..\..\..\..</SearchPath>
+    <SearchPath>..\..\..\..\examples;..\..\..\..\;..\..\..\..\..\bacon</SearchPath>
     <WorkingDirectory>..\..\..\..\examples</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <InterpreterId>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</InterpreterId>
@@ -23,7 +23,139 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
-    <Compile Include="..\..\..\..\examples\bouncing_balls.py" />
+    <Compile Include="..\..\..\..\bacon\all.py">
+      <Link>bacon\all.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\controller.py">
+      <Link>bacon\controller.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\controller_profiles.py">
+      <Link>bacon\controller_profiles.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\core.py">
+      <Link>bacon\core.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\font.py">
+      <Link>bacon\font.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\game.py">
+      <Link>bacon\game.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\graphics.py">
+      <Link>bacon\graphics.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\hook-bacon.py">
+      <Link>bacon\hook-bacon.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\image.py">
+      <Link>bacon\image.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\keyboard.py">
+      <Link>bacon\keyboard.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\mouse_input.py">
+      <Link>bacon\mouse_input.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\native.py">
+      <Link>bacon\native.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\readonly_collections.py">
+      <Link>bacon\readonly_collections.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\shader.py">
+      <Link>bacon\shader.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\sound.py">
+      <Link>bacon\sound.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\text.py">
+      <Link>bacon\text.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\window.py">
+      <Link>bacon\window.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\bacon\__init__.py">
+      <Link>bacon\__init__.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\blending.py">
+      <Link>examples\blending.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\bouncing_balls.py">
+      <Link>examples\bouncing_balls.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\color.py">
+      <Link>examples\color.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\controller.py">
+      <Link>examples\controller.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\font.py">
+      <Link>examples\font.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\image.py">
+      <Link>examples\image.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\image_region.py">
+      <Link>examples\image_region.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\image_region2.py">
+      <Link>examples\image_region2.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\init.py">
+      <Link>examples\init.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\keys.py">
+      <Link>examples\keys.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\key_event.py">
+      <Link>examples\key_event.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\mouse.py">
+      <Link>examples\mouse.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\mouse_button_event.py">
+      <Link>examples\mouse_button_event.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\mouse_scroll_event.py">
+      <Link>examples\mouse_scroll_event.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\music.py">
+      <Link>examples\music.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\overflow.py">
+      <Link>examples\overflow.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\quickstart.py">
+      <Link>examples\quickstart.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\rect.py">
+      <Link>examples\rect.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\render_to_image.py">
+      <Link>examples\render_to_image.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\shader.py">
+      <Link>examples\shader.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\sound.py">
+      <Link>examples\sound.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\style.py">
+      <Link>examples\style.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\transform_push.py">
+      <Link>examples\transform_push.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\transform_rotate.py">
+      <Link>examples\transform_rotate.py</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="examples\" />
+    <Folder Include="bacon\" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{2af0f10d-7135-4994-9156-5d01c9c11b7e}\3.3" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
 </Project>
