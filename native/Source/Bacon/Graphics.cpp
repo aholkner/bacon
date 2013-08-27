@@ -225,6 +225,7 @@ namespace {
 		HandleArray<TextureAtlas> m_TextureAtlases;
 		HandleArray<Image> m_Images;
 		int m_BlankImage;
+        int m_BlankImageAlternative;
 		vector<GLuint> m_PendingDeleteTextures;
 		vector<GLuint> m_PendingDeleteFrameBuffers;
 		
@@ -236,6 +237,7 @@ namespace {
 		float m_CurrentZ;
 		int m_CurrentShader;
 		int m_CurrentFrameBuffer;
+        int m_CurrentFrameBufferTexture;
 		int m_CurrentTextureUnits[16];
 		
 		int m_SharedUniformsVersion;
@@ -277,16 +279,24 @@ void Graphics_Init()
 	for (int i = 0; i < BACON_ARRAY_COUNT(s_Impl->m_CurrentTextureUnits); ++i)
 		s_Impl->m_CurrentTextureUnits[i] = -1;
 	s_Impl->m_CurrentFrameBuffer = -1;
+    s_Impl->m_CurrentFrameBufferTexture = -1;
 	s_Impl->m_CurrentShader = -1;
 	s_Impl->m_CurrentMode = GL_TRIANGLES;
 	s_Impl->m_ColorStack.push_back(vec4f::ONE);
 	s_Impl->m_TransformStack.push_back(mat4f::IDENTITY);
 	s_Impl->m_SharedUniformsVersion = 0;
 	
+    // Create common case blank image in atlas group 1 to avoid texture swaps when rendering lines and rects.
 	Bacon_CreateImage(&s_Impl->m_BlankImage, 1, 1, Bacon_ImageFlags_DiscardBitmap | (1 << Bacon_ImageFlags_AtlasGroupShift));
 	FIBITMAP* blankBitmap = FreeImage_Allocate(1, 1, 32);
 	memset(FreeImage_GetBits(blankBitmap), 255, 4);
 	Graphics_SetImageBitmap(s_Impl->m_BlankImage, blankBitmap);
+
+    // Create alternative blank image in no atlas to avoid errors when rendering to atlas group 1
+    Bacon_CreateImage(&s_Impl->m_BlankImageAlternative, 1, 1, Bacon_ImageFlags_DiscardBitmap);
+    FIBITMAP* blankBitmapAlternative = FreeImage_Allocate(1, 1, 32);
+    memset(FreeImage_GetBits(blankBitmapAlternative), 255, 4);
+    Graphics_SetImageBitmap(s_Impl->m_BlankImageAlternative, blankBitmapAlternative);
 	
 	FreeImage_Initialise(TRUE);
 	
@@ -403,6 +413,7 @@ void Graphics_BeginFrame(int width, int height)
 		s_Impl->m_FrameBufferWidth = width;
 		s_Impl->m_FrameBufferHeight = height;
 		s_Impl->m_CurrentFrameBuffer = -1;
+        s_Impl->m_CurrentFrameBufferTexture = -1;
 	}
 	
 	// Default state, reset per frame
@@ -1414,6 +1425,7 @@ static int BindFrameBuffer(int imageHandle)
 {
 	if (!imageHandle)
 	{
+        s_Impl->m_CurrentFrameBufferTexture = 0;
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		Bacon_SetViewport(0, 0, s_Impl->m_FrameBufferWidth, s_Impl->m_FrameBufferHeight);
 		return Bacon_Error_None;
@@ -1424,7 +1436,8 @@ static int BindFrameBuffer(int imageHandle)
 		return Bacon_Error_InvalidHandle;
 
 	Texture* texture = RealizeTexture(image);
-	
+	s_Impl->m_CurrentFrameBufferTexture = image->m_Texture;
+
 	if (!CreateTextureFrameBuffer(texture))
 		return Bacon_Error_Unknown;
 	
@@ -1726,15 +1739,34 @@ inline void SetCurrentMode(GLuint mode)
 	}
 }
 
-inline void SetCurrentTexture(int textureHandle)
+inline int SetCurrentTexture(int textureHandle)
 {
+    if (textureHandle == s_Impl->m_CurrentFrameBufferTexture)
+        return Bacon_Error_RenderingToSelf;
 	SetSharedUniformValue(s_Impl->m_Texture0Uniform, textureHandle);
+    return Bacon_Error_None;
 }
 
-inline void SetCurrentImage(Image* image)
+inline int SetCurrentImage(Image* image)
 {
 	RealizeTexture(image);
-	SetCurrentTexture(image->m_Texture);
+	return SetCurrentTexture(image->m_Texture);
+}
+
+inline Image* GetBlankImage()
+{
+    Image* image = s_Impl->m_Images.Get(s_Impl->m_BlankImage);
+    if (image->m_Texture == s_Impl->m_CurrentFrameBufferTexture)
+        image = s_Impl->m_Images.Get(s_Impl->m_BlankImageAlternative);
+    return image;
+}
+
+inline int GetBlankImageHandle()
+{
+    Image* image = s_Impl->m_Images.Get(s_Impl->m_BlankImage);
+    if (image->m_Texture != s_Impl->m_CurrentFrameBufferTexture)
+        return s_Impl->m_BlankImage;
+    return s_Impl->m_BlankImageAlternative;
 }
 
 void Graphics_DrawQuad(float* positions, float* texCoords, float* colors, UVScaleBias const& uvScaleBias)
@@ -1769,7 +1801,9 @@ int Bacon_DrawImageQuad(int imageHandle, float* positions, float* texCoords, flo
 	if (!image)
 		return Bacon_Error_InvalidHandle;
 
-	SetCurrentImage(image);
+	if (int error = SetCurrentImage(image))
+        return error;
+
 	Graphics_DrawQuad(positions, texCoords, colors, image->m_UVScaleBias);
 	
 	return Bacon_Error_None;
@@ -1794,11 +1828,11 @@ int Bacon_DrawLine(float x1, float y1, float x2, float y2)
 {
 	REQUIRE_GL();
 	
-	Image* image = s_Impl->m_Images.Get(s_Impl->m_BlankImage);
-	if (!image)
-		return Bacon_Error_InvalidHandle;
-	
-	SetCurrentImage(image);
+	Image* image = GetBlankImage();
+    if (!image)
+        return Bacon_Error_InvalidHandle; // TODO
+
+    SetCurrentImage(image);
 	SetCurrentMode(GL_LINES);
 
 	float z = s_Impl->m_CurrentZ;
@@ -1831,7 +1865,7 @@ int Bacon_DrawRect(float x1, float y1, float x2, float y2)
 	x1 += 0.375f;
 	y2 -= 0.375f;
 	
-	Image* image = s_Impl->m_Images.Get(s_Impl->m_BlankImage);
+	Image* image = GetBlankImage();
 	if (!image)
 		return Bacon_Error_InvalidHandle;
 	
@@ -1855,7 +1889,7 @@ int Bacon_DrawRect(float x1, float y1, float x2, float y2)
 
 int Bacon_FillRect(float x1, float y1, float x2, float y2)
 {
-	return Bacon_DrawImage(s_Impl->m_BlankImage, x1, y1, x2, y2);
+	return Bacon_DrawImage(GetBlankImageHandle(), x1, y1, x2, y2);
 }
 
 int Bacon_Flush()
@@ -1891,7 +1925,7 @@ void Graphics_DrawDebugOverlay()
 			continue;
 	
 		Bacon_SetColor(0, 0, 0, 1);
-		Bacon_DrawImage(s_Impl->m_BlankImage, 0, 0, atlas.m_Width, atlas.m_Height);
+		Bacon_DrawImage(GetBlankImageHandle(), 0, 0, atlas.m_Width, atlas.m_Height);
 		Bacon_SetColor(1, 1, 1, 1);
 		Graphics_DrawTexture(atlas.m_Texture, 0, atlas.m_Height, atlas.m_Width, 0);
 		

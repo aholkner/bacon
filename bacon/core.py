@@ -74,6 +74,14 @@ class InvalidFontSizeError(BaconError):
 class NotLoopingError(BaconError):
     pass
 
+@error_code(native.ErrorCodes.running)
+class RunningError(BaconError):
+    pass
+
+@error_code(native.ErrorCodes.rendering_to_self)
+class RenderingToSelfError(BaconError):
+    pass
+
 def _error_wrapper(fn):
     def f(*args):
         result = fn(*args)

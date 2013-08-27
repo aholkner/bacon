@@ -41,7 +41,8 @@ enum Bacon_Error
 	Bacon_Error_NotRendering,
 	Bacon_Error_InvalidFontSize,
 	Bacon_Error_NotLooping,
-    Bacon_Error_Running
+    Bacon_Error_Running,
+    Bacon_Error_RenderingToSelf
 };
 
 enum Bacon_LogLevel

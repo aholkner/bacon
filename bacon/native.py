@@ -85,6 +85,8 @@ class ErrorCodes(object):
     not_rendering = 8
     invalid_font_size = 9
     not_looping = 10
+    running = 11
+    rendering_to_self = 12
 
 @enum
 class LogLevels(object):
