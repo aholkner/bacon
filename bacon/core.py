@@ -1,10 +1,38 @@
 from bacon import native
 from ctypes import *
 import collections
-import os
 import logging
+import os
+import sys
 
-logger = logging.getLogger(__name__)
+# Bacon logger
+logger = logging.getLogger('bacon')
+logger.setLevel(logging.INFO)
+
+# Default logging configuration.  Users can override this
+# by setting the 'bacon' logger configuration before importing
+# bacon.
+if not logger.handlers:
+    log_file = 'bacon.log'
+
+    if sys.platform == 'darwin':
+        # Python on OS X doesn't set up a default logging config at all
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.WARNING)
+        console_handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+        logger.addHandler(console_handler)
+
+    logger.warning('No logging configuration for "bacon" set; using default')
+
+    try:
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        logger.addHandler(file_handler)
+        logger.info('Writing log file at %s', os.path.abspath(log_file))
+    except IOError:
+        logger.warning('Unable to create log file at %s', log_file)
+    
 
 # Convert return codes into exceptions.
 class BaconError(Exception):

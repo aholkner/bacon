@@ -21,6 +21,7 @@ Contents:
    audio
    window
    distribution
+   diagnostics
    reference
    keys
 

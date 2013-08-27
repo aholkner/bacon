@@ -4,7 +4,7 @@ import os
 import sys
 
 import logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('bacon')
 
 _mock_native = False
 if 'BACON_MOCK_NATIVE' in os.environ and os.environ['BACON_MOCK_NATIVE']:
