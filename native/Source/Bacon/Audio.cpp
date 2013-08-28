@@ -33,6 +33,9 @@ namespace {
 		
 		HandleArray<Sound> m_Sounds;
 		HandleArray<Voice> m_Voices;
+
+        int m_DebugCounter_Sounds;
+        int m_DebugCounter_Voices;
 	};
 	static Impl* s_Impl;
 	
@@ -54,6 +57,7 @@ static void VoiceCallback(ga_Handle* in_finishedHandle, void* in_context)
 		if (voice->m_Callback)
 			voice->m_Callback();
 		s_Impl->m_Voices.Free(voiceHandle);
+        DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Voices, -1);
 	}
 	ga_handle_destroy(in_finishedHandle);
 }
@@ -65,6 +69,9 @@ void Audio_Init()
 	s_Impl->m_Manager = gau_manager_create();
 	s_Impl->m_Mixer = gau_manager_mixer(s_Impl->m_Manager);
 	s_Impl->m_StreamManager = gau_manager_streamManager(s_Impl->m_Manager);
+
+    s_Impl->m_DebugCounter_Sounds = DebugOverlay_CreateCounter("Sounds");
+    s_Impl->m_DebugCounter_Voices = DebugOverlay_CreateCounter("Voices");
 }
 
 void Audio_Shutdown()
@@ -112,6 +119,9 @@ int Bacon_LoadSound(int* outHandle, const char* path, int flags)
 		if (!sound->m_Sound)
 			return Bacon_Error_Unknown;
 	}
+
+    DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Sounds, 1);
+
 	return Bacon_Error_None;
 }
 
@@ -120,6 +130,8 @@ int Bacon_UnloadSound(int soundHandle)
 	Sound* sound = s_Impl->m_Sounds.Get(soundHandle);
 	if (!sound)
 		return Bacon_Error_InvalidHandle;
+
+    DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Sounds, -1);
 
 	ga_sound_release(sound->m_Sound);
 	return Bacon_Error_None;
@@ -161,6 +173,8 @@ int Bacon_CreateVoice(int* outHandle, int soundHandle, int voiceFlags)
 	if (!voice->m_Handle)
 		return Bacon_Error_Unknown;
 	
+    DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Voices, 1);
+
 	return Bacon_Error_None;
 }
 
@@ -172,6 +186,9 @@ int Bacon_DestroyVoice(int voiceHandle)
 	
 	ga_handle_destroy(voice->m_Handle);
 	s_Impl->m_Voices.Free(voiceHandle);
+
+    DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Voices, -1);
+
 	return Bacon_Error_None;
 }
 
