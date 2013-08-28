@@ -3,7 +3,7 @@ import distutils.sysconfig
 from distutils.core import setup
 import os
 
-version = '0.2.1'
+version = '0.2.2'
 
 script_dir = os.path.dirname(__file__)
 lib_dir = distutils.sysconfig.get_python_lib()
