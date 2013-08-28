@@ -23,6 +23,9 @@ ipch
 *.exp
 *.vcxproj.user
 *.sln.cache
+*.vsp
+*.pyperf
+*.psess
 
 # Debug logs
 debug.txt
