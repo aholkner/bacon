@@ -28,6 +28,10 @@ void Keyboard_SetKeyState(int key, bool value)
 				s_Handler(key, value);
 		}
 	}
+
+    // Toggle debug overlay
+    if (value && key == Key_Backtick && s_KeyStates[Key_Ctrl])
+        DebugOverlay_Toggle();
 }
 
 int Bacon_GetKeyState(int key, int* outPressed)

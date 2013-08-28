@@ -47,6 +47,7 @@ struct Impl
     int m_FontAscent;
     int m_FontDescent;
     vector<Counter> m_Counters;
+    bool m_Visible;
 
     int m_DebugCounter_FPS;
     int m_DebugCounter_MSPF;
@@ -57,6 +58,7 @@ static Impl* s_Impl = nullptr;
 void Debug_Init()
 {
     s_Impl = new Impl;
+    s_Impl->m_Visible = false;
     s_Impl->m_DebugCounter_FPS = DebugOverlay_CreateCounter("FPS");
     s_Impl->m_DebugCounter_MSPF = DebugOverlay_CreateCounter("MSPF");
 }
@@ -84,6 +86,11 @@ void DebugOverlay_Init()
 
 void DebugOverlay_Shutdown()
 {
+}
+
+void DebugOverlay_Toggle()
+{
+    s_Impl->m_Visible = !s_Impl->m_Visible;
 }
 
 int DebugOverlay_CreateCounter(const char* label)
@@ -153,6 +160,9 @@ static void UpdateFPS()
 void DebugOverlay_Draw()
 {
     UpdateFPS();
+
+    if (!s_Impl->m_Visible)
+        return;
 
     int width, height;
     Bacon_GetWindowSize(&width, &height);

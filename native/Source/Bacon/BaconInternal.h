@@ -52,6 +52,7 @@ void Debug_Shutdown();
 
 void DebugOverlay_Init();
 void DebugOverlay_Shutdown();
+void DebugOverlay_Toggle();
 void DebugOverlay_Draw();
 int DebugOverlay_CreateCounter(const char* label);
 int DebugOverlay_CreateFloatCounter(const char* label);
