@@ -42,8 +42,18 @@ void Platform_Init();
 void Platform_Shutdown();
 int Platform_Run();
 void Platform_Stop();
+void Platform_GetPerformanceTime(float& time);
 
 void Window_Init();
 void Window_Shutdown();
 void Window_OnSizeChanged(int width, int height);
 
+void Debug_Init();
+void Debug_Shutdown();
+
+void DebugOverlay_Init();
+void DebugOverlay_Shutdown();
+void DebugOverlay_Draw();
+int DebugOverlay_CreateCounter(const char* label);
+int DebugOverlay_CreateFloatCounter(const char* label);
+void DebugOverlay_SetCounter(int counter, float value);

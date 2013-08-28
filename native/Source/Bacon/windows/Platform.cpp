@@ -17,6 +17,8 @@ static int s_Height = -1;
 static bool s_Fullscreen = false;
 static bool s_Resizable = false;
 static string s_Title;
+static LARGE_INTEGER s_PerformanceStartTime;
+static float s_PerformanceFrequency;
 
 static WINDOWPLACEMENT g_SavedWindowPlacement;
 
@@ -33,10 +35,22 @@ static void OnMouseButton(HWND hWnd, UINT uMsg, WPARAM wParam, short x, short y)
 
 void Platform_Init()
 {
+    QueryPerformanceCounter(&s_PerformanceStartTime);
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
+    s_PerformanceFrequency = frequency.QuadPart;
 }
 
 void Platform_Shutdown()
 {
+}
+
+
+void Platform_GetPerformanceTime(float& outTime)
+{
+    LARGE_INTEGER time;
+    QueryPerformanceCounter(&time);
+    outTime = (float)(time.QuadPart - s_PerformanceStartTime.QuadPart) / s_PerformanceFrequency;
 }
 
 static void GetWindowFrameSizeForContentSize(int& width, int& height, int windowStyle)

@@ -356,8 +356,6 @@ extern "C" {
 	BACON_API int Bacon_DrawRect(float x1, float y1, float x2, float y2);
 	BACON_API int Bacon_FillRect(float x1, float y1, float x2, float y2);
 	
-	BACON_API int Bacon_DrawDebugOverlay();
-	
 	// Fonts
 	BACON_API int Bacon_LoadFont(int* outHandle, const char* path);
 	BACON_API int Bacon_UnloadFont(int font);

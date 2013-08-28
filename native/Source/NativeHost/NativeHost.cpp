@@ -56,11 +56,6 @@ void Tick()
 	Bacon_FillRect(25, 225, 50, 250);
 	Bacon_SetColor(0, 1, 1, 1);
 	Bacon_DrawRect(25, 225, 50, 250);
-	
-    int keyState;
-    Bacon_GetKeyState(Key_Space, &keyState);
-    if (keyState)
-		Bacon_DrawDebugOverlay();
 }
 
 void OnControllerConnected(int controller, int connected)
