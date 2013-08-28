@@ -102,11 +102,14 @@ namespace {
 	{
 		Texture()
 		: m_RefCount(0)
+        , m_Flags(0)
         , m_Size(0)
 		{ }
 
 		int m_RefCount;
-		int m_Width, m_Height;
+        int m_Flags;
+		int m_Width;
+        int m_Height;
         int m_Size;
 		GLuint m_TextureId;
 		GLuint m_FrameBuffer;
@@ -984,11 +987,37 @@ static void BindShaderTextureUnits()
 
 // Images
 
+static bool IsPowerTwo(int n)
+{
+    return (n & (n - 1)) == 0;
+}
+
+static bool IsImageFlagsValid(int width, int height, int flags)
+{
+    if ((flags & Bacon_ImageFlags_Wrap) && 
+        (flags & Bacon_ImageFlags_AtlasGroupMask))
+    {
+        Bacon_Log(Bacon_LogLevel_Error, "Wrapped image cannot be placed in an atlas group");
+        return false;
+    }
+
+    if ((flags & Bacon_ImageFlags_Wrap) && 
+        (!IsPowerTwo(width) || !IsPowerTwo(height)))
+    {
+        Bacon_Log(Bacon_LogLevel_Error, "Wrapped image must have dimensions that are powers of two");
+        return false;
+    }
+    return true;
+}
+
 int Bacon_CreateImage(int* outHandle, int width, int height, int flags)
 {
 	if (!outHandle || width <= 0 || height <= 0)
 		return Bacon_Error_InvalidArgument;
 	
+    if (!IsImageFlagsValid(width, height, flags))
+        return Bacon_Error_InvalidArgument;
+
 	*outHandle = s_Impl->m_Images.Alloc();
 	Image* image = s_Impl->m_Images.Get(*outHandle);
 	image->m_Texture = 0;
@@ -1027,6 +1056,12 @@ int Bacon_LoadImage(int* outHandle, const char* path, int flags)
 	if (flags & Bacon_ImageFlags_PremultiplyAlpha)
 		FreeImage_PreMultiplyWithAlpha(bitmap);
 	
+    if (!IsImageFlagsValid(FreeImage_GetWidth(bitmap), FreeImage_GetHeight(bitmap), flags))
+    {
+        FreeImage_Unload(bitmap);
+        return Bacon_Error_InvalidArgument;
+    }
+
 	*outHandle = s_Impl->m_Images.Alloc();
 	Image* image = s_Impl->m_Images.Get(*outHandle);
 	image->m_Bitmap = bitmap;
@@ -1200,9 +1235,28 @@ static void UpdateTexture(Texture* texture, FIBITMAP* bitmap)
 		glGenTextures(1, &texture->m_TextureId);
 	glBindTexture(GL_TEXTURE_2D, texture->m_TextureId);
 	glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture->m_Width, texture->m_Height, 0, format, GL_UNSIGNED_BYTE, data);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
+    if (texture->m_Flags & Bacon_ImageFlags_SampleNearest)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+    else
+    {
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+
+    if (texture->m_Flags & Bacon_ImageFlags_Wrap)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    }
+    else
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    }
+
     int size = texture->m_Width * texture->m_Height * 4;
     DebugOverlay_AddCounter(s_Impl->m_DebugCounter_TextureMemory, size - texture->m_Size);
     texture->m_Size - size;
@@ -1212,10 +1266,11 @@ static void UpdateTexture(Texture* texture, FIBITMAP* bitmap)
 
 }
 
-static Texture* CreateTexture(int* outTextureHandle, FIBITMAP* bitmap, int width, int height)
+static Texture* CreateTexture(int* outTextureHandle, FIBITMAP* bitmap, int width, int height, int flags)
 {
 	*outTextureHandle = s_Impl->m_Textures.Alloc();
 	Texture* texture = s_Impl->m_Textures.Get(*outTextureHandle);
+    texture->m_Flags = flags;
 	texture->m_Width = width;
 	texture->m_Height = height;
 	texture->m_TextureId = 0;
@@ -1285,9 +1340,9 @@ static void Blit32(FIBITMAP* destBitmap, FIBITMAP* srcBitmap, Rect const& destRe
 
 static bool IsAtlasFlagsCompatible(TextureAtlas* atlas, Image* image)
 {
-	if ((atlas->m_Flags & Bacon_ImageFlags_AtlasGroupMask) != (image->m_Flags & Bacon_ImageFlags_AtlasGroupMask))
+	if ((atlas->m_Flags & Bacon_ImageFlags_AtlasFlagsMask) != (image->m_Flags & Bacon_ImageFlags_AtlasFlagsMask))
 		return false;
-	return true; // TODO filtering
+	return true;
 }
 
 static TextureAtlas* AllocInTextureAtlas(Rect& outRect, Image* image)
@@ -1334,14 +1389,14 @@ static void AddImageToTextureAtlas(Image* image, int hintSize)
 		atlasHandle = s_Impl->m_TextureAtlases.Alloc();
 		atlas = s_Impl->m_TextureAtlases.Get(atlasHandle);
 		atlas->m_Allocator.Init(size, size);
-		atlas->m_Flags = (image->m_Flags & Bacon_ImageFlags_AtlasGroupMask);
+		atlas->m_Flags = (image->m_Flags & Bacon_ImageFlags_AtlasFlagsMask);
 		atlas->m_Texture = 0;
 		atlas->m_Width = size;
 		atlas->m_Height = size;
 		atlas->m_Bitmap = FreeImage_Allocate(atlas->m_Width, atlas->m_Height, 32);
 		
 		atlas->m_Allocator.Alloc(rect, image->m_Width, image->m_Height, TextureAtlasMargin);
-		CreateTexture(&atlas->m_Texture, atlas->m_Bitmap, atlas->m_Width, atlas->m_Height);
+		CreateTexture(&atlas->m_Texture, atlas->m_Bitmap, atlas->m_Width, atlas->m_Height, atlas->m_Flags);
 	}
 
 	assert(rect.GetWidth() == image->m_Width &&
@@ -1368,7 +1423,7 @@ static void FillTextureAtlases(int group)
 	for (Image& image : s_Impl->m_Images)
 	{
 		if (image.m_Texture == 0 &&
-			(image.m_Flags & Bacon_ImageFlags_AtlasGroupMask) == group)
+			(image.m_Flags & Bacon_ImageFlags_AtlasFlagsMask) == group)
 		{
 			images.push_back(&image);
 			totalArea += (image.m_Width + TextureAtlasMargin * 2) * (image.m_Height + TextureAtlasMargin * 2);
@@ -1425,12 +1480,12 @@ static Texture* RealizeTexture(Image* image)
 		
 		if (image->m_Flags & Bacon_ImageFlags_AtlasGroupMask)
 		{
-			FillTextureAtlases(image->m_Flags & Bacon_ImageFlags_AtlasGroupMask);
+			FillTextureAtlases(image->m_Flags & Bacon_ImageFlags_AtlasFlagsMask);
 			texture = s_Impl->m_Textures.Get(image->m_Texture);
 		}
 		else
 		{
-			texture = CreateTexture(&image->m_Texture, image->m_Bitmap, image->m_Width, image->m_Height);
+			texture = CreateTexture(&image->m_Texture, image->m_Bitmap, image->m_Width, image->m_Height, image->m_Flags);
 		}
 		
 		if (image->m_Flags & Bacon_ImageFlags_DiscardBitmap)

@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{dc734cdf-a1f8-4065-bf96-26347a80cf4a}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>..\..\..\..\examples\bouncing_balls.py</StartupFile>
+    <StartupFile>..\..\..\..\examples\image_sample_nearest.py</StartupFile>
     <SearchPath>..\..\..\..\examples;..\..\..\..\;..\..\..\..\..\bacon;..\..\..\..\scripts</SearchPath>
     <WorkingDirectory>
     </WorkingDirectory>
@@ -104,6 +104,12 @@
     </Compile>
     <Compile Include="..\..\..\..\examples\image_region2.py">
       <Link>examples\image_region2.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\image_sample_nearest.py">
+      <Link>examples\image_sample_nearest.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\image_wrap.py">
+      <Link>examples\image_wrap.py</Link>
     </Compile>
     <Compile Include="..\..\..\..\examples\init.py">
       <Link>examples\init.py</Link>

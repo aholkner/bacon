@@ -30,18 +30,30 @@ class Image(object):
         a GPU texture has been created (which happens automatically the first time the image is rendered).  This saves
         memory.  The parameter should be set to ``False`` if the source data will be required for reasons besides rendering
         (there is currently no API for using an image this way).
+    :param bool sample_nearest: if ``True``, the image is sample with nearest (point) filtering.  This gives a "pixellated"
+        effect when images are scaled or rotated.
+    :param bool wrap: if ``True``, the image is sampled with wraparound texture coordinates, and the image is packed into its
+        own texture.  The image must have power of two dimensions (i.e., 32x32, 64x64, etc.).  Use :func:`draw_image_region` with
+        image coordinates that extend past the bounds of the image to render it with a repeating pattern.
     :param atlas: group index of the atlas to pack this image into.  If zero, the image is not packed into an atlas; otherwise,
         the image is permitted to be packed into other images with the same atlas number (although this is not guaranteed).
     :param width: width of the image to create, in texels
     :param height: height of the image to create, in texels
     '''
 
-    def __init__(self, file=None, premultiply_alpha=True, discard_bitmap=True, atlas=1, width=None, height=None, handle=None):
-        flags = atlas << native.ImageFlags_atlas_shift
+    def __init__(self, file=None, premultiply_alpha=True, discard_bitmap=True, sample_nearest=False, wrap=False, atlas=1, width=None, height=None, handle=None):
+        flags = 0
         if premultiply_alpha:
             flags |= native.ImageFlags.premultiply_alpha
         if discard_bitmap:
             flags |= native.ImageFlags.discard_bitmap
+        if sample_nearest:
+            flags |= native.ImageFlags.sample_nearest
+        if wrap:
+            flags |= native.ImageFlags.wrap
+            atlas = 0
+        if atlas:
+            flags |= atlas << native.ImageFlags_atlas_shift
             
         if file:
             # Load image from file

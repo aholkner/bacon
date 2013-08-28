@@ -117,6 +117,9 @@ ImageFlags_atlas_shift = 8
 class ImageFlags(object):
     premultiply_alpha = 1 << 0
     discard_bitmap = 1 << 1
+    sample_nearest = 1 << 2
+    wrap = 1 << 3
+
     atlas_mask = 0xff << 8
 
 @flags

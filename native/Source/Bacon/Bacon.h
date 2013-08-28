@@ -134,10 +134,18 @@ enum Bacon_ImageFlags
 {
 	Bacon_ImageFlags_PremultiplyAlpha = 1 << 0,
 	Bacon_ImageFlags_DiscardBitmap = 1 << 1,
+    Bacon_ImageFlags_SampleNearest = 1 << 2,
+    Bacon_ImageFlags_Wrap = 1 << 3,
 
 	Bacon_ImageFlags_AtlasGroupShift = 8,
 	Bacon_ImageFlags_AtlasGroupMask = 0xff << Bacon_ImageFlags_AtlasGroupShift,
-	
+
+    // Mask of flags that are pertinant to selecting a compatible texture atlas
+    Bacon_ImageFlags_AtlasFlagsMask = 
+        Bacon_ImageFlags_SampleNearest |   
+        Bacon_ImageFlags_Wrap |
+        Bacon_ImageFlags_AtlasGroupMask,
+        
 	// Reserved for internal use
 	Bacon_ImageFlags_Reserved = 1 << 16
 };
