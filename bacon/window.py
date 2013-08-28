@@ -1,4 +1,6 @@
 from ctypes import *
+import sys
+import os
 
 import bacon
 from bacon.core import lib
@@ -30,7 +32,7 @@ class Window(object):
             lib.GetWindowSize(byref(width), byref(height))
             self._width = width.value
             self._height = height.value
-            self.title = 'Bacon'
+            self.title = os.path.basename(sys.argv[0])
 
     def _get_width(self):
         return self._width
