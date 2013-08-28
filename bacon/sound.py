@@ -2,6 +2,7 @@ from ctypes import *
 
 from bacon.core import lib
 from bacon import native
+from bacon import resource
 
 class Sound(object):
     '''Loads a sound from disk.  Supported formats are WAV (``.wav``) and Ogg Vorbis (``.ogg``).
@@ -28,7 +29,7 @@ class Sound(object):
             flags |= native.SoundFlags.format_ogg
 
         handle = c_int()
-        lib.LoadSound(byref(handle), file.encode('utf-8'), flags)
+        lib.LoadSound(byref(handle), resource.get_resource_path(file).encode('utf-8'), flags)
         self._handle = handle.value
 
     def unload(self):

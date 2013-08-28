@@ -62,6 +62,9 @@
     <Compile Include="..\..\..\..\bacon\readonly_collections.py">
       <Link>bacon\readonly_collections.py</Link>
     </Compile>
+    <Compile Include="..\..\..\..\bacon\resource.py">
+      <Link>bacon\resource.py</Link>
+    </Compile>
     <Compile Include="..\..\..\..\bacon\shader.py">
       <Link>bacon\shader.py</Link>
     </Compile>

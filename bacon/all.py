@@ -6,6 +6,7 @@ from bacon.graphics import *
 from bacon.image import *
 from bacon.keyboard import *
 from bacon.mouse_input import *
+from bacon.resource import *
 from bacon.shader import *
 from bacon.sound import *
 from bacon.text import *

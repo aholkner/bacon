@@ -2,6 +2,7 @@ from ctypes import *
 
 from bacon.core import lib
 from bacon import native
+from bacon import resource
 
 class Image(object):
     '''An image that can be passed to :func:`draw_image` and other rendering functions.
@@ -48,7 +49,7 @@ class Image(object):
                 raise ValueError('`handle` is not a not valid argument if `file` is given')
 
             handle = c_int()
-            lib.LoadImage(byref(handle), file.encode('utf-8'), flags)
+            lib.LoadImage(byref(handle), resource.get_resource_path(file).encode('utf-8'), flags)
             handle = handle.value
             
             if not width or not height:

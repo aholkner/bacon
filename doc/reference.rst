@@ -160,6 +160,15 @@ Mouse events:
 * :func:`Game.on_mouse_button`
 * :func:`Game.on_mouse_scroll`
 
+Resources
+=========
+
+.. data:: resource_dir
+
+	Path to resources.  Set to the working directory by default during development, and the executable
+
+.. autofunction:: get_resource_path
+
 Window
 ======
 

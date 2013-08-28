@@ -9,17 +9,12 @@ import bacon
 import random
 
 res = 'res'
-try:
-    if sys.frozen:
-        res = os.path.join(os.path.dirname(sys.executable), 'res')
-except AttributeError:
-    pass
 
-font = bacon.Font(res + '/DejaVuSans.ttf', 64)
-ball_image = bacon.Image(res + '/ball.png')
-ball_sound = bacon.Sound(res + '/ball.wav')
+font = bacon.Font('res/DejaVuSans.ttf', 64)
+ball_image = bacon.Image('res/ball.png')
+ball_sound = bacon.Sound('res/ball.wav')
 
-music = bacon.Voice(bacon.Sound(res + '/PowerChorus2.ogg', stream=True), loop=True)
+music = bacon.Voice(bacon.Sound('res/PowerChorus2.ogg', stream=True), loop=True)
 music.gain = 0.3
 music.play()
 
@@ -88,7 +83,7 @@ class Game(bacon.Game):
         player_controller = None
 
 balls = []
-for i in range(100):
+for i in range(5000):
     balls.append(Ball())
 
 bacon.run(Game())

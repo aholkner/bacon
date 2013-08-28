@@ -2,6 +2,7 @@ from ctypes import *
 
 from bacon.core import lib
 from bacon import native
+from bacon import resource
 import bacon.image
 
 class FontMetrics(object):
@@ -73,7 +74,7 @@ class _FontFile(object):
     def __init__(self, file, handle=None):
         if not handle:
             handle = c_int()
-            lib.LoadFont(byref(handle), file.encode('utf-8'))
+            lib.LoadFont(byref(handle), resource.get_resource_path(file).encode('utf-8'))
             self._handle = handle.value
         else:
             self._handle = handle
