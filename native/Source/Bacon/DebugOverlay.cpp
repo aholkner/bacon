@@ -103,13 +103,18 @@ void DebugOverlay_SetCounter(int counter, float value)
     s_Impl->m_Counters[counter].m_Value = value;
 }
 
+void DebugOverlay_AddCounter(int counter, float value)
+{
+    s_Impl->m_Counters[counter].m_Value += value;
+}
+
 static void DrawString(const char* str, float& x, float& y)
 {
     for (const char* c = str; *c; ++c)
     {
         const Glyph& g = s_Impl->m_FontGlyphs[*c];
         if (g.m_Image)
-            Bacon_DrawImage(g.m_Image, x - g.m_OffsetX, y - g.m_OffsetY, x - g.m_OffsetX + g.m_Width, y - g.m_OffsetY + g.m_Height);
+            Bacon_DrawImage(g.m_Image, x + g.m_OffsetX, y - g.m_OffsetY, x + g.m_OffsetX + g.m_Width, y - g.m_OffsetY + g.m_Height);
         x += g.m_Advance;
     }
 }

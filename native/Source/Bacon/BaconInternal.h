@@ -25,7 +25,6 @@ void Graphics_BeginFrame(int width, int height);
 void Graphics_EndFrame();
 int Graphics_GetImageBitmap(int handle, FIBITMAP** bitmap);
 int Graphics_SetImageBitmap(int handle, FIBITMAP* bitmap);
-void Graphics_DrawDebugOverlay();
 
 void Keyboard_Init();
 void Keyboard_Shutdown();
@@ -57,3 +56,4 @@ void DebugOverlay_Draw();
 int DebugOverlay_CreateCounter(const char* label);
 int DebugOverlay_CreateFloatCounter(const char* label);
 void DebugOverlay_SetCounter(int counter, float value);
+void DebugOverlay_AddCounter(int counter, float value);

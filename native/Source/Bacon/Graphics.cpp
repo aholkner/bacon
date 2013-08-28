@@ -102,10 +102,12 @@ namespace {
 	{
 		Texture()
 		: m_RefCount(0)
+        , m_Size(0)
 		{ }
 
 		int m_RefCount;
 		int m_Width, m_Height;
+        int m_Size;
 		GLuint m_TextureId;
 		GLuint m_FrameBuffer;
 	};
@@ -249,6 +251,14 @@ namespace {
 		
 		vector<mat4f> m_TransformStack;
 		vector<vec4f> m_ColorStack;
+
+        int m_DebugCounter_TextureMemory;
+        int m_DebugCounter_Images;
+        int m_DebugCounter_Textures;
+        int m_DebugCounter_Shaders;
+        int m_DebugCounter_FrameBufferBinds;
+        int m_DebugCounter_DrawCalls;
+        int m_DebugCounter_Primitives;
 	};
 	static Impl* s_Impl = nullptr;
 	
@@ -285,6 +295,14 @@ void Graphics_Init()
 	s_Impl->m_ColorStack.push_back(vec4f::ONE);
 	s_Impl->m_TransformStack.push_back(mat4f::IDENTITY);
 	s_Impl->m_SharedUniformsVersion = 0;
+
+    s_Impl->m_DebugCounter_TextureMemory = DebugOverlay_CreateCounter("Texture Memory");
+    s_Impl->m_DebugCounter_Images = DebugOverlay_CreateCounter("Images");
+    s_Impl->m_DebugCounter_Textures = DebugOverlay_CreateCounter("Textures");
+    s_Impl->m_DebugCounter_Shaders = DebugOverlay_CreateCounter("Shaders");
+    s_Impl->m_DebugCounter_FrameBufferBinds = DebugOverlay_CreateCounter("FB Binds/Frame");
+    s_Impl->m_DebugCounter_DrawCalls = DebugOverlay_CreateCounter("Draws/Frame");
+    s_Impl->m_DebugCounter_Primitives = DebugOverlay_CreateCounter("Primitives/Frame");
 	
     // Create common case blank image in atlas group 1 to avoid texture swaps when rendering lines and rects.
 	Bacon_CreateImage(&s_Impl->m_BlankImage, 1, 1, Bacon_ImageFlags_DiscardBitmap | (1 << Bacon_ImageFlags_AtlasGroupShift));
@@ -395,6 +413,10 @@ void Graphics_ShutdownGL()
 
 void Graphics_BeginFrame(int width, int height)
 {
+    DebugOverlay_SetCounter(s_Impl->m_DebugCounter_FrameBufferBinds, 0);
+    DebugOverlay_SetCounter(s_Impl->m_DebugCounter_DrawCalls, 0);
+    DebugOverlay_SetCounter(s_Impl->m_DebugCounter_Primitives, 0);
+
 	if (!s_Impl->m_PendingDeleteTextures.empty())
 	{
 		glDeleteTextures((GLsizei)s_Impl->m_PendingDeleteTextures.size(), &s_Impl->m_PendingDeleteTextures[0]);
@@ -695,6 +717,8 @@ int Bacon_CreateShader(int* outHandle, const char* vertexSource, const char* fra
 	if (!s_Impl->m_CurrentShader)
 		s_Impl->m_CurrentShader = *outHandle;
 	
+    DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Shaders, 1);
+
 	return Bacon_Error_None;
 }
 
@@ -974,6 +998,8 @@ int Bacon_CreateImage(int* outHandle, int width, int height, int flags)
 	image->m_Height = height;
 	image->m_Flags = flags;
 	image->m_UVScaleBias = UVScaleBias();
+
+    DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Images, 1);
 	
 	return Bacon_Error_None;
 }
@@ -1011,6 +1037,8 @@ int Bacon_LoadImage(int* outHandle, const char* path, int flags)
 	image->m_Flags = flags;
 	image->m_UVScaleBias = UVScaleBias();
 	
+    DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Images, 1);
+
 	return Bacon_Error_None;
 }
 
@@ -1059,6 +1087,8 @@ int Bacon_GetImageRegion(int* outImage, int imageHandle, int x1, int y1, int x2,
 											y1 / (float) image->m_Height);
 	}
 	
+    DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Images, 1);
+
 	return Bacon_Error_None;
 }
 
@@ -1076,6 +1106,7 @@ static void ReleaseTexture(int textureHandle)
 				s_Impl->m_PendingDeleteFrameBuffers.push_back(texture->m_FrameBuffer);
 			
 			s_Impl->m_Textures.Free(textureHandle);
+            DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Textures, -1);
 		}
 	}
 }
@@ -1113,6 +1144,8 @@ int Bacon_UnloadImage(int handle)
 	
 	s_Impl->m_Images.Free(handle);
 	
+    DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Images, -1);
+
 	return Bacon_Error_None;
 }
 
@@ -1170,6 +1203,10 @@ static void UpdateTexture(Texture* texture, FIBITMAP* bitmap)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
+    int size = texture->m_Width * texture->m_Height * 4;
+    DebugOverlay_AddCounter(s_Impl->m_DebugCounter_TextureMemory, size - texture->m_Size);
+    texture->m_Size - size;
+
 	if (ownsData)
 		free(data);
 
@@ -1184,6 +1221,8 @@ static Texture* CreateTexture(int* outTextureHandle, FIBITMAP* bitmap, int width
 	texture->m_TextureId = 0;
 
 	UpdateTexture(texture, bitmap);
+
+    DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Textures, 1);
 	
 	return texture;
 }
@@ -1429,6 +1468,9 @@ static int BindFrameBuffer(int imageHandle)
         s_Impl->m_CurrentFrameBufferTexture = 0;
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		Bacon_SetViewport(0, 0, s_Impl->m_FrameBufferWidth, s_Impl->m_FrameBufferHeight);
+
+        DebugOverlay_AddCounter(s_Impl->m_DebugCounter_FrameBufferBinds, 1);
+
 		return Bacon_Error_None;
 	}
 	
@@ -1447,6 +1489,9 @@ static int BindFrameBuffer(int imageHandle)
 	float bottom = texture->m_Height - image->m_UVScaleBias.m_BiasY * texture->m_Height;
 	float top = bottom - image->m_Height;
 	Bacon_SetViewport((int)x, (int)top, image->m_Width, image->m_Height);
+
+    DebugOverlay_AddCounter(s_Impl->m_DebugCounter_FrameBufferBinds, 1);
+
 	return Bacon_Error_None;
 }
 
@@ -1913,30 +1958,23 @@ int Bacon_Flush()
 	
 	glDrawElements(s_Impl->m_CurrentMode, (int)s_Impl->m_Indices.size(), GL_UNSIGNED_SHORT, 0);
 	
+
+    DebugOverlay_AddCounter(s_Impl->m_DebugCounter_DrawCalls, 1);
+    switch (s_Impl->m_CurrentMode)
+    {
+    case GL_POINTS:
+        DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Primitives, s_Impl->m_Indices.size());
+        break;
+    case GL_LINES:
+        DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Primitives, s_Impl->m_Indices.size() / 2);
+        break;
+    case GL_TRIANGLES:
+        DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Primitives, s_Impl->m_Indices.size() / 3);
+        break;
+    }
+
 	s_Impl->m_Indices.clear();
 	s_Impl->m_Vertices.clear();
 	
 	return Bacon_Error_None;
-}
-
-void Graphics_DrawDebugOverlay()
-{
-	int drawTextureAtlas = 0;
-	for (TextureAtlas& atlas : s_Impl->m_TextureAtlases)
-	{
-		if (drawTextureAtlas-- != 0)
-			continue;
-	
-		Bacon_SetColor(0, 0, 0, 1);
-		Bacon_DrawImage(GetBlankImageHandle(), 0, 0, atlas.m_Width, atlas.m_Height);
-		Bacon_SetColor(1, 1, 1, 1);
-		Graphics_DrawTexture(atlas.m_Texture, 0, atlas.m_Height, atlas.m_Width, 0);
-		
-		Bacon_SetColor(0.f, 1.f, 0.f, 1.f);
-		for (Rect r : atlas.m_Allocator.GetFreeRects())
-		{
-			r = r.Inset(2);
-			Bacon_DrawRect(r.m_Left, r.m_Top, r.m_Right, r.m_Bottom);
-		}
-	}
 }
