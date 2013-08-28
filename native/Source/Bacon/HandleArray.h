@@ -148,8 +148,8 @@ namespace Bacon {
 		
 		int CreateHandle(unsigned short index)
 		{
-			m_Elements[index].m_Version = m_NextVersion;
-			return index | (m_NextVersion++ << 16);
+			m_Elements[index].m_Version = m_NextVersion++ & 0x7fff;
+			return index | (m_Elements[index].m_Version << 16);
 		}
 		
 		int GetIndexFromHandle(int handle)
