@@ -137,7 +137,7 @@ void Bacon_Log(Bacon_LogLevel level, const char* message, ...)
     if (s_LogLevel > level)
         return;
 
-    char staticBuffer[1024];
+    char staticBuffer[64];
     char* allocatedBuffer = nullptr;
     char* buffer = &staticBuffer[0];
 
@@ -151,9 +151,11 @@ void Bacon_Log(Bacon_LogLevel level, const char* message, ...)
     vsnprintf_s(buffer, bufferSize, _TRUNCATE, message, args);
 #else
     int bufferSize = vsnprintf(buffer, BACON_ARRAY_COUNT(staticBuffer), message, args) + 1;
-    if (bufferSize >= BACON_ARRAY_COUNT)
+    if (bufferSize >= BACON_ARRAY_COUNT(staticBuffer))
     {
         allocatedBuffer = buffer = (char*)malloc(bufferSize);
+		va_end(args);
+		va_start(args, message);
         vsnprintf(buffer, bufferSize, message, args);
     }
 #endif

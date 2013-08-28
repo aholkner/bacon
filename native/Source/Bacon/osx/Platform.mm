@@ -2,6 +2,10 @@
 #include "../BaconInternal.h"
 #include "Platform.h"
 
+#include <CoreServices/CoreServices.h>
+#include <mach/mach.h>
+#include <mach/mach_time.h>
+
 NSWindow* g_Window = nil;
 NSString* g_WindowTitle = @"Bacon";
 NSRect g_WindowStartFrame = NSMakeRect(0, 0, 640, 480);
@@ -28,11 +32,25 @@ static void LogSystemInfo()
 	Bacon_Log(Bacon_LogLevel_Info, "Number of processors: %d", pi.processorCount);
 }
 
+static uint64_t s_PerformanceStartTime;
+static float s_PerformanceTimebase;
+
 void Platform_Init()
-{ }
+{
+	s_PerformanceStartTime = mach_absolute_time();
+	mach_timebase_info_data_t timebase;
+	mach_timebase_info(&timebase);
+	s_PerformanceTimebase = (float)timebase.numer / timebase.denom / 1000000000.f;
+}
 
 void Platform_Shutdown()
 { }
+
+void Platform_GetPerformanceTime(float& time)
+{
+	uint64_t elapsed = mach_absolute_time() - s_PerformanceStartTime;
+	time = elapsed * s_PerformanceTimebase;
+}
 
 int Platform_Run()
 {

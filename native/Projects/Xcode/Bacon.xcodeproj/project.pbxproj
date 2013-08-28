@@ -704,6 +704,12 @@
 		FA712E7717C81FEB008024F9 /* Platform.h in Headers */ = {isa = PBXBuildFile; fileRef = FA1E171217ADE47800CFDFC8 /* Platform.h */; };
 		FA712E7817C81FEB008024F9 /* Bacon.h in Headers */ = {isa = PBXBuildFile; fileRef = FA1E170917ADE47800CFDFC8 /* Bacon.h */; };
 		FA712E7917C81FEB008024F9 /* BaconInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = FA1E170A17ADE47800CFDFC8 /* BaconInternal.h */; };
+		FA712E9B17CE1C6B008024F9 /* SourceCodePro_otf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA712E9917CE1C6B008024F9 /* SourceCodePro_otf.cpp */; };
+		FA712E9C17CE1C6B008024F9 /* SourceCodePro_otf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA712E9917CE1C6B008024F9 /* SourceCodePro_otf.cpp */; };
+		FA712E9D17CE1C6B008024F9 /* SourceCodePro_otf.h in Headers */ = {isa = PBXBuildFile; fileRef = FA712E9A17CE1C6B008024F9 /* SourceCodePro_otf.h */; };
+		FA712E9E17CE1C6B008024F9 /* SourceCodePro_otf.h in Headers */ = {isa = PBXBuildFile; fileRef = FA712E9A17CE1C6B008024F9 /* SourceCodePro_otf.h */; };
+		FA712EA117CE2C28008024F9 /* NativeHost.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA1E171917ADE47900CFDFC8 /* NativeHost.cpp */; };
+		FA712EB317CE2C56008024F9 /* Bacon64.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FA712E7D17C81FEB008024F9 /* Bacon64.dylib */; };
 		FA7B5FBD17AC6FDF00A32A68 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA7B5FBC17AC6FDF00A32A68 /* IOKit.framework */; };
 		FA867E9417B48A290027B6E4 /* angleutils.h in Headers */ = {isa = PBXBuildFile; fileRef = FA867DF917B48A290027B6E4 /* angleutils.h */; };
 		FA867E9617B48A2A0027B6E4 /* debug.h in Headers */ = {isa = PBXBuildFile; fileRef = FA867DFB17B48A290027B6E4 /* debug.h */; };
@@ -853,6 +859,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		FA712EA417CE2C28008024F9 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		FAE5DF1A17A53D5F008013E5 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1855,6 +1870,9 @@
 		FA49C86F17A77751003DFFFE /* winfnt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = winfnt.c; sourceTree = "<group>"; };
 		FA49C87017A77751003DFFFE /* winfnt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = winfnt.h; sourceTree = "<group>"; };
 		FA712E7D17C81FEB008024F9 /* Bacon64.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = Bacon64.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA712E9917CE1C6B008024F9 /* SourceCodePro_otf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SourceCodePro_otf.cpp; path = Resources/SourceCodePro_otf.cpp; sourceTree = "<group>"; };
+		FA712E9A17CE1C6B008024F9 /* SourceCodePro_otf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SourceCodePro_otf.h; path = Resources/SourceCodePro_otf.h; sourceTree = "<group>"; };
+		FA712EA817CE2C28008024F9 /* NativeHost64 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NativeHost64; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA7B5FBC17AC6FDF00A32A68 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = System/Library/Frameworks/IOKit.framework; sourceTree = SDKROOT; };
 		FA867DF417B48A010027B6E4 /* libAngleShaderTranslater.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAngleShaderTranslater.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA867DF917B48A290027B6E4 /* angleutils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = angleutils.h; sourceTree = "<group>"; };
@@ -2117,6 +2135,14 @@
 				FA712E7117C81FEB008024F9 /* libFreeType.a in Frameworks */,
 				FA712E7217C81FEB008024F9 /* libGorillaAudio.a in Frameworks */,
 				FA712E7317C81FEB008024F9 /* libAngleShaderTranslater.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA712EA217CE2C28008024F9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA712EB317CE2C56008024F9 /* Bacon64.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2418,8 +2444,8 @@
 		FA1E170617ADE47800CFDFC8 /* Bacon */ = {
 			isa = PBXGroup;
 			children = (
+				FA712E9817CE1C4E008024F9 /* Resources */,
 				FA1E171017ADE47800CFDFC8 /* osx */,
-				FA1E171617ADE47900CFDFC8 /* win32 */,
 				FA1E170717ADE47800CFDFC8 /* Audio.cpp */,
 				FA1E170817ADE47800CFDFC8 /* Bacon.cpp */,
 				FA1E170917ADE47800CFDFC8 /* Bacon.h */,
@@ -2448,13 +2474,6 @@
 				FA1E171517ADE47900CFDFC8 /* Window.mm */,
 			);
 			path = osx;
-			sourceTree = "<group>";
-		};
-		FA1E171617ADE47900CFDFC8 /* win32 */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = win32;
 			sourceTree = "<group>";
 		};
 		FA1E171817ADE47900CFDFC8 /* NativeHost */ = {
@@ -2486,6 +2505,7 @@
 				FA16412117A9422400113E18 /* libGorillaAudio.a */,
 				FA867DF417B48A010027B6E4 /* libAngleShaderTranslater.a */,
 				FA712E7D17C81FEB008024F9 /* Bacon64.dylib */,
+				FA712EA817CE2C28008024F9 /* NativeHost64 */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3739,6 +3759,15 @@
 			path = winfonts;
 			sourceTree = "<group>";
 		};
+		FA712E9817CE1C4E008024F9 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				FA712E9917CE1C6B008024F9 /* SourceCodePro_otf.cpp */,
+				FA712E9A17CE1C6B008024F9 /* SourceCodePro_otf.h */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		FA867DEF17B489C80027B6E4 /* Angle */ = {
 			isa = PBXGroup;
 			children = (
@@ -4120,6 +4149,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA712E9D17CE1C6B008024F9 /* SourceCodePro_otf.h in Headers */,
 				FA1E172C17ADE52900CFDFC8 /* Bacon-Prefix.pch in Headers */,
 				FA1E172017ADE47900CFDFC8 /* HandleArray.h in Headers */,
 				FA1E172417ADE47900CFDFC8 /* Platform.h in Headers */,
@@ -4447,6 +4477,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA712E9E17CE1C6B008024F9 /* SourceCodePro_otf.h in Headers */,
 				FA712E7517C81FEB008024F9 /* Bacon-Prefix.pch in Headers */,
 				FA712E7617C81FEB008024F9 /* HandleArray.h in Headers */,
 				FA712E7717C81FEB008024F9 /* Platform.h in Headers */,
@@ -4624,6 +4655,23 @@
 			productReference = FA712E7D17C81FEB008024F9 /* Bacon64.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
+		FA712E9F17CE2C28008024F9 /* NativeHost64 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FA712EA517CE2C28008024F9 /* Build configuration list for PBXNativeTarget "NativeHost64" */;
+			buildPhases = (
+				FA712EA017CE2C28008024F9 /* Sources */,
+				FA712EA217CE2C28008024F9 /* Frameworks */,
+				FA712EA417CE2C28008024F9 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NativeHost64;
+			productName = NativeHost;
+			productReference = FA712EA817CE2C28008024F9 /* NativeHost64 */;
+			productType = "com.apple.product-type.tool";
+		};
 		FA867DF317B48A010027B6E4 /* AngleShaderTranslater */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FA867DF517B48A010027B6E4 /* Build configuration list for PBXNativeTarget "AngleShaderTranslater" */;
@@ -4686,6 +4734,7 @@
 				FA49C63C17A77732003DFFFE /* FreeType */,
 				FA16412017A9422400113E18 /* GorillaAudio */,
 				FAE5DF1B17A53D5F008013E5 /* NativeHost */,
+				FA712E9F17CE2C28008024F9 /* NativeHost64 */,
 			);
 		};
 /* End PBXProject section */
@@ -4741,6 +4790,7 @@
 				FA1E172517ADE47900CFDFC8 /* Platform.mm in Sources */,
 				FA1E172117ADE47900CFDFC8 /* Keyboard.cpp in Sources */,
 				FA1E171A17ADE47900CFDFC8 /* Audio.cpp in Sources */,
+				FA712E9B17CE1C6B008024F9 /* SourceCodePro_otf.cpp in Sources */,
 				FA1E171E17ADE47900CFDFC8 /* Fonts.cpp in Sources */,
 				FA1E172217ADE47900CFDFC8 /* Mouse.cpp in Sources */,
 				FA1E171F17ADE47900CFDFC8 /* Graphics.cpp in Sources */,
@@ -5041,12 +5091,21 @@
 				FA712E6117C81FEB008024F9 /* Platform.mm in Sources */,
 				FA712E6217C81FEB008024F9 /* Keyboard.cpp in Sources */,
 				FA712E6317C81FEB008024F9 /* Audio.cpp in Sources */,
+				FA712E9C17CE1C6B008024F9 /* SourceCodePro_otf.cpp in Sources */,
 				FA712E6417C81FEB008024F9 /* Fonts.cpp in Sources */,
 				FA712E6517C81FEB008024F9 /* Mouse.cpp in Sources */,
 				FA712E6617C81FEB008024F9 /* Graphics.cpp in Sources */,
 				FA712E6717C81FEB008024F9 /* HIDController.mm in Sources */,
 				FA712E6817C81FEB008024F9 /* Bacon.cpp in Sources */,
 				FA712E6917C81FEB008024F9 /* Window.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA712EA017CE2C28008024F9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA712EA117CE2C28008024F9 /* NativeHost.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5400,6 +5459,28 @@
 			};
 			name = Release;
 		};
+		FA712EA617CE2C28008024F9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = ../../Source;
+				PRODUCT_NAME = NativeHost64;
+			};
+			name = Debug;
+		};
+		FA712EA717CE2C28008024F9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				HEADER_SEARCH_PATHS = ../../Source;
+				PRODUCT_NAME = NativeHost64;
+			};
+			name = Release;
+		};
 		FA867DF617B48A010027B6E4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -5504,6 +5585,15 @@
 			buildConfigurations = (
 				FA712E7B17C81FEB008024F9 /* Debug */,
 				FA712E7C17C81FEB008024F9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FA712EA517CE2C28008024F9 /* Build configuration list for PBXNativeTarget "NativeHost64" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FA712EA617CE2C28008024F9 /* Debug */,
+				FA712EA717CE2C28008024F9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

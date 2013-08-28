@@ -94,7 +94,7 @@ int LoadBuiltinFont(int* outHandle, const void* compressedData, unsigned int com
     font->m_Face = nullptr;
     font->m_FaceData = malloc(size);
 
-    uLongf uncompressedSize;
+    uLongf uncompressedSize = size;
     if (uncompress((Bytef*)font->m_FaceData, &uncompressedSize, (const Bytef*)compressedData, compressedDataSize) != Z_OK)
         return Bacon_Error_Unknown;
 

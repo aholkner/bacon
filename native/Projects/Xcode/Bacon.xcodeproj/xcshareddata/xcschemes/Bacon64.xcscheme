@@ -33,7 +33,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "FA712E5B17C81FEB008024F9"
-               BuildableName = "Bacon copy.dylib"
+               BuildableName = "Bacon64.dylib"
                BlueprintName = "Bacon64"
                ReferencedContainer = "container:Bacon.xcodeproj">
             </BuildableReference>
