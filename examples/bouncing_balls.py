@@ -8,8 +8,6 @@ logging.basicConfig(level=logging.INFO)
 import bacon
 import random
 
-res = 'res'
-
 font = bacon.Font('res/DejaVuSans.ttf', 64)
 ball_image = bacon.Image('res/ball.png')
 ball_sound = bacon.Sound('res/ball.wav')
@@ -83,7 +81,7 @@ class Game(bacon.Game):
         player_controller = None
 
 balls = []
-for i in range(5000):
+for i in range(100):
     balls.append(Ball())
 
 bacon.run(Game())

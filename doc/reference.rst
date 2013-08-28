@@ -165,7 +165,7 @@ Resources
 
 .. data:: resource_dir
 
-	Path to resources.  Set to the working directory by default during development, and the executable
+	Path to resources.  Set to the script directory by default during development, and the executable directory for frozen applications.
 
 .. autofunction:: get_resource_path
 

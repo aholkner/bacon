@@ -3,9 +3,9 @@ import sys
 
 from bacon import native
 
-#: Path to resources.  Set to the working directory by default during development, and the executable
+#: Path to resources.  Set to the script directory by default during development, and the executable
 #: directory for frozen applications.
-resource_dir = os.path.abspath('.')
+resource_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 if native._mock_native:
     resource_dir = ''
