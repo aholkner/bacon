@@ -39,9 +39,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZLib", "..\..\Vendor\FreeIm
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NativeHost", "NativeHost.vcxproj", "{87B0733A-AA34-46B5-8DFF-FF4B1D0E24D8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{DEAECA5B-858E-4BC4-B69E-17E5ED81DAF6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Python", "Python", "{DEAECA5B-858E-4BC4-B69E-17E5ED81DAF6}"
 EndProject
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "bouncing_balls", "PyTools\bouncing_balls.pyproj", "{DC734CDF-A1F8-4065-BF96-26347A80CF4A}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "BaconPython", "PyTools\BaconPython.pyproj", "{DC734CDF-A1F8-4065-BF96-26347A80CF4A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EB03D04A-0B82-4DA8-9D4D-75D566D1C18B} = {EB03D04A-0B82-4DA8-9D4D-75D566D1C18B}
 	EndProjectSection

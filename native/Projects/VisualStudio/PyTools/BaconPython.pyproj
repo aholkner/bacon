@@ -6,7 +6,7 @@
     <ProjectGuid>{dc734cdf-a1f8-4065-bf96-26347a80cf4a}</ProjectGuid>
     <ProjectHome />
     <StartupFile>..\..\..\..\examples\bouncing_balls.py</StartupFile>
-    <SearchPath>..\..\..\..\examples;..\..\..\..\;..\..\..\..\..\bacon</SearchPath>
+    <SearchPath>..\..\..\..\examples;..\..\..\..\;..\..\..\..\..\bacon;..\..\..\..\scripts</SearchPath>
     <WorkingDirectory>..\..\..\..\examples</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <InterpreterId>{2af0f10d-7135-4994-9156-5d01c9c11b7e}</InterpreterId>
@@ -149,10 +149,14 @@
     <Compile Include="..\..\..\..\examples\transform_rotate.py">
       <Link>examples\transform_rotate.py</Link>
     </Compile>
+    <Compile Include="..\..\..\..\scripts\bin2cpp.py">
+      <Link>scripts\bin2cpp.py</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="examples\" />
     <Folder Include="bacon\" />
+    <Folder Include="scripts\" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="{2af0f10d-7135-4994-9156-5d01c9c11b7e}\3.3" />
