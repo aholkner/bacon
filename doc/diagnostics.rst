@@ -14,7 +14,7 @@ You can change this behaviour by setting up logging handler for the ``"bacon"`` 
 Debug Overlay
 =============
 
-Press ``Ctrl`` and ``~`` within a Bacon application to toggle the debug overlay.  This shows vital statistics about the performance of your game, and can be used to check for memory leaks and performance bottlenecks.  The statistics shown are described below.
+Press ``Ctrl`` and ``~`` (tilde or backtick) within a Bacon application to toggle the debug overlay.  This shows vital statistics about the performance of your game, and can be used to check for memory leaks and performance bottlenecks.  The statistics shown are described below.
 
 FPS
 	Instantaneous frames per second (FPS).  Bacon limits the FPS to the monitor vsync and so typically is never higher than 60.
