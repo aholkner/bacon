@@ -30,7 +30,7 @@ class Image(object):
         a GPU texture has been created (which happens automatically the first time the image is rendered).  This saves
         memory.  The parameter should be set to ``False`` if the source data will be required for reasons besides rendering
         (there is currently no API for using an image this way).
-    :param bool sample_nearest: if ``True``, the image is sample with nearest (point) filtering.  This gives a "pixellated"
+    :param bool sample_nearest: if ``True``, the image is sampled with nearest (point) filtering.  This gives a "pixellated"
         effect when images are scaled or rotated.
     :param bool wrap: if ``True``, the image is sampled with wraparound texture coordinates, and the image is packed into its
         own texture.  The image must have power of two dimensions (i.e., 32x32, 64x64, etc.).  Use :func:`draw_image_region` with
