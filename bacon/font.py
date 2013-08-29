@@ -103,6 +103,7 @@ class _FontFile(object):
             lib.GetImageSize(image_handle, byref(width), byref(height))
             image = bacon.image.Image(width = width.value / content_scale, 
                                       height = height.value / content_scale, 
+                                      content_scale = content_scale,
                                       handle = image_handle.value)
         else:
             image = None

@@ -222,7 +222,6 @@ namespace {
 		
 		int m_FrameBufferWidth;
 		int m_FrameBufferHeight;
-		float m_FrameBufferContentScale;
 		
 		HandleArray<Shader> m_Shaders;
 		int m_DefaultShader;
@@ -438,12 +437,10 @@ void Graphics_BeginFrame(int width, int height)
 
 	s_Impl->m_IsInFrame = true;
 	if (s_Impl->m_FrameBufferWidth != width ||
-		s_Impl->m_FrameBufferHeight != height ||
-		s_Impl->m_FrameBufferContentScale != contentScale)
+		s_Impl->m_FrameBufferHeight != height)
 	{
 		s_Impl->m_FrameBufferWidth = width;
 		s_Impl->m_FrameBufferHeight = height;
-		s_Impl->m_FrameBufferContentScale = contentScale;
 		s_Impl->m_CurrentFrameBuffer = -1;
         s_Impl->m_CurrentFrameBufferTexture = -1;
 	}
@@ -455,7 +452,7 @@ void Graphics_BeginFrame(int width, int height)
 	s_Impl->m_TransformStack.clear();
 	s_Impl->m_TransformStack.push_back(mat4f::IDENTITY);
 	
-	Bacon_SetFrameBuffer(0);
+	Bacon_SetFrameBuffer(0, contentScale);
 	Bacon_SetShader(0);
 	Bacon_SetBlending(Bacon_Blend_One, Bacon_Blend_OneMinusSrcAlpha);
 }
@@ -1522,13 +1519,13 @@ static bool CreateTextureFrameBuffer(Texture* texture)
 	return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 }
 
-static int BindFrameBuffer(int imageHandle)
+static int BindFrameBuffer(int imageHandle, float contentScale)
 {
 	if (!imageHandle)
 	{
         s_Impl->m_CurrentFrameBufferTexture = 0;
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		Bacon_SetViewport(0, 0, s_Impl->m_FrameBufferWidth, s_Impl->m_FrameBufferHeight);
+		Bacon_SetViewport(0, 0, s_Impl->m_FrameBufferWidth, s_Impl->m_FrameBufferHeight, contentScale);
 
         DebugOverlay_AddCounter(s_Impl->m_DebugCounter_FrameBufferBinds, 1);
 
@@ -1549,7 +1546,7 @@ static int BindFrameBuffer(int imageHandle)
 	float x = image->m_UVScaleBias.m_BiasX * texture->m_Width;
 	float bottom = texture->m_Height - image->m_UVScaleBias.m_BiasY * texture->m_Height;
 	float top = bottom - image->m_Height;
-	Bacon_SetViewport((int)x, (int)top, image->m_Width, image->m_Height);
+	Bacon_SetViewport((int)(x / contentScale), (int)(top / contentScale), (image->m_Width / contentScale), (image->m_Height / contentScale), contentScale);
 
     DebugOverlay_AddCounter(s_Impl->m_DebugCounter_FrameBufferBinds, 1);
 
@@ -1678,7 +1675,7 @@ int Bacon_MultiplyColor(float r, float g, float b, float a)
 
 // Drawing
 
-int Bacon_SetFrameBuffer(int image)
+int Bacon_SetFrameBuffer(int image, float contentScale)
 {
 	REQUIRE_GL();
 	if (s_Impl->m_CurrentFrameBuffer == image)
@@ -1686,23 +1683,21 @@ int Bacon_SetFrameBuffer(int image)
 
 	Bacon_Flush();
 	s_Impl->m_CurrentFrameBuffer = image;
-	return BindFrameBuffer(image);
+	return BindFrameBuffer(image, contentScale);
 }
 
-int Bacon_SetViewport(int x, int y, int width, int height)
+int Bacon_SetViewport(int x, int y, int width, int height, float contentScale)
 {
 	REQUIRE_GL();
 
 	Bacon_Flush();
 
 	int frameBufferHeight = s_Impl->m_FrameBufferHeight;
-	float contentScale = s_Impl->m_FrameBufferContentScale;
 	if (s_Impl->m_CurrentFrameBuffer != 0)
 	{
 		Image* frameBufferImage = s_Impl->m_Images.Get(s_Impl->m_CurrentFrameBuffer);
 		Texture* frameBufferTexture = s_Impl->m_Textures.Get(frameBufferImage->m_Texture);
-		frameBufferHeight = frameBufferTexture->m_Height;
-		contentScale = 1.f;
+		frameBufferHeight = frameBufferTexture->m_Height / contentScale;
 	}
 	
 	y = frameBufferHeight - (y + height);

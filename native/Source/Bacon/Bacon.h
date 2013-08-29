@@ -353,8 +353,8 @@ extern "C" {
 	
 	BACON_API int Bacon_Flush();
 	BACON_API int Bacon_Clear(float r, float g, float b, float a);
-	BACON_API int Bacon_SetFrameBuffer(int image);
-	BACON_API int Bacon_SetViewport(int x, int y, int width, int height);
+	BACON_API int Bacon_SetFrameBuffer(int image, float contentScale);
+	BACON_API int Bacon_SetViewport(int x, int y, int width, int height, float contentScale);
 	BACON_API int Bacon_SetShader(int shader);
 	BACON_API int Bacon_SetBlending(int src, int dest);
 	BACON_API int Bacon_DrawImage(int handle, float x1, float y1, float x2, float y2);

@@ -1,6 +1,7 @@
 from ctypes import *
 from bacon.core import lib
 from bacon import native
+import bacon
 
 BlendFlags = native.BlendFlags
 
@@ -117,7 +118,10 @@ def set_frame_buffer(image):
 
     :param image: the :class:`Image` to render to
     ''' 
-    lib.SetFrameBuffer(image._handle if image else 0)
+    if image:
+        lib.SetFrameBuffer(image._handle, image._content_scale)
+    else:
+        lib.SetFrameBuffer(0, bacon.window._content_scale)
 
 if native._mock_native:
     def set_viewport(x, y, width, height):

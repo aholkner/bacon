@@ -3,6 +3,7 @@ from ctypes import *
 from bacon.core import lib
 from bacon import native
 from bacon import resource
+import bacon
 
 class Image(object):
     '''An image that can be passed to :func:`draw_image` and other rendering functions.
@@ -39,9 +40,12 @@ class Image(object):
         the image is permitted to be packed into other images with the same atlas number (although this is not guaranteed).
     :param width: width of the image to create, in texels
     :param height: height of the image to create, in texels
+    :param float content_scale: optional scale factor for backing texture.  Defaults to 1.0 for images loaded from a file,
+        defaults to :attr:`Window.content_scale` for empty images.  The effect of setting content_scale to 2.0 is that
+        the ``width`` and ``height`` properties will be half the actual pixel values.
     '''
 
-    def __init__(self, file=None, premultiply_alpha=True, discard_bitmap=True, sample_nearest=False, wrap=False, atlas=1, width=None, height=None, handle=None):
+    def __init__(self, file=None, premultiply_alpha=True, discard_bitmap=True, sample_nearest=False, wrap=False, atlas=1, width=None, height=None, content_scale=None, handle=None):
         flags = 0
         if premultiply_alpha:
             flags |= native.ImageFlags.premultiply_alpha
@@ -64,17 +68,26 @@ class Image(object):
             lib.LoadImage(byref(handle), resource.get_resource_path(file).encode('utf-8'), flags)
             handle = handle.value
             
+            if not content_scale:
+                content_scale = 1.0
+
             if not width or not height:
                 width = c_int()
                 height = c_int()
                 lib.GetImageSize(handle, byref(width), byref(height))
                 width = width.value
-                height = height.value    
+                height = height.value
+
+            width /= content_scale
+            height /= content_scale
 
         elif width and height and not handle:
             # Create empty image of given dimensions
+            if not content_scale:
+                content_scale = bacon.window.content_scale
+
             handle = c_int()
-            lib.CreateImage(byref(handle), width, height, flags)
+            lib.CreateImage(byref(handle), int(width * content_scale), int(height * content_scale), flags)
             handle = handle.value
 
         if not handle:
@@ -83,6 +96,7 @@ class Image(object):
         self._handle = handle
         self._width = width
         self._height = height
+        self._content_scale = content_scale
 
     def unload(self):
         '''Releases renderer resources associated with this image.'''
@@ -99,6 +113,11 @@ class Image(object):
         '''The height of the image, in texels (read-only).'''
         return self._height
 
+    @property
+    def content_scale(self):
+        '''The content scale applied to the image (read-only).'''
+        return self._content_scale
+
     def get_region(self, x1, y1, x2, y2):
         '''Get an image that refers to the given rectangle within this image.  The image data is not actually
         copied; if the image region is rendered into, it will affect this image.
@@ -111,4 +130,4 @@ class Image(object):
         '''
         handle = c_int()
         lib.GetImageRegion(byref(handle), self._handle, x1, y1, x2, y2)
-        return Image(width = x2 - x1, height = y2 - y1, handle = handle)
+        return Image(width = x2 - x1, height = y2 - y1, content_scale = self._content_scale, _handle = handle)
