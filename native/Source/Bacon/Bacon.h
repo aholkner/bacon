@@ -325,6 +325,7 @@ extern "C" {
 	BACON_API int Bacon_GetWindowSize(int* width, int* height);
 	BACON_API int Bacon_SetWindowSize(int width, int height);
 	BACON_API int Bacon_SetWindowFullscreen(int fullscreen);
+	BACON_API int Bacon_GetWindowContentScale(float* contentScale);
 	
 	BACON_API int Bacon_CreateShader(int* outHandle, const char* vertexSource, const char* fragmentSource);
 	BACON_API int Bacon_EnumShaderUniforms(int handle, Bacon_EnumShaderUniformsCallback callback, void* arg);

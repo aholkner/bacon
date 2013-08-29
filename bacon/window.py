@@ -32,6 +32,11 @@ class Window(object):
             lib.GetWindowSize(byref(width), byref(height))
             self._width = width.value
             self._height = height.value
+
+            content_scale = c_float()
+            lib.GetWindowContentScale(byref(content_scale))
+            self._content_scale = content_scale.value
+
             self.title = os.path.basename(sys.argv[0])
 
     def _get_width(self):
@@ -68,6 +73,14 @@ class Window(object):
         lib.SetWindowFullscreen(fullscreen)
         self._fullscreen = fullscreen
     fullscreen = property(_is_fullscreen, _set_fullscreen, doc='''Set to ``True`` to make the game fullscreen, ``False`` to play in a window.''')
+
+    @property
+    def content_scale(self):
+        '''Get the scaling factor applied to the window and framebuffer coordinates to convert to
+        pixel space.  This is set on OS X when a retina display is attached.  You should consider loading
+        assets and creating offscreen buffers at this scale in order to match pixel density.
+        '''
+        return self._content_scale
 
 #: The singleton :class:`Window` instance.
 window = Window()

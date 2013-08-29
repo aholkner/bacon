@@ -46,6 +46,7 @@ void Platform_GetPerformanceTime(float& time);
 void Window_Init();
 void Window_Shutdown();
 void Window_OnSizeChanged(int width, int height);
+void Window_OnContentScaleChanged(float contentScale);
 
 void Debug_Init();
 void Debug_Shutdown();

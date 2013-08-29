@@ -41,6 +41,9 @@ void Platform_Init()
 	mach_timebase_info_data_t timebase;
 	mach_timebase_info(&timebase);
 	s_PerformanceTimebase = (float)timebase.numer / timebase.denom / 1000000000.f;
+
+	if ([[NSScreen mainScreen] respondsToSelector:@selector(backingScaleFactor)])
+		Window_OnContentScaleChanged([NSScreen mainScreen].backingScaleFactor);
 }
 
 void Platform_Shutdown()
@@ -62,7 +65,7 @@ int Platform_Run()
 	
 	LogSystemInfo();
 	
-    [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
     id menubar = [[NSMenu new] autorelease];
     id appMenuItem = [[NSMenuItem new] autorelease];
     [menubar addItem:appMenuItem];
@@ -76,10 +79,6 @@ int Platform_Run()
 
 	NSRect frame = g_WindowStartFrame;
 	
-	g_View = [View alloc];
-	[g_View initWithFrame:frame];
-	[g_View setNeedsDisplay:YES];
-	
 	int styleMask = NSTitledWindowMask |  NSClosableWindowMask |NSMiniaturizableWindowMask;
 	if (g_WindowResizable)
 		styleMask |= NSResizableWindowMask;
@@ -89,8 +88,16 @@ int Platform_Run()
 											  backing:NSBackingStoreBuffered
 												defer:NO];
 
-//    [window cascadeTopLeftFromPoint:NSMakePoint(20,20)];
+	[g_Window center];
     [g_Window setTitle:g_WindowTitle];
+
+	float contentScale;
+	Bacon_GetWindowContentScale(&contentScale);
+	
+	g_View = [View alloc];
+	g_View.layer.contentsScale = contentScale;
+	[g_View initWithFrame:frame];
+	[g_View setNeedsDisplay:YES];
 	[g_Window setContentView:g_View];
     [g_Window makeKeyAndOrderFront:nil];
 	if (g_WindowStartFullscreen)
