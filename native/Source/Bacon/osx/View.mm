@@ -37,6 +37,9 @@ static void InitKeyMap();
 			0
 		};
 		
+		if ([self respondsToSelector:@selector(setWantsBestResolutionOpenGLSurface:)])
+			self.wantsBestResolutionOpenGLSurface = YES;
+		
 		// Init GL context
 		fmt = [[NSOpenGLPixelFormat alloc] initWithAttributes: attrs];
 		m_PixelFormat = (CGLPixelFormatObj)[fmt CGLPixelFormatObj];
