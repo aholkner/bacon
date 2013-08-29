@@ -222,6 +222,7 @@ namespace {
 		
 		int m_FrameBufferWidth;
 		int m_FrameBufferHeight;
+		float m_FrameBufferContentScale;
 		
 		HandleArray<Shader> m_Shaders;
 		int m_DefaultShader;
@@ -431,13 +432,18 @@ void Graphics_BeginFrame(int width, int height)
 		glDeleteFramebuffers((GLsizei)s_Impl->m_PendingDeleteFrameBuffers.size(), &s_Impl->m_PendingDeleteFrameBuffers[0]);
 		s_Impl->m_PendingDeleteFrameBuffers.clear();
 	}
+	
+	float contentScale;
+	Bacon_GetWindowContentScale(&contentScale);
 
 	s_Impl->m_IsInFrame = true;
 	if (s_Impl->m_FrameBufferWidth != width ||
-		s_Impl->m_FrameBufferHeight != height)
+		s_Impl->m_FrameBufferHeight != height ||
+		s_Impl->m_FrameBufferContentScale != contentScale)
 	{
 		s_Impl->m_FrameBufferWidth = width;
 		s_Impl->m_FrameBufferHeight = height;
+		s_Impl->m_FrameBufferContentScale = contentScale;
 		s_Impl->m_CurrentFrameBuffer = -1;
         s_Impl->m_CurrentFrameBufferTexture = -1;
 	}
@@ -1690,15 +1696,18 @@ int Bacon_SetViewport(int x, int y, int width, int height)
 	Bacon_Flush();
 
 	int frameBufferHeight = s_Impl->m_FrameBufferHeight;
+	float contentScale = s_Impl->m_FrameBufferContentScale;
 	if (s_Impl->m_CurrentFrameBuffer != 0)
 	{
 		Image* frameBufferImage = s_Impl->m_Images.Get(s_Impl->m_CurrentFrameBuffer);
 		Texture* frameBufferTexture = s_Impl->m_Textures.Get(frameBufferImage->m_Texture);
 		frameBufferHeight = frameBufferTexture->m_Height;
+		contentScale = 1.f;
 	}
 	
-	glViewport(x, frameBufferHeight - (y + height), width, height);
-    glScissor(x, frameBufferHeight - (y + height), width, height);
+	y = frameBufferHeight - (y + height);
+	glViewport(x * contentScale, y * contentScale, width * contentScale, height * contentScale);
+    glScissor(x * contentScale, y * contentScale, width * contentScale, height * contentScale);
     
 	vmml::mat4f projection = frustumf(0.f, (float)width, (float)height, 0.f, -1.f, 1.f).compute_ortho_matrix();
 	SetSharedUniformValue(s_Impl->m_ProjectionUniform, projection, sizeof(mat4f));
