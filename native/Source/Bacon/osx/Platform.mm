@@ -43,7 +43,7 @@ void Platform_Init()
 	s_PerformanceTimebase = (float)timebase.numer / timebase.denom / 1000000000.f;
 
 	if ([[NSScreen mainScreen] respondsToSelector:@selector(backingScaleFactor)])
-		Window_OnContentScaleChanged([NSScreen mainScreen].backingScaleFactor);
+		Window_SetDeviceContentScale([NSScreen mainScreen].backingScaleFactor);
 }
 
 void Platform_Shutdown()
@@ -91,11 +91,7 @@ int Platform_Run()
 	[g_Window center];
     [g_Window setTitle:g_WindowTitle];
 
-	float contentScale;
-	Bacon_GetWindowContentScale(&contentScale);
-	
 	g_View = [View alloc];
-	g_View.layer.contentsScale = contentScale;
 	[g_View initWithFrame:frame];
 	[g_View setNeedsDisplay:YES];
 	[g_Window setContentView:g_View];

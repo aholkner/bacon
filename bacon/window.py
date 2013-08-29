@@ -74,14 +74,24 @@ class Window(object):
         self._fullscreen = fullscreen
     fullscreen = property(_is_fullscreen, _set_fullscreen, doc='''Set to ``True`` to make the game fullscreen, ``False`` to play in a window.''')
 
-    @property
-    def content_scale(self):
-        '''Get the scaling factor applied to the window and framebuffer coordinates to convert to
-        pixel space.  This is set on OS X when a retina display is attached.  You should consider loading
-        assets and creating offscreen buffers at this scale in order to match pixel density.
-        '''
+    def _get_content_scale(self):
         return self._content_scale
+    def _set_content_scale(self, content_scale):
+        lib.SetWindowContentScale(content_scale)
+        self._content_scale = content_scale
+    content_scale = property(_get_content_scale, _set_content_scale, doc='''The scaling factor applied 
+        to the window framebuffer.  On Windows this is always 1.0.  On OS X with a retina display attached,
+        ``content_scale`` will default to 2.0.  
 
+        Fonts and offscreen render targets are created at this content scale by default, to match the
+        pixel density.
+
+        You can explicitly set ``content_scale`` to 1.0, disabling the high-resolution framebuffer.  You
+        should do so before loading any assets.
+
+        :type: float
+        ''')
+        
 #: The singleton :class:`Window` instance.
 window = Window()
 

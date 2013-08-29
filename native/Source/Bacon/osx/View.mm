@@ -37,8 +37,13 @@ static void InitKeyMap();
 			0
 		};
 		
-		if ([self respondsToSelector:@selector(setWantsBestResolutionOpenGLSurface:)])
+		float contentScale;
+		Bacon_GetWindowContentScale(&contentScale);
+		if (contentScale > 1.f && [self respondsToSelector:@selector(setWantsBestResolutionOpenGLSurface:)])
+		{
+			Bacon_Log(Bacon_LogLevel_Info, "NSView is requesting best resolution OpenGL surface");
 			self.wantsBestResolutionOpenGLSurface = YES;
+		}
 		
 		// Init GL context
 		fmt = [[NSOpenGLPixelFormat alloc] initWithAttributes: attrs];

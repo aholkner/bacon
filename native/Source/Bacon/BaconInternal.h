@@ -3,7 +3,15 @@
 #define BACON_ARRAY_COUNT(x) \
     (sizeof(x) / sizeof(x[0]))
 
+enum RunningState
+{
+    RunningState_None,
+    RunningState_Running,
+    RunningState_Stopping,
+};
+
 void Bacon_Log(Bacon_LogLevel level, const char* message, ...);
+RunningState Bacon_GetRunningState();
 
 void Audio_Init();
 void Audio_Shutdown();
@@ -46,7 +54,7 @@ void Platform_GetPerformanceTime(float& time);
 void Window_Init();
 void Window_Shutdown();
 void Window_OnSizeChanged(int width, int height);
-void Window_OnContentScaleChanged(float contentScale);
+void Window_SetDeviceContentScale(float contentScale);
 
 void Debug_Init();
 void Debug_Shutdown();

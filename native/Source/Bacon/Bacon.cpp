@@ -9,12 +9,6 @@ static int s_LogLevel = Bacon_LogLevel_Info;
 static Bacon_LogCallback s_LogCallback = nullptr;
 static Bacon_TickCallback s_TickCallback = nullptr;
 
-enum RunningState
-{
-    RunningState_None,
-    RunningState_Running,
-    RunningState_Stopping,
-};
 static RunningState s_RunningState = RunningState_None;
 
 int Bacon_Init()
@@ -52,6 +46,11 @@ int Bacon_Shutdown()
 	Window_Shutdown();
     Debug_Shutdown();
 	return Bacon_Error_None;
+}
+
+RunningState Bacon_GetRunningState()
+{
+	return s_RunningState;
 }
 
 int Bacon_Run()
