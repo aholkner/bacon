@@ -147,6 +147,7 @@ def _tick_callback():
     _time_uniform.value = now_time
 
     graphics._target_stack = [None]
+    window._begin_frame()
     mouse_input.mouse._update_position()
 
     try:
@@ -155,6 +156,8 @@ def _tick_callback():
         _tick_callback_handle = lib.TickCallback(_error_tick_callback)
         lib.SetTickCallback(_tick_callback_handle)
         raise
+
+    window._end_frame()
 
 bacon._current_game = None
 

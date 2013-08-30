@@ -5,6 +5,7 @@ import os
 import bacon
 from bacon.core import lib
 from bacon import native
+from bacon import graphics
 
 class Window(object):
     '''Properties of the game window.
@@ -25,6 +26,7 @@ class Window(object):
         self._height = -1
         self._resizable = False
         self._fullscreen = False
+        self._target = None
 
         if not native._mock_native:
             width = c_int()
@@ -74,6 +76,18 @@ class Window(object):
         self._fullscreen = fullscreen
     fullscreen = property(_is_fullscreen, _set_fullscreen, doc='''Set to ``True`` to make the game fullscreen, ``False`` to play in a window.''')
 
+    def _get_target(self):
+        return self._target
+    def _set_target(self, target):
+        self._target = target
+    target = property(_get_target, _set_target, doc='''Optional image to use as the default render target.  
+
+        If set, all rendering will be to this image, which will appear scaled and letterboxed if necessary 
+        in the center of the window.  :attr:`width`, :attr:`height` and :attr:`content_scale` will return 
+        the dimensions of this target instead of the window dimensions.
+
+        :type: :class:`Image`''')
+
     def _get_content_scale(self):
         return self._content_scale
     def _set_content_scale(self, content_scale):
@@ -99,3 +113,29 @@ def _window_resize_event_handler(width, height):
     window._width = width
     window._height = height
     bacon._current_game.on_resize(width, height)
+
+_window_frame_target = None
+def _begin_frame():
+    global _window_frame_target
+    _window_frame_target = window._target
+    if _window_frame_target:
+        graphics.push_target(_window_frame_target)
+
+def _end_frame():
+    global _window_frame_target
+    if _window_frame_target:
+        graphics.pop_target()
+        graphics.clear(0, 0, 0, 1)
+        graphics.set_color(1, 1, 1, 1)
+        target_aspect = _window_frame_target._width / _window_frame_target._height
+        window_aspect = window._width / window._height
+        if target_aspect > window_aspect:
+            width = window._width
+            height = width / target_aspect
+        else:
+            height = window._height
+            width = height * target_aspect
+        x = int(window._width / 2 - width / 2)
+        y = int(window._height / 2 - height / 2)
+        graphics.draw_image(_window_frame_target, x, y, x + width, y + width)
+        _window_frame_target = None
