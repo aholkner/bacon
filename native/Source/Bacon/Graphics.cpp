@@ -1143,8 +1143,10 @@ static void ReleaseTexture(int textureHandle)
 			if (texture->m_FrameBuffer)
 				s_Impl->m_PendingDeleteFrameBuffers.push_back(texture->m_FrameBuffer);
 			
-			s_Impl->m_Textures.Free(textureHandle);
             DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Textures, -1);
+            DebugOverlay_AddCounter(s_Impl->m_DebugCounter_TextureMemory, -texture->m_Size);
+
+            s_Impl->m_Textures.Free(textureHandle);
 		}
 	}
 }
@@ -1264,7 +1266,7 @@ static void UpdateTexture(Texture* texture, FIBITMAP* bitmap)
 
     int size = texture->m_Width * texture->m_Height * 4;
     DebugOverlay_AddCounter(s_Impl->m_DebugCounter_TextureMemory, size - texture->m_Size);
-    texture->m_Size - size;
+    texture->m_Size = size;
 
 	if (ownsData)
 		free(data);
@@ -1275,6 +1277,7 @@ static Texture* CreateTexture(int* outTextureHandle, FIBITMAP* bitmap, int width
 {
 	*outTextureHandle = s_Impl->m_Textures.Alloc();
 	Texture* texture = s_Impl->m_Textures.Get(*outTextureHandle);
+    texture->m_RefCount = 1;
     texture->m_Flags = flags;
 	texture->m_Width = width;
 	texture->m_Height = height;
@@ -1416,6 +1419,7 @@ static void AddImageToTextureAtlas(Image* image, int hintSize)
 	++atlas->m_RefCount;
 	
 	image->m_Texture = atlas->m_Texture;
+    ++s_Impl->m_Textures.Get(image->m_Texture)->m_RefCount;
 }
 
 static void FillTextureAtlases(int group)
@@ -1476,6 +1480,7 @@ static Texture* RealizeTexture(Image* image)
 		image->m_UVScaleBias.m_ScaleY *= subScaleBias.m_ScaleY;
 		image->m_Texture = parent->m_Texture;
 		image->m_Flags &= ~Bacon_ImageFlags_Internal_TextureIsImage;
+        ++s_Impl->m_Textures.Get(image->m_Texture)->m_RefCount;
 	}
 	
 	Texture* texture = s_Impl->m_Textures.Get(image->m_Texture);
