@@ -6,6 +6,7 @@ from bacon.core import lib
 from bacon import native
 from bacon import controller
 from bacon import keyboard
+from bacon import graphics
 from bacon import mouse_input
 from bacon import shader
 from bacon import window
@@ -145,6 +146,7 @@ def _tick_callback():
 
     _time_uniform.value = now_time
 
+    graphics._target_stack = [None]
     mouse_input.mouse._update_position()
 
     try:

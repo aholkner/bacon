@@ -303,7 +303,7 @@ void Graphics_Init()
     s_Impl->m_DebugCounter_Images = DebugOverlay_CreateCounter("Images");
     s_Impl->m_DebugCounter_Textures = DebugOverlay_CreateCounter("Textures");
     s_Impl->m_DebugCounter_Shaders = DebugOverlay_CreateCounter("Shaders");
-    s_Impl->m_DebugCounter_FrameBufferBinds = DebugOverlay_CreateCounter("FB Binds/Frame");
+    s_Impl->m_DebugCounter_FrameBufferBinds = DebugOverlay_CreateCounter("Targets/Frame");
     s_Impl->m_DebugCounter_DrawCalls = DebugOverlay_CreateCounter("Draws/Frame");
     s_Impl->m_DebugCounter_Primitives = DebugOverlay_CreateCounter("Primitives/Frame");
 	

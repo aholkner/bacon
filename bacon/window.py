@@ -80,7 +80,7 @@ class Window(object):
         lib.SetWindowContentScale(content_scale)
         self._content_scale = content_scale
     content_scale = property(_get_content_scale, _set_content_scale, doc='''The scaling factor applied 
-        to the window framebuffer.  On Windows this is always 1.0.  On OS X with a retina display attached,
+        to the window.  On Windows this is always 1.0.  On OS X with a retina display attached,
         ``content_scale`` will default to 2.0.  
 
         Fonts and offscreen render targets are created at this content scale by default, to match the

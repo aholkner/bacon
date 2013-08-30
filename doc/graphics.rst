@@ -77,10 +77,10 @@ Just like the transform stack, the color stack allows you to save and restore th
 Rendering to an image
 =====================
 
-By default all rendering is done on framebuffer that is flipped to the main window when your ``on_tick`` method returns.  You can render to an image instead using :func:`set_frame_buffer`.  This is useful for compositing elements in a single layer for blending, and for certain
-special effects.  
+By default all rendering is done to the main window.  You can render to an image instead using :func:`push_target`.  This is useful for compositing elements in a single layer for blending, and for certain
+special effects.  Use :func:`pop_target` to resume rendering to the previous target (e.g. the window).
 
-.. literalinclude:: ../examples/render_to_image.py
+.. literalinclude:: ../examples/target.py
     :emphasize-lines: 25, 33
 
 Shaders
@@ -113,7 +113,7 @@ must be set per-shader.
 Blend modes
 ===========
 
-The current blend state dictates how new elements are composited into the frame buffer.  The default blend mode is suitable
+The current blend state dictates how new elements are composited into the target.  The default blend mode is suitable
 for compositing images and glyphs with premultiplied alpha; changing the blend mode with :func:`set_blending` can be used for special effects.  In the
 following example, the same text is rendered over itself in different colors with an additive blend; where the colors 
 intersect, the color adds to white:

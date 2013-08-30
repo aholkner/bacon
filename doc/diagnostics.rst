@@ -28,8 +28,8 @@ Textures
 	Total number of textures resident.  Textures are the GPU storage for images, and Bacon automatically packs multiple images into a single texture.
 Shaders
 	Total number of shaders resident.
-FB Binds/Frame
-	Number of times the active framebuffer (render target) was changed during the previous frame.  This can potentially be an expensive operation.
+Targets/Frame
+	Number of times the active target was changed during the previous frame.  This can potentially be an expensive operation.
 Draws/Frame
 	Number of draw calls submitted to the graphics driver during the previous frame.  Bacon automatically batches multiple primitives (e.g., images) into a smaller number of draw calls, but is forced to flush a
 	draw call when the render state changes (e.g., by changing blend modes, shader, or texture).

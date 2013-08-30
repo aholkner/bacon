@@ -104,23 +104,41 @@ if native._mock_native:
         pass
 else:
     clear = lib.Clear
-clear.__doc__ = '''Clear the current framebuffer to the given RGBA color.  Each color component must be in the range 0.0 to 1.0.
-You should clear the default frame buffer at the beginning of each frame.  Failure to do so may cause visual
+clear.__doc__ = '''Clear the current target to the given RGBA color.  Each color component must be in the range 0.0 to 1.0.
+You should clear the window at the beginning of each frame.  Failure to do so may cause visual
 artifacts and/or poor performance on some platforms.
 '''
 
-def set_frame_buffer(image):
-    '''Set the current frame buffer to the given image.  All subsequent drawing commands will be applied to the
-    given image instead of the default frame buffer.  To resume rendering to the main frame buffer (the window),
-    pass ``None`` as the image.
+_target_stack = [None]
 
-    The framebuffer is automatically reset to the default framebuffer at the beginning of each frame.
+def push_target(target):
+    '''Begin rendering to the given image or window.  All subsequent drawing will be to the given target. 
+    Use :func:`pop_target` to resume rendering to the previous target.
 
-    :param image: the :class:`Image` to render to
+    The target stack is automatically cleared and returned to the window at the beginning of each frame.
+
+    :param image: the :class:`Image` or :class:`Window` to render to
     ''' 
-    if image:
-        lib.SetFrameBuffer(image._handle, image._content_scale)
-    else:
+    _target_stack.append(target)
+    _set_target(target)
+
+def pop_target():
+    '''Remove the current target from the stack and resume rendering on the one that was active
+    before :func:`push_target` was called.
+    '''
+    _target_stack.pop()
+    _set_target(_target_stack[-1])
+
+def get_target():
+    '''Get the current target being rendered to.
+
+    :return: :class:`Image` or :class:`Window`'''
+    return _target_stack[-1] or bacon.window
+
+def _set_target(target):
+    try:
+        lib.SetFrameBuffer(target._handle, target._content_scale)
+    except AttributeError:
         lib.SetFrameBuffer(0, bacon.window._content_scale)
 
 if native._mock_native:
@@ -133,7 +151,7 @@ and the projection matrix, which is constructed from the viewport coordinates au
 
 Viewport coordinates are specified in pixel-space with (0, 0) at the upper-left corner.
 
-The viewport is reset to the framebuffer dimensions at the beginning of each frame, and when switching framebuffers.
+The viewport is reset to the window dimensions at the beginning of each frame, and when switching targets.
 '''
 
 def set_shader(shader):

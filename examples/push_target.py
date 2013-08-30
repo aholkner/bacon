@@ -16,21 +16,21 @@ class Game(bacon.Game):
     def on_tick(self):
         bacon.clear(0.3, 0.3, 0.3, 1)
 
-        # Here the scene is drawn directly to the framebuffer,
+        # Here the scene is drawn directly to the window,
         # and where the letters overlap there is double-blending.
         bacon.set_color(0.5, 0.5, 0.5, 0.5)
         self.draw_scene()
 
         # This time we render the scene to an image first
-        bacon.set_frame_buffer(offscreen)
+        bacon.push_target(offscreen)
         bacon.clear(0, 0, 0, 0)
         bacon.set_color(1, 1, 1, 1)
         self.draw_scene()
+        bacon.pop_target()
 
-        # Then render the offscreen image back to the framebuffer,
+        # Then render the offscreen image back to the windoww,
         # There is no double-blending this time because we precomposited
         # the image.
-        bacon.set_frame_buffer(None)
         bacon.set_color(0.5, 0.5, 0.5, 0.5)
         bacon.draw_image(offscreen, 0, 100)
 

@@ -15,7 +15,7 @@ Game events
 Before any frame tick events but after the graphics device is initialized, the game receives a 
 single call to :func:`Game.on_init`.  Overriding this is not usually necessary as most initialization
 can be done outside of the Game class.  However, the event exists for convenience or to initialize
-framebuffers.
+offscreen targets.
 
 .. note:: TODO on_init example
 
