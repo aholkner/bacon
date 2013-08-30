@@ -38,28 +38,9 @@ if not logger.handlers:
         logger.info('Writing log file at %s', os.path.abspath(log_file))
     except IOError:
         logger.warning('Unable to create log file at %s', log_file)
-
-
-# Native logging callback translates into Python logger calls
-
-_log_level_map = {
-    native.LogLevels.trace: logging.DEBUG,
-    native.LogLevels.info: logging.INFO,
-    native.LogLevels.warning: logging.WARNING,
-    native.LogLevels.error: logging.ERROR,
-    native.LogLevels.fatal: logging.FATAL,
-}
-
-def _log_callback(level, message):
-    try:
-        level = _log_level_map[level]
-    except KeyError:
-        level = logging.ERROR
-    logger.log(level, message.decode('utf-8'))
-
+    
 
 # Convert return codes into exceptions.
-
 class BaconError(Exception):
     def __init__(self, error_code):
         self.error_code = error_code
@@ -142,11 +123,24 @@ def _error_wrapper(fn):
             raise BaconError._from_error_code(result)
     return f
 
-
-# Initialize library now
-
 lib = native.load(function_wrapper = _error_wrapper)
 
+_log_level_map = {
+    native.LogLevels.trace: logging.DEBUG,
+    native.LogLevels.info: logging.INFO,
+    native.LogLevels.warning: logging.WARNING,
+    native.LogLevels.error: logging.ERROR,
+    native.LogLevels.fatal: logging.FATAL,
+}
+
+def _log_callback(level, message):
+    try:
+        level = _log_level_map[level]
+    except KeyError:
+        level = logging.ERROR
+    logger.log(level, message.decode('utf-8'))
+
+# Initialize library now
 if not native._mock_native:
     _log_callback_handle = lib.LogCallback(_log_callback)
     lib.SetLogCallback(_log_callback_handle)
@@ -162,7 +156,6 @@ if not native._mock_native:
     patch_version = patch_version.value     #: Patch version number of the Bacon dynamic library that was loaded, as an integer.
 else:
     major_version, minor_version, patch_version = (0, 1, 0)
-
 
 #: Version of the Bacon dynamic library that was loaded, in the form ``"major.minor.patch"``.
 version = '%d.%d.%d' % (major_version, minor_version, patch_version)

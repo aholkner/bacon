@@ -4,7 +4,6 @@ from bacon.core import lib
 from bacon import native
 from bacon import resource
 import bacon
-import bacon.core
 
 class Image(object):
     '''An image that can be passed to :func:`draw_image` and other rendering functions.
@@ -98,9 +97,6 @@ class Image(object):
         self._width = width
         self._height = height
         self._content_scale = content_scale
-
-    def __del__(self):
-        self.unload()
 
     def unload(self):
         '''Releases renderer resources associated with this image.'''
