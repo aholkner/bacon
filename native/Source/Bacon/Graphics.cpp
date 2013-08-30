@@ -2044,3 +2044,25 @@ int Bacon_Flush()
 	
 	return Bacon_Error_None;
 }
+
+int Bacon_DebugGetTextureAtlasImage(int* outImage, int atlasIndex)
+{
+    *outImage = 0;
+    for (TextureAtlas& atlas : s_Impl->m_TextureAtlases)
+    {
+        if (atlasIndex-- == 0)
+        {
+            *outImage = s_Impl->m_Images.Alloc();
+            Image* image = s_Impl->m_Images.Get(*outImage);
+            image->m_Bitmap = nullptr;
+            image->m_Atlas = 0;
+            image->m_Flags = 0;
+            image->m_Width = atlas.m_Width;
+            image->m_Height = atlas.m_Height;
+            image->m_UVScaleBias = UVScaleBias(1.f, 1.f, 0.f, 0.f);
+            image->m_Texture = atlas.m_Texture;
+            return Bacon_Error_None;
+        }
+    }
+    return Bacon_Error_InvalidArgument;
+}
