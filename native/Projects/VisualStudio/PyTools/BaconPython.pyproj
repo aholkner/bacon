@@ -159,6 +159,9 @@
     <Compile Include="..\..\..\..\examples\transform_rotate.py">
       <Link>examples\transform_rotate.py</Link>
     </Compile>
+    <Compile Include="..\..\..\..\examples\window_target.py">
+      <Link>examples\window_target.py</Link>
+    </Compile>
     <Compile Include="..\..\..\..\scripts\bin2cpp.py">
       <Link>scripts\bin2cpp.py</Link>
     </Compile>

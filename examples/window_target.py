@@ -1,6 +1,8 @@
 import bacon
 
 bacon.window.resizable = True
+bacon.window.width = 512
+bacon.window.height = 512
 bacon.window.target = bacon.Image(width=512, height=512, atlas=0)
 
 font = bacon.Font(None, 16)
