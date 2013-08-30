@@ -79,6 +79,9 @@ class _FontFile(object):
         else:
             self._handle = handle
 
+    def __del__(self):
+        self.unload()
+
     def unload(self):
         lib.UnloadFont(self._handle)
         self._handle = -1
