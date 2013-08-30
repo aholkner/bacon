@@ -50,7 +50,7 @@ namespace Bacon {
 			{
 				index = m_Free;
 				m_Free = m_Elements[index].m_NextFree;
-				m_Elements[index].m_NextFree = 0xffff;
+				m_Elements[index].m_NextFree = index;
 				new (&m_Elements[index].m_Value) T;
 				++m_Count;
 				return CreateHandle(index);
@@ -60,7 +60,7 @@ namespace Bacon {
 				return 0;
 			
 			index = (int)m_Elements.size();
-			m_Elements.push_back(Element(T(), 0, 0xffff));
+			m_Elements.push_back(Element(T(), 0, index));
 			new (&m_Elements[index].m_Value) T;
 			++m_Count;
 			return CreateHandle(index);
@@ -107,7 +107,7 @@ namespace Bacon {
 				do {
 					++m_Index;
 				} while (m_Index < m_Array.m_Elements.size() &&
-						 m_Array.m_Elements[m_Index].m_NextFree != 0xffff);
+						 m_Array.m_Elements[m_Index].m_NextFree != m_Index);
 				return *this;
 			}
 			
@@ -138,7 +138,7 @@ namespace Bacon {
 
 			T m_Value;
 			unsigned short m_Version;
-			unsigned short m_NextFree;		// 0xffff if occupied
+			unsigned short m_NextFree;		// own index if occupied
 		};
 		
 		std::vector<Element> m_Elements;
@@ -156,7 +156,7 @@ namespace Bacon {
 		{
 			int index = handle & 0xffff;
 			if (index >= (int)m_Elements.size() ||
-				m_Elements[index].m_NextFree != 0xffff ||
+				m_Elements[index].m_NextFree != index ||
 				m_Elements[index].m_Version != GetVersionFromHandle(handle))
 				return -1;
 			return index;

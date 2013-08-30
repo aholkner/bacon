@@ -339,6 +339,8 @@ extern "C" {
 	BACON_API int Bacon_GetImageRegion(int* outImage, int image, int x1, int y1, int x2, int y2);
 	BACON_API int Bacon_UnloadImage(int image);
 	BACON_API int Bacon_GetImageSize(int image, int* width, int* height);
+
+    BACON_API int Bacon_DebugGetTextureAtlasImage(int* outImage, int atlas);
 	
 	BACON_API int Bacon_PushTransform();
 	BACON_API int Bacon_PopTransform();
