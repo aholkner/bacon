@@ -1168,6 +1168,8 @@ static void ReleaseTextureAtlas(int textureAtlasHandle)
 
 int Bacon_UnloadImage(int handle)
 {
+	Bacon_Flush();
+	
 	Image* image = s_Impl->m_Images.Get(handle);
 	if (!image)
 		return Bacon_Error_InvalidHandle;
