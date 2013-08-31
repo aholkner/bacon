@@ -50,6 +50,9 @@ namespace {
 	const int TextureAtlasMinSize = 128;
 	const int TextureAtlasMaxSize = 2048;
 
+    const int MaxVertexCount = 4096;
+    const int MaxIndexCount = 8192;
+
 	enum Bacon_ImageFlags_Internal
 	{
 		// Image.m_Texture actually refers to another image.  Used for image regions of images
@@ -285,8 +288,8 @@ void Graphics_Init()
 	s_Impl->m_TextureAtlases.Reserve(32);
 	s_Impl->m_Textures.Reserve(256);
 	s_Impl->m_Shaders.Reserve(16);
-	s_Impl->m_Vertices.reserve(8096);
-	s_Impl->m_Indices.reserve(32768);
+	s_Impl->m_Vertices.reserve(MaxVertexCount);
+	s_Impl->m_Indices.reserve(MaxIndexCount);
 	s_Impl->m_IsInFrame = false;
 	s_Impl->m_CurrentZ = 0.f;
 	for (int i = 0; i < BACON_ARRAY_COUNT(s_Impl->m_CurrentTextureUnits); ++i)
@@ -364,10 +367,12 @@ void Graphics_InitGL()
 	// Vertex Buffer Object
 	glGenBuffers(1, &s_Impl->m_VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, s_Impl->m_VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MaxVertexCount, nullptr, GL_DYNAMIC_DRAW);
 	
 	// Index Buffer Object
 	glGenBuffers(1, &s_Impl->m_IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_Impl->m_IBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * MaxIndexCount, nullptr, GL_DYNAMIC_DRAW);
 	
 	// Vertex Array Object
     glEnableVertexAttribArray(BoundVertexAttribPosition);
@@ -1883,9 +1888,23 @@ inline int GetBlankImageHandle()
     return s_Impl->m_BlankImageAlternative;
 }
 
+inline void RequireVertices(size_t count)
+{
+    if (s_Impl->m_Vertices.size() + count >= MaxVertexCount)
+        Bacon_Flush();
+}
+
+inline void RequireIndices(size_t count)
+{
+    if (s_Impl->m_Indices.size() + count >= MaxIndexCount)
+        Bacon_Flush();
+}
+
 void Graphics_DrawQuad(float* positions, float* texCoords, float* colors, UVScaleBias const& uvScaleBias)
 {
 	SetCurrentMode(GL_TRIANGLES);
+    RequireVertices(4);
+    RequireIndices(6);
 	
 	mat4f const& transform = s_Impl->m_TransformStack.back();
 	vec4f const& color = s_Impl->m_ColorStack.back();
@@ -1948,6 +1967,8 @@ int Bacon_DrawLine(float x1, float y1, float x2, float y2)
 
     SetCurrentImage(image);
 	SetCurrentMode(GL_LINES);
+    RequireVertices(2);
+    RequireIndices(2);
 
 	float z = s_Impl->m_CurrentZ;
 	mat4f const& transform = s_Impl->m_TransformStack.back();
@@ -1985,6 +2006,9 @@ int Bacon_DrawRect(float x1, float y1, float x2, float y2)
 	
 	SetCurrentImage(image);
 	SetCurrentMode(GL_LINES);
+    RequireVertices(4);
+    RequireIndices(8);
+
 	mat4f const& transform = s_Impl->m_TransformStack.back();
 	vec4f const& color = s_Impl->m_ColorStack.back();
 	vector<Vertex>& vertices = s_Impl->m_Vertices;
@@ -2017,10 +2041,10 @@ int Bacon_Flush()
 	BindShaderTextureUnits();
 	
 	glBindBuffer(GL_ARRAY_BUFFER, s_Impl->m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * s_Impl->m_Vertices.size(), &s_Impl->m_Vertices[0], GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * s_Impl->m_Vertices.size(), &s_Impl->m_Vertices[0]);
 	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_Impl->m_IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * s_Impl->m_Indices.size(), &s_Impl->m_Indices[0], GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned short) * s_Impl->m_Indices.size(), &s_Impl->m_Indices[0]);
 	
 	glDrawElements(s_Impl->m_CurrentMode, (int)s_Impl->m_Indices.size(), GL_UNSIGNED_SHORT, 0);
 	
