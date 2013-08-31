@@ -50,6 +50,9 @@ namespace {
 	const int TextureAtlasMinSize = 128;
 	const int TextureAtlasMaxSize = 2048;
 
+    const int MaxVertexCount = 4096;
+    const int MaxIndexCount = 8192;
+
 	enum Bacon_ImageFlags_Internal
 	{
 		// Image.m_Texture actually refers to another image.  Used for image regions of images
@@ -285,8 +288,8 @@ void Graphics_Init()
 	s_Impl->m_TextureAtlases.Reserve(32);
 	s_Impl->m_Textures.Reserve(256);
 	s_Impl->m_Shaders.Reserve(16);
-	s_Impl->m_Vertices.reserve(8096);
-	s_Impl->m_Indices.reserve(32768);
+	s_Impl->m_Vertices.reserve(MaxVertexCount);
+	s_Impl->m_Indices.reserve(MaxIndexCount);
 	s_Impl->m_IsInFrame = false;
 	s_Impl->m_CurrentZ = 0.f;
 	for (int i = 0; i < BACON_ARRAY_COUNT(s_Impl->m_CurrentTextureUnits); ++i)
@@ -364,10 +367,12 @@ void Graphics_InitGL()
 	// Vertex Buffer Object
 	glGenBuffers(1, &s_Impl->m_VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, s_Impl->m_VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * MaxVertexCount, nullptr, GL_DYNAMIC_DRAW);
 	
 	// Index Buffer Object
 	glGenBuffers(1, &s_Impl->m_IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_Impl->m_IBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * MaxIndexCount, nullptr, GL_DYNAMIC_DRAW);
 	
 	// Vertex Array Object
     glEnableVertexAttribArray(BoundVertexAttribPosition);
@@ -1143,8 +1148,10 @@ static void ReleaseTexture(int textureHandle)
 			if (texture->m_FrameBuffer)
 				s_Impl->m_PendingDeleteFrameBuffers.push_back(texture->m_FrameBuffer);
 			
-			s_Impl->m_Textures.Free(textureHandle);
             DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Textures, -1);
+            DebugOverlay_AddCounter(s_Impl->m_DebugCounter_TextureMemory, -texture->m_Size);
+
+            s_Impl->m_Textures.Free(textureHandle);
 		}
 	}
 }
@@ -1264,7 +1271,7 @@ static void UpdateTexture(Texture* texture, FIBITMAP* bitmap)
 
     int size = texture->m_Width * texture->m_Height * 4;
     DebugOverlay_AddCounter(s_Impl->m_DebugCounter_TextureMemory, size - texture->m_Size);
-    texture->m_Size - size;
+    texture->m_Size = size;
 
 	if (ownsData)
 		free(data);
@@ -1275,6 +1282,7 @@ static Texture* CreateTexture(int* outTextureHandle, FIBITMAP* bitmap, int width
 {
 	*outTextureHandle = s_Impl->m_Textures.Alloc();
 	Texture* texture = s_Impl->m_Textures.Get(*outTextureHandle);
+    texture->m_RefCount = 1;
     texture->m_Flags = flags;
 	texture->m_Width = width;
 	texture->m_Height = height;
@@ -1416,6 +1424,7 @@ static void AddImageToTextureAtlas(Image* image, int hintSize)
 	++atlas->m_RefCount;
 	
 	image->m_Texture = atlas->m_Texture;
+    ++s_Impl->m_Textures.Get(image->m_Texture)->m_RefCount;
 }
 
 static void FillTextureAtlases(int group)
@@ -1476,6 +1485,7 @@ static Texture* RealizeTexture(Image* image)
 		image->m_UVScaleBias.m_ScaleY *= subScaleBias.m_ScaleY;
 		image->m_Texture = parent->m_Texture;
 		image->m_Flags &= ~Bacon_ImageFlags_Internal_TextureIsImage;
+        ++s_Impl->m_Textures.Get(image->m_Texture)->m_RefCount;
 	}
 	
 	Texture* texture = s_Impl->m_Textures.Get(image->m_Texture);
@@ -1878,9 +1888,23 @@ inline int GetBlankImageHandle()
     return s_Impl->m_BlankImageAlternative;
 }
 
+inline void RequireVertices(size_t count)
+{
+    if (s_Impl->m_Vertices.size() + count >= MaxVertexCount)
+        Bacon_Flush();
+}
+
+inline void RequireIndices(size_t count)
+{
+    if (s_Impl->m_Indices.size() + count >= MaxIndexCount)
+        Bacon_Flush();
+}
+
 void Graphics_DrawQuad(float* positions, float* texCoords, float* colors, UVScaleBias const& uvScaleBias)
 {
 	SetCurrentMode(GL_TRIANGLES);
+    RequireVertices(4);
+    RequireIndices(6);
 	
 	mat4f const& transform = s_Impl->m_TransformStack.back();
 	vec4f const& color = s_Impl->m_ColorStack.back();
@@ -1943,6 +1967,8 @@ int Bacon_DrawLine(float x1, float y1, float x2, float y2)
 
     SetCurrentImage(image);
 	SetCurrentMode(GL_LINES);
+    RequireVertices(2);
+    RequireIndices(2);
 
 	float z = s_Impl->m_CurrentZ;
 	mat4f const& transform = s_Impl->m_TransformStack.back();
@@ -1980,6 +2006,9 @@ int Bacon_DrawRect(float x1, float y1, float x2, float y2)
 	
 	SetCurrentImage(image);
 	SetCurrentMode(GL_LINES);
+    RequireVertices(4);
+    RequireIndices(8);
+
 	mat4f const& transform = s_Impl->m_TransformStack.back();
 	vec4f const& color = s_Impl->m_ColorStack.back();
 	vector<Vertex>& vertices = s_Impl->m_Vertices;
@@ -2012,10 +2041,10 @@ int Bacon_Flush()
 	BindShaderTextureUnits();
 	
 	glBindBuffer(GL_ARRAY_BUFFER, s_Impl->m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * s_Impl->m_Vertices.size(), &s_Impl->m_Vertices[0], GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * s_Impl->m_Vertices.size(), &s_Impl->m_Vertices[0]);
 	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_Impl->m_IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * s_Impl->m_Indices.size(), &s_Impl->m_Indices[0], GL_DYNAMIC_DRAW);
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned short) * s_Impl->m_Indices.size(), &s_Impl->m_Indices[0]);
 	
 	glDrawElements(s_Impl->m_CurrentMode, (int)s_Impl->m_Indices.size(), GL_UNSIGNED_SHORT, 0);
 	
@@ -2038,4 +2067,26 @@ int Bacon_Flush()
 	s_Impl->m_Vertices.clear();
 	
 	return Bacon_Error_None;
+}
+
+int Bacon_DebugGetTextureAtlasImage(int* outImage, int atlasIndex)
+{
+    *outImage = 0;
+    for (TextureAtlas& atlas : s_Impl->m_TextureAtlases)
+    {
+        if (atlasIndex-- == 0)
+        {
+            *outImage = s_Impl->m_Images.Alloc();
+            Image* image = s_Impl->m_Images.Get(*outImage);
+            image->m_Bitmap = nullptr;
+            image->m_Atlas = 0;
+            image->m_Flags = 0;
+            image->m_Width = atlas.m_Width;
+            image->m_Height = atlas.m_Height;
+            image->m_UVScaleBias = UVScaleBias(1.f, 1.f, 0.f, 0.f);
+            image->m_Texture = atlas.m_Texture;
+            return Bacon_Error_None;
+        }
+    }
+    return Bacon_Error_InvalidArgument;
 }

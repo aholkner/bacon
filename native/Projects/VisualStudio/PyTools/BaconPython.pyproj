@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{dc734cdf-a1f8-4065-bf96-26347a80cf4a}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>..\..\..\..\examples\image_sample_nearest.py</StartupFile>
+    <StartupFile>..\..\..\..\examples\bouncing_balls.py</StartupFile>
     <SearchPath>..\..\..\..\examples;..\..\..\..\;..\..\..\..\..\bacon;..\..\..\..\scripts</SearchPath>
     <WorkingDirectory>
     </WorkingDirectory>
@@ -135,14 +135,14 @@
     <Compile Include="..\..\..\..\examples\overflow.py">
       <Link>examples\overflow.py</Link>
     </Compile>
+    <Compile Include="..\..\..\..\examples\push_target.py">
+      <Link>examples\push_target.py</Link>
+    </Compile>
     <Compile Include="..\..\..\..\examples\quickstart.py">
       <Link>examples\quickstart.py</Link>
     </Compile>
     <Compile Include="..\..\..\..\examples\rect.py">
       <Link>examples\rect.py</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\examples\render_to_image.py">
-      <Link>examples\render_to_image.py</Link>
     </Compile>
     <Compile Include="..\..\..\..\examples\shader.py">
       <Link>examples\shader.py</Link>
@@ -158,6 +158,9 @@
     </Compile>
     <Compile Include="..\..\..\..\examples\transform_rotate.py">
       <Link>examples\transform_rotate.py</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\examples\window_target.py">
+      <Link>examples\window_target.py</Link>
     </Compile>
     <Compile Include="..\..\..\..\scripts\bin2cpp.py">
       <Link>scripts\bin2cpp.py</Link>

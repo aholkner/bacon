@@ -177,4 +177,20 @@ void DebugOverlay_Draw()
     float y = 30;
     for (size_t i = 0; i < s_Impl->m_Counters.size(); ++i)
         DrawCounter(s_Impl->m_Counters[i], x, y);
+
+    if (true)
+    {
+        int atlasImage;
+        int atlasIndex = 0;
+        while (Bacon_DebugGetTextureAtlasImage(&atlasImage, atlasIndex++) == Bacon_Error_None)
+        {
+            int atlasWidth, atlasHeight;
+            Bacon_GetImageSize(atlasImage, &atlasWidth, &atlasHeight);
+            Bacon_SetColor(0, 0, 0, 1);
+            Bacon_FillRect(x, y, x + atlasWidth, y + atlasHeight);
+            Bacon_SetColor(1, 1, 1, 1);
+            Bacon_DrawImage(atlasImage, x, y, x + atlasWidth, y + atlasHeight);
+            x += atlasWidth + 10;
+        }
+    }
 }

@@ -133,7 +133,8 @@ int Bacon_UnloadSound(int soundHandle)
 
     DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Sounds, -1);
 
-	ga_sound_release(sound->m_Sound);
+    if (sound->m_Sound)
+	    ga_sound_release(sound->m_Sound);
 	return Bacon_Error_None;
 }
 
