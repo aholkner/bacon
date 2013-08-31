@@ -147,32 +147,32 @@ static int GetKeyCode(NSEvent* e)
 
 // Mouse
 
-static void UpdateMousePosition(NSEvent* e)
+static void UpdateMousePosition(NSView* view, NSEvent* e)
 {
-	NSPoint p = e.locationInWindow;
-	Mouse_SetMousePosition(p.x, e.window.frame.size.height - p.y);
+	NSPoint p = [view convertPoint:e.locationInWindow fromView:nil];
+	Mouse_SetMousePosition(p.x, view.frame.size.height - p.y);
 }
 
 - (void)mouseDown:(NSEvent *)e
 {
-	UpdateMousePosition(e);
+	UpdateMousePosition(self, e);
 	Mouse_SetMouseButtonPressed((int)e.buttonNumber, true);
 }
 
 - (void)mouseUp:(NSEvent *)e
 {
-	UpdateMousePosition(e);
+	UpdateMousePosition(self, e);
 	Mouse_SetMouseButtonPressed((int)e.buttonNumber, false);
 }
 
 - (void)mouseDragged:(NSEvent *)e
 {
-	UpdateMousePosition(e);
+	UpdateMousePosition(self, e);
 }
 
 - (void)mouseMoved:(NSEvent *)e
 {
-	UpdateMousePosition(e);
+	UpdateMousePosition(self, e);
 }
 
 - (void)scrollWheel:(NSEvent *)e
