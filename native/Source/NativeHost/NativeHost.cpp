@@ -42,13 +42,13 @@ void Tick()
 		x += g_Glyphs[i].m_Advance;
 	}
 
-	Bacon_SetFrameBuffer(g_Buffer2);
+	Bacon_SetFrameBuffer(g_Buffer2, 1.f);
 	
     int kw, kh;
     Bacon_GetImageSize(g_Kitten, &kw, &kh);
     Bacon_DrawImage(g_Kitten, 50, 50, kw, kh);
 	
-	Bacon_SetFrameBuffer(0);
+	Bacon_SetFrameBuffer(0, 1.f);
 	Bacon_DrawImage(g_Buffer2, 0, 0, 256, 256);
 	
 	Bacon_SetBlending(Bacon_Blend_One, Bacon_Blend_One);
