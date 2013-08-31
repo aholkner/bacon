@@ -28,6 +28,11 @@ class Window(object):
         self._fullscreen = False
         self._target = None
 
+        # Current scale/bias to apply from window space to target space
+        self._target_offset_x = 0.0
+        self._target_offset_y = 0.0
+        self._target_scale = 0.0
+        
         if not native._mock_native:
             width = c_int()
             height = c_int()
@@ -121,12 +126,6 @@ def _begin_frame():
     if _window_frame_target:
         graphics.push_target(_window_frame_target)
 
-def _end_frame():
-    global _window_frame_target
-    if _window_frame_target:
-        graphics.pop_target()
-        graphics.clear(0, 0, 0, 1)
-        graphics.set_color(1, 1, 1, 1)
         target_aspect = _window_frame_target._width / _window_frame_target._height
         window_aspect = window._width / window._height
         if target_aspect > window_aspect:
@@ -135,7 +134,24 @@ def _end_frame():
         else:
             height = window._height
             width = height * target_aspect
-        x = int(window._width / 2 - width / 2)
-        y = int(window._height / 2 - height / 2)
-        graphics.draw_image(_window_frame_target, x, y, x + width, y + width)
+
+        window._target_scale = width / float(_window_frame_target._width)
+        window._target_offset_x = int(window._width / 2 - width / 2)
+        window._target_offset_y = int(window._height / 2 - height / 2)
+    else:
+        window._target_scale = 1.0
+        window._target_offset_x = window._target_offset_y = 0.0
+
+def _end_frame():
+    global _window_frame_target
+    if _window_frame_target:
+        graphics.pop_target()
+        graphics.clear(0, 0, 0, 1)
+        graphics.set_color(1, 1, 1, 1)
+
+        x = window._target_offset_x
+        y = window._target_offset_y
+        width = _window_frame_target._width * window._target_scale
+        height = _window_frame_target._height * window._target_scale
+        graphics.draw_image(_window_frame_target, x, y, x + width, y + height)
         _window_frame_target = None

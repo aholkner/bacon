@@ -23,8 +23,9 @@ class Mouse(object):
         x = c_float()
         y = c_float()
         lib.GetMousePosition(byref(x), byref(y))
-        self.x = x.value
-        self.y = y.value
+        window = bacon.window
+        self.x = int((x.value - window._target_offset_x) / window._target_scale)
+        self.y = int((y.value - window._target_offset_y) / window._target_scale)
 
     @property
     def left(self):
