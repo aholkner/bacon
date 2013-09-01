@@ -126,8 +126,8 @@ def _begin_frame():
     if _window_frame_target:
         graphics.push_target(_window_frame_target)
 
-        target_aspect = _window_frame_target._width / _window_frame_target._height
-        window_aspect = window._width / window._height
+        target_aspect = _window_frame_target._width / float(_window_frame_target._height)
+        window_aspect = window._width / float(window._height)
         if target_aspect > window_aspect:
             width = window._width
             height = width / target_aspect
