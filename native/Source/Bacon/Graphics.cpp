@@ -1111,10 +1111,10 @@ int Bacon_GetImageRegion(int* outImage, int imageHandle, int x1, int y1, int x2,
 		
 		// Parent texcoords are already valid, scale/bias by them
 		UVScaleBias const& sb = image->m_UVScaleBias;
-		region->m_UVScaleBias = UVScaleBias(sb.m_ScaleX * (float)(x2 - x1) / image->m_Width,
-											sb.m_ScaleY * (float)(y2 - y1) / image->m_Height,
-											sb.m_BiasX + x1 / (float) image->m_Width * sb.m_ScaleX,
-											1.f - (sb.m_BiasY + y2 / (float) image->m_Height * sb.m_ScaleY));
+		region->m_UVScaleBias = UVScaleBias((float)(x2 - x1) / texture->m_Width,
+											(float)(y2 - y1) / texture->m_Height,
+											sb.m_BiasX + x1 / (float)texture->m_Width,
+											sb.m_BiasY + (image->m_Height - y2) / (float)texture->m_Height);
 	}
 	else
 	{
