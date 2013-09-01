@@ -135,6 +135,8 @@ namespace {
 	
 	struct Image
 	{
+        int m_RefCount;
+
 		// In-memory copy of the image; i.e. loaded from disk or rendered by FreeType
 		// May be null, representing a possible render target
 		FIBITMAP* m_Bitmap;
@@ -1028,6 +1030,7 @@ int Bacon_CreateImage(int* outHandle, int width, int height, int flags)
 
 	*outHandle = s_Impl->m_Images.Alloc();
 	Image* image = s_Impl->m_Images.Get(*outHandle);
+    image->m_RefCount = 1;
 	image->m_Texture = 0;
 	image->m_Atlas = 0;
 	image->m_Bitmap = nullptr;
@@ -1072,6 +1075,7 @@ int Bacon_LoadImage(int* outHandle, const char* path, int flags)
 
 	*outHandle = s_Impl->m_Images.Alloc();
 	Image* image = s_Impl->m_Images.Get(*outHandle);
+    image->m_RefCount = 1;
 	image->m_Bitmap = bitmap;
 	image->m_Atlas = 0;
 	image->m_Texture = 0;
@@ -1096,6 +1100,7 @@ int Bacon_GetImageRegion(int* outImage, int imageHandle, int x1, int y1, int x2,
 
 	*outImage = s_Impl->m_Images.Alloc();
 	Image* region = s_Impl->m_Images.Get(*outImage);
+    region->m_RefCount = 1;
 	region->m_Bitmap = nullptr;
 	region->m_Atlas = 0;
 	region->m_Flags = image->m_Flags;
@@ -1120,6 +1125,7 @@ int Bacon_GetImageRegion(int* outImage, int imageHandle, int x1, int y1, int x2,
 	{
 		// Image doesn't have a texture yet, so point to the image and set flag to resolve
 		// as such.
+        ++image->m_RefCount;
 		region->m_Texture = imageHandle;
 		region->m_Flags |= Bacon_ImageFlags_Internal_TextureIsImage;
 		
@@ -1173,25 +1179,39 @@ static void ReleaseTextureAtlas(int textureAtlasHandle)
 	}
 }
 
+static void ReleaseImage(int imageHandle)
+{
+    Image* image = s_Impl->m_Images.Get(imageHandle);
+    if (image)
+    {
+        if (--image->m_RefCount == 0)
+        {
+            if (image->m_Bitmap)
+                FreeImage_Unload(image->m_Bitmap);
+
+            if (image->m_Flags & Bacon_ImageFlags_Internal_TextureIsImage)
+                ReleaseImage(image->m_Texture);
+            else
+                ReleaseTexture(image->m_Texture);
+
+            ReleaseTextureAtlas(image->m_Atlas);
+
+            s_Impl->m_Images.Free(imageHandle);
+
+            DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Images, -1);
+        }
+    }
+}
+
 int Bacon_UnloadImage(int handle)
 {
-	Bacon_Flush();
-	
-	Image* image = s_Impl->m_Images.Get(handle);
-	if (!image)
-		return Bacon_Error_InvalidHandle;
+    Image* image = s_Impl->m_Images.Get(handle);
+    if (!image)
+        return Bacon_Error_InvalidHandle;
 
-	if (image->m_Bitmap)
-		FreeImage_Unload(image->m_Bitmap);
-	
-	if (!(image->m_Flags & Bacon_ImageFlags_Internal_TextureIsImage))
-		ReleaseTexture(image->m_Texture);
-
-	ReleaseTextureAtlas(image->m_Atlas);
-	
-	s_Impl->m_Images.Free(handle);
-	
-    DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Images, -1);
+    if (image->m_RefCount == 1)
+        Bacon_Flush();
+    ReleaseImage(handle);
 
 	return Bacon_Error_None;
 }
@@ -2079,6 +2099,7 @@ int Bacon_DebugGetTextureAtlasImage(int* outImage, int atlasIndex)
         {
             *outImage = s_Impl->m_Images.Alloc();
             Image* image = s_Impl->m_Images.Get(*outImage);
+            image->m_RefCount = 1;
             image->m_Bitmap = nullptr;
             image->m_Atlas = 0;
             image->m_Flags = 0;
