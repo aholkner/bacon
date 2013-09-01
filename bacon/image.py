@@ -79,8 +79,8 @@ class Image(object):
                 width = width.value
                 height = height.value
 
-            width /= content_scale
-            height /= content_scale
+            width = int(width / content_scale)
+            height = int(height / content_scale)
 
         elif width and height and not handle:
             # Create empty image of given dimensions
@@ -134,4 +134,4 @@ class Image(object):
         '''
         handle = c_int()
         lib.GetImageRegion(byref(handle), self._handle, x1, y1, x2, y2)
-        return Image(width = x2 - x1, height = y2 - y1, content_scale = self._content_scale, _handle = handle)
+        return Image(width = x2 - x1, height = y2 - y1, content_scale = self._content_scale, handle = handle)

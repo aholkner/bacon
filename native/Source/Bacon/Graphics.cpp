@@ -1114,7 +1114,7 @@ int Bacon_GetImageRegion(int* outImage, int imageHandle, int x1, int y1, int x2,
 		region->m_UVScaleBias = UVScaleBias(sb.m_ScaleX * (float)(x2 - x1) / image->m_Width,
 											sb.m_ScaleY * (float)(y2 - y1) / image->m_Height,
 											sb.m_BiasX + x1 / (float) image->m_Width * sb.m_ScaleX,
-											sb.m_BiasY + y1 / (float) image->m_Height * sb.m_ScaleY);
+											1.f - (sb.m_BiasY + y2 / (float) image->m_Height * sb.m_ScaleY));
 	}
 	else
 	{
@@ -1126,8 +1126,8 @@ int Bacon_GetImageRegion(int* outImage, int imageHandle, int x1, int y1, int x2,
 		// Texcoords will get scale/bias'd by parent after parent is inserted into atlas (if applicable)
 		region->m_UVScaleBias = UVScaleBias((float)(x2 - x1) / image->m_Width,
 											(float)(y2 - y1) / image->m_Height,
-											x1 / (float) image->m_Width,
-											y1 / (float) image->m_Height);
+											x1,
+											image->m_Height - y2);
 	}
 	
     DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Images, 1);
@@ -1477,10 +1477,11 @@ static Texture* RealizeTexture(Image* image)
 		Image* parent = s_Impl->m_Images.Get(image->m_Texture);
 		assert(parent);
 		RealizeTexture(parent);
+        Texture* texture = s_Impl->m_Textures.Get(parent->m_Texture);
 		UVScaleBias subScaleBias = image->m_UVScaleBias;
 		image->m_UVScaleBias = parent->m_UVScaleBias;
-		image->m_UVScaleBias.m_BiasX += subScaleBias.m_BiasX * parent->m_UVScaleBias.m_ScaleX;
-		image->m_UVScaleBias.m_BiasY += subScaleBias.m_BiasY * parent->m_UVScaleBias.m_ScaleX;
+		image->m_UVScaleBias.m_BiasX += subScaleBias.m_BiasX / (float)texture->m_Width;
+		image->m_UVScaleBias.m_BiasY += subScaleBias.m_BiasY / (float)texture->m_Height;
 		image->m_UVScaleBias.m_ScaleX *= subScaleBias.m_ScaleX;
 		image->m_UVScaleBias.m_ScaleY *= subScaleBias.m_ScaleY;
 		image->m_Texture = parent->m_Texture;
