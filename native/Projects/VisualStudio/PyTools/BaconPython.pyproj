@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{dc734cdf-a1f8-4065-bf96-26347a80cf4a}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>..\..\..\..\examples\image_region2.py</StartupFile>
+    <StartupFile>..\..\..\..\examples\mouse_scroll_event.py</StartupFile>
     <SearchPath>..\..\..\..\examples;..\..\..\..\;..\..\..\..\..\bacon;..\..\..\..\scripts</SearchPath>
     <WorkingDirectory>
     </WorkingDirectory>

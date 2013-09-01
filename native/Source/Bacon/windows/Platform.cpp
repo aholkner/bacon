@@ -196,7 +196,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_MOUSEWHEEL:
         Mouse_SetMousePosition((float)LOWORD(lParam), (float)HIWORD(lParam));
-        Mouse_OnMouseScrolled(0.f, (float)HIWORD(wParam) / WHEEL_DELTA);
+        Mouse_OnMouseScrolled(0.f, (float)GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA);
         return 0;
 
     case WM_INPUT_DEVICE_CHANGE:
