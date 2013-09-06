@@ -277,11 +277,11 @@ class GlyphLayout(object):
             y += line.ascent
 
         # Layout lines
-        start_x = x
+        start_x = int(x)
         for line in self._lines:
             x = start_x
             if align == Alignment.center:
-                x -= line.content_width / 2
+                x -= int(line.content_width / 2)
             elif align == Alignment.right:
                 x -= line.content_width
 
