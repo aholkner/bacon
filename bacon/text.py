@@ -278,6 +278,7 @@ class GlyphLayout(object):
 
         # Layout lines
         start_x = int(x)
+        y = int(y)
         for line in self._lines:
             x = start_x
             if align == Alignment.center:
