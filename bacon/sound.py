@@ -151,7 +151,10 @@ class Voice(object):
 
     def _is_playing(self):
         playing = c_int()
-        lib.IsVoicePlaying(self._handle, byref(playing))
+        try:
+            lib.IsVoicePlaying(self._handle, byref(playing))
+        except bacon.InvalidHandleError:
+            return False
         return playing.value
     def _set_playing(self, playing):
         if playing:
