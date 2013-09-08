@@ -15,6 +15,6 @@ The following is an example ``.spec`` file that PyInstaller can use to build the
 
 To build run Pyinstaller with this spec file::
 
-	$ python /path/to/pyinstaller/PyInstaller.py bouncing_balls.spec --window
+	$ python /path/to/pyinstaller/PyInstaller.py bouncing_balls.spec --onefile
 
 The resulting file will be built in a new ``dist`` directory.
