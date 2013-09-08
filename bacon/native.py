@@ -362,7 +362,10 @@ class _DllPath(object):
         # In pkg_resources, we may need to extract DLLs into temporary directory
         # via resource_filename
         try:
-            from  pkg_resources import resource_filename
+            # Import without using import keyword, to avoid analysis tools
+            # picking up that we depend on pkg_resources
+            _pkg_resources = __import__('pkg_resources', globals(), locals(), [], -1)
+            resource_filename = _pkg_resources.resource_filename
             package = 'bacon.' + self.module
             dll_dir = os.path.dirname(resource_filename(package, self.files[0]))
             for file in self.files:
