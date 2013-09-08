@@ -2,22 +2,26 @@
 a = Analysis(['bouncing_balls.py'],
              pathex=['bouncing_balls'],
              hiddenimports=[],
-             hookspath=['../bacon'])
+             hookspath=None,
+             runtime_hooks=None)
 pyz = PYZ(a.pure)
 res_tree = Tree('res', prefix='res')
 exe = EXE(pyz,
           a.scripts,
-          exclude_binaries=True,
-          name='build/bouncing_balls.exe',
+          a.binaries,
+          a.zipfiles,
+          a.datas,
+          res_tree,
+          name='bouncing_balls.exe',
           debug=False,
           strip=None,
           upx=True,
-          console=False )
+          console=False)
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
                a.datas,
-               res_tree,
+               #res_tree,
                strip=None,
                upx=True,
                name='dist/bouncing_balls')
