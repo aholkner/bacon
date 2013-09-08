@@ -12,7 +12,7 @@
 
 #define BACON_VERSION_MAJOR 0
 #define BACON_VERSION_MINOR 2
-#define BACON_VERSION_PATCH 6
+#define BACON_VERSION_PATCH 7
 
 typedef void (*Bacon_LogCallback)(int level, const char* message);
 typedef void (*Bacon_TickCallback)();
