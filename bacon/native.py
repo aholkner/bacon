@@ -359,13 +359,6 @@ class _DllPath(object):
         self.files = files
 
     def get_dir(self):
-        # In frozen executable, assume DLLs are alongside executable
-        try:
-            if sys.frozen:
-                return os.path.dirname(sys.executable)
-        except AttributeError:
-            pass
-
         # In pkg_resources, we may need to extract DLLs into temporary directory
         # via resource_filename
         try:
@@ -373,12 +366,28 @@ class _DllPath(object):
             package = 'bacon.' + self.module
             dll_dir = os.path.dirname(resource_filename(package, self.files[0]))
             for file in self.files:
+                if not os.path.exists(os.path.join(dll_dir, file)):
+                    raise ImportError('pkg_resources returned incorrect directory')
                 if os.path.dirname(resource_filename(package, file)) != dll_dir:
                     raise ValueError('Supporting DLLs extracted to inconsistent directory')
             return dll_dir
         except ImportError:
             pass
+
+        # In PyInstaller --onefile mode, use sys._MEIPASS temporary
+        # directory to find local files
+        try:
+            return sys._MEIPASS
+        except AttributeError:
+            pass
         
+        # In frozen executable, assume DLLs are alongside executable
+        try:
+            if sys.frozen:
+                return os.path.dirname(sys.executable)
+        except AttributeError:
+            pass
+
         # In development installation, or if pkg_resources not available, DLLs
         # are in their directory    
         return os.path.join(os.path.dirname(__file__), self.module)
