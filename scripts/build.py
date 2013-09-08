@@ -49,8 +49,11 @@ def copy_dir_files(src, dest):
     except OSError:
         pass
     for file in os.listdir(src):
-        if not os.path.exists(os.path.join(dest, file)):
-            shutil.copy2(os.path.join(src, file), os.path.join(dest, file))
+        try:
+            os.unlink(os.path.join(dest, file)
+        except OSError:
+            pass
+        shutil.copy2(os.path.join(src, file), os.path.join(dest, file))
 
 def publish_build_dirs(version, commit, dirs):
     print('Copying local build dirs to dropbox...')
