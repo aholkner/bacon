@@ -50,7 +50,7 @@ def copy_dir_files(src, dest):
         pass
     for file in os.listdir(src):
         try:
-            os.unlink(os.path.join(dest, file)
+            os.unlink(os.path.join(dest, file))
         except OSError:
             pass
         shutil.copy2(os.path.join(src, file), os.path.join(dest, file))
