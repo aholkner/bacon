@@ -1,8 +1,13 @@
 #ifdef __APPLE__
-	#include <OpenGL/gl3.h>
-
-	#define GL_BGRA_EXT GL_BGRA
-	#define BACON_PLATFORM_OPENGL 1
+	#if TARGET_OS_IPHONE
+		#include <OpenGLES/ES2/gl.h>
+		#include <OpenGLES/ES2/glext.h>
+		#define BACON_PLATFORM_OPENGLES 1
+	#else
+		#include <OpenGL/gl3.h>
+		#define GL_BGRA_EXT GL_BGRA
+		#define BACON_PLATFORM_OPENGL 1
+	#endif
 #else
 	#define GL_GLEXT_PROTOTYPES
 	#include <GLES2/gl2.h>
@@ -330,10 +335,10 @@ void Graphics_Init()
 	ShBuiltInResources resources;
 	ShInitBuiltInResources(&resources);
 	resources.FragmentPrecisionHigh = 1;
-#if BACON_PLATFORM_OPENGL
-	ShShaderOutput output = SH_GLSL_OUTPUT;
-#elif WIN32
+#if BACON_PLATFORM_ANGLE
 	ShShaderOutput output = SH_HLSL9_OUTPUT;
+#else
+	ShShaderOutput output = SH_GLSL_OUTPUT;
 #endif
 	s_VertexCompiler = ShConstructCompiler(SH_VERTEX_SHADER, SH_GLES2_SPEC, output, &resources);
 	s_FragmentCompiler = ShConstructCompiler(SH_FRAGMENT_SHADER, SH_GLES2_SPEC, output, &resources);
@@ -345,11 +350,9 @@ void Graphics_Init()
 
 void Graphics_Shutdown()
 {
-#if BACON_PLATFORM_OPENGL
 	ShDestruct(s_VertexCompiler);
 	ShDestruct(s_FragmentCompiler);
 	ShFinalize();
-#endif
 	
 	FreeImage_DeInitialise();
 	delete s_Impl;
@@ -1227,7 +1230,7 @@ static void UpdateTexture(Texture* texture, FIBITMAP* bitmap)
 		data = FreeImage_GetBits(bitmap);
 		int pitch = FreeImage_GetPitch(bitmap);
 		int bpp = FreeImage_GetBPP(bitmap);
-#if !BACON_PLATFORM_ANGLE
+#if BACON_PLATFORM_OPENGL
         if (bpp == 24)
 		{
 			format = GL_BGR;
