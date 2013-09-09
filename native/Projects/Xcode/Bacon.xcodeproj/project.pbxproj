@@ -1671,6 +1671,7 @@
 		FAA0FDF317DDEA51009DCB93 /* AppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = FAA0FDF117DDEA51009DCB93 /* AppDelegate.h */; };
 		FAA0FDF617DDECD5009DCB93 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAA0FDF417DDECD5009DCB93 /* ViewController.mm */; };
 		FAA0FDF717DDECD5009DCB93 /* ViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = FAA0FDF517DDECD5009DCB93 /* ViewController.h */; };
+		FAA0FDFA17DDF0A5009DCB93 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDF917DDF0A5009DCB93 /* QuartzCore.framework */; };
 		FADE9ECA17ABEEEC008F54B5 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADE9EC917ABEEEC008F54B5 /* OpenGL.framework */; };
 		FADE9ECC17ABEEFC008F54B5 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADE9ECB17ABEEFC008F54B5 /* CoreVideo.framework */; };
 		FAE5DF0F17A4F224008013E5 /* tif_unix.c in Sources */ = {isa = PBXBuildFile; fileRef = FA2B621617A4ED7D00C96A83 /* tif_unix.c */; };
@@ -2876,6 +2877,7 @@
 		FAA0FDF417DDECD5009DCB93 /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
 		FAA0FDF517DDECD5009DCB93 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		FAA0FDF817DDED53009DCB93 /* View.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = View.h; sourceTree = "<group>"; };
+		FAA0FDF917DDF0A5009DCB93 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
 		FADE9EC917ABEEEC008F54B5 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		FADE9ECB17ABEEFC008F54B5 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		FAE5DF1C17A53D5F008013E5 /* NativeHost */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NativeHost; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3010,6 +3012,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAA0FDFA17DDF0A5009DCB93 /* QuartzCore.framework in Frameworks */,
 				FAA0FDEF17DDEA29009DCB93 /* Foundation.framework in Frameworks */,
 				FAA0FDED17DDE87F009DCB93 /* libobjc.dylib in Frameworks */,
 				FAA0FDEB17DDE86F009DCB93 /* UIKit.framework in Frameworks */,
@@ -3426,6 +3429,7 @@
 		FA2B5BB617A4B72C00C96A83 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FAA0FDF917DDF0A5009DCB93 /* QuartzCore.framework */,
 				FAA0FDEE17DDEA29009DCB93 /* Foundation.framework */,
 				FAA0FDEC17DDE87F009DCB93 /* libobjc.dylib */,
 				FAA0FDEA17DDE86F009DCB93 /* UIKit.framework */,

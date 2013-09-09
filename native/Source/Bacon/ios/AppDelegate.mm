@@ -20,7 +20,7 @@ UIViewController* g_ViewController;
     g_DeviceWindow.hidden = NO;
 	
 	UIScreen* screen = [UIScreen mainScreen];
-	g_View = [[UIView alloc] initWithFrame:screen.bounds];
+	g_View = [[View alloc] initWithFrame:screen.bounds];
 	g_View.autoresizesSubviews = NO;
 	
 	g_ViewController = [[ViewController alloc] init];
