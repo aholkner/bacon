@@ -1660,6 +1660,13 @@
 		FAA0FD8317DDE0CB009DCB93 /* libBacon-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FA4B17DDDC8D009DCB93 /* libBacon-iOS.a */; };
 		FAA0FD9017DDE3F7009DCB93 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FD8F17DDE3F7009DCB93 /* OpenGLES.framework */; };
 		FAA0FD9217DDE3FC009DCB93 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FD9117DDE3FC009DCB93 /* OpenAL.framework */; };
+		FAA0FDE417DDE6EE009DCB93 /* GameController.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAA0FDE017DDE6EE009DCB93 /* GameController.mm */; };
+		FAA0FDE517DDE6EE009DCB93 /* Platform.h in Headers */ = {isa = PBXBuildFile; fileRef = FAA0FDE117DDE6EE009DCB93 /* Platform.h */; };
+		FAA0FDE617DDE6EE009DCB93 /* Platform.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAA0FDE217DDE6EE009DCB93 /* Platform.mm */; };
+		FAA0FDE717DDE6EE009DCB93 /* View.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAA0FDE317DDE6EE009DCB93 /* View.mm */; };
+		FAA0FDE917DDE866009DCB93 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDE817DDE866009DCB93 /* CoreFoundation.framework */; };
+		FAA0FDEB17DDE86F009DCB93 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDEA17DDE86F009DCB93 /* UIKit.framework */; };
+		FAA0FDED17DDE87F009DCB93 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDEC17DDE87F009DCB93 /* libobjc.dylib */; };
 		FADE9ECA17ABEEEC008F54B5 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADE9EC917ABEEEC008F54B5 /* OpenGL.framework */; };
 		FADE9ECC17ABEEFC008F54B5 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADE9ECB17ABEEFC008F54B5 /* CoreVideo.framework */; };
 		FAE5DF0F17A4F224008013E5 /* tif_unix.c in Sources */ = {isa = PBXBuildFile; fileRef = FA2B621617A4ED7D00C96A83 /* tif_unix.c */; };
@@ -2852,6 +2859,13 @@
 		FAA0FD8F17DDE3F7009DCB93 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/OpenGLES.framework; sourceTree = DEVELOPER_DIR; };
 		FAA0FD9117DDE3FC009DCB93 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/OpenAL.framework; sourceTree = DEVELOPER_DIR; };
 		FAA0FDDE17DDE62C009DCB93 /* NativeHost-iOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "NativeHost-iOS-Info.plist"; sourceTree = "<group>"; };
+		FAA0FDE017DDE6EE009DCB93 /* GameController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GameController.mm; sourceTree = "<group>"; };
+		FAA0FDE117DDE6EE009DCB93 /* Platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Platform.h; sourceTree = "<group>"; };
+		FAA0FDE217DDE6EE009DCB93 /* Platform.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Platform.mm; sourceTree = "<group>"; };
+		FAA0FDE317DDE6EE009DCB93 /* View.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = View.mm; sourceTree = "<group>"; };
+		FAA0FDE817DDE866009DCB93 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/CoreFoundation.framework; sourceTree = DEVELOPER_DIR; };
+		FAA0FDEA17DDE86F009DCB93 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		FAA0FDEC17DDE87F009DCB93 /* libobjc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/usr/lib/libobjc.dylib; sourceTree = DEVELOPER_DIR; };
 		FADE9EC917ABEEEC008F54B5 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		FADE9ECB17ABEEFC008F54B5 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		FAE5DF1C17A53D5F008013E5 /* NativeHost */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NativeHost; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2986,6 +3000,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAA0FDED17DDE87F009DCB93 /* libobjc.dylib in Frameworks */,
+				FAA0FDEB17DDE86F009DCB93 /* UIKit.framework in Frameworks */,
+				FAA0FDE917DDE866009DCB93 /* CoreFoundation.framework in Frameworks */,
 				FAA0FD9217DDE3FC009DCB93 /* OpenAL.framework in Frameworks */,
 				FAA0FD9017DDE3F7009DCB93 /* OpenGLES.framework in Frameworks */,
 				FAA0FD8317DDE0CB009DCB93 /* libBacon-iOS.a in Frameworks */,
@@ -3323,6 +3340,7 @@
 			isa = PBXGroup;
 			children = (
 				FA712E9817CE1C4E008024F9 /* Resources */,
+				FAA0FDDF17DDE6EE009DCB93 /* ios */,
 				FA1E171017ADE47800CFDFC8 /* osx */,
 				FA1E170717ADE47800CFDFC8 /* Audio.cpp */,
 				FA1E170817ADE47800CFDFC8 /* Bacon.cpp */,
@@ -3398,6 +3416,9 @@
 		FA2B5BB617A4B72C00C96A83 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FAA0FDEC17DDE87F009DCB93 /* libobjc.dylib */,
+				FAA0FDEA17DDE86F009DCB93 /* UIKit.framework */,
+				FAA0FDE817DDE866009DCB93 /* CoreFoundation.framework */,
 				FAA0FD9117DDE3FC009DCB93 /* OpenAL.framework */,
 				FAA0FD8F17DDE3F7009DCB93 /* OpenGLES.framework */,
 				FA7B5FBC17AC6FDF00A32A68 /* IOKit.framework */,
@@ -4890,6 +4911,17 @@
 			path = Angle/src/third_party/compiler;
 			sourceTree = "<group>";
 		};
+		FAA0FDDF17DDE6EE009DCB93 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				FAA0FDE017DDE6EE009DCB93 /* GameController.mm */,
+				FAA0FDE117DDE6EE009DCB93 /* Platform.h */,
+				FAA0FDE217DDE6EE009DCB93 /* Platform.mm */,
+				FAA0FDE317DDE6EE009DCB93 /* View.mm */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
 		FAE5DF2817A6951E008013E5 /* vmmlib */ = {
 			isa = PBXGroup;
 			children = (
@@ -5459,6 +5491,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FAA0FA4217DDDC8C009DCB93 /* SourceCodePro_otf.h in Headers */,
+				FAA0FDE517DDE6EE009DCB93 /* Platform.h in Headers */,
 				FAA0FA4317DDDC8C009DCB93 /* Bacon-Prefix.pch in Headers */,
 				FAA0FA4417DDDC8C009DCB93 /* HandleArray.h in Headers */,
 				FAA0FA4517DDDC8C009DCB93 /* Platform.h in Headers */,
@@ -6657,9 +6690,12 @@
 				FAA0FA2B17DDDC8C009DCB93 /* MaxRectsAllocator.cpp in Sources */,
 				FAA0FA2C17DDDC8C009DCB93 /* DebugOverlay.cpp in Sources */,
 				FAA0FA2E17DDDC8C009DCB93 /* Keyboard.cpp in Sources */,
+				FAA0FDE617DDE6EE009DCB93 /* Platform.mm in Sources */,
 				FAA0FA2F17DDDC8C009DCB93 /* Audio.cpp in Sources */,
 				FAA0FA3017DDDC8C009DCB93 /* SourceCodePro_otf.cpp in Sources */,
 				FAA0FA3117DDDC8C009DCB93 /* Fonts.cpp in Sources */,
+				FAA0FDE717DDE6EE009DCB93 /* View.mm in Sources */,
+				FAA0FDE417DDE6EE009DCB93 /* GameController.mm in Sources */,
 				FAA0FA3217DDDC8C009DCB93 /* Mouse.cpp in Sources */,
 				FAA0FA3317DDDC8C009DCB93 /* Graphics.cpp in Sources */,
 				FAA0FA3517DDDC8C009DCB93 /* Bacon.cpp in Sources */,
