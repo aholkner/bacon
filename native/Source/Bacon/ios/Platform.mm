@@ -1,6 +1,7 @@
 #include "../Bacon.h"
 #include "../BaconInternal.h"
 #include "Platform.h"
+#include "AppDelegate.h"
 
 #include <mach/mach.h>
 #include <mach/mach_time.h>
@@ -29,8 +30,13 @@ void Platform_GetPerformanceTime(float& time)
 
 int Platform_Run()
 {
-
-	return 0;
+	NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
+	[AppDelegate staticInit];
+	
+	char* argv = (char*)"bacon";
+	int retVal = UIApplicationMain(1, &argv, nil, @"AppDelegate");
+	[pool release];
+	return retVal;
 }
 
 void Platform_Stop()

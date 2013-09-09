@@ -1664,9 +1664,13 @@
 		FAA0FDE517DDE6EE009DCB93 /* Platform.h in Headers */ = {isa = PBXBuildFile; fileRef = FAA0FDE117DDE6EE009DCB93 /* Platform.h */; };
 		FAA0FDE617DDE6EE009DCB93 /* Platform.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAA0FDE217DDE6EE009DCB93 /* Platform.mm */; };
 		FAA0FDE717DDE6EE009DCB93 /* View.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAA0FDE317DDE6EE009DCB93 /* View.mm */; };
-		FAA0FDE917DDE866009DCB93 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDE817DDE866009DCB93 /* CoreFoundation.framework */; };
 		FAA0FDEB17DDE86F009DCB93 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDEA17DDE86F009DCB93 /* UIKit.framework */; };
 		FAA0FDED17DDE87F009DCB93 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDEC17DDE87F009DCB93 /* libobjc.dylib */; };
+		FAA0FDEF17DDEA29009DCB93 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDEE17DDEA29009DCB93 /* Foundation.framework */; };
+		FAA0FDF217DDEA51009DCB93 /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAA0FDF017DDEA51009DCB93 /* AppDelegate.mm */; };
+		FAA0FDF317DDEA51009DCB93 /* AppDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = FAA0FDF117DDEA51009DCB93 /* AppDelegate.h */; };
+		FAA0FDF617DDECD5009DCB93 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAA0FDF417DDECD5009DCB93 /* ViewController.mm */; };
+		FAA0FDF717DDECD5009DCB93 /* ViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = FAA0FDF517DDECD5009DCB93 /* ViewController.h */; };
 		FADE9ECA17ABEEEC008F54B5 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADE9EC917ABEEEC008F54B5 /* OpenGL.framework */; };
 		FADE9ECC17ABEEFC008F54B5 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADE9ECB17ABEEFC008F54B5 /* CoreVideo.framework */; };
 		FAE5DF0F17A4F224008013E5 /* tif_unix.c in Sources */ = {isa = PBXBuildFile; fileRef = FA2B621617A4ED7D00C96A83 /* tif_unix.c */; };
@@ -2866,6 +2870,12 @@
 		FAA0FDE817DDE866009DCB93 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/CoreFoundation.framework; sourceTree = DEVELOPER_DIR; };
 		FAA0FDEA17DDE86F009DCB93 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		FAA0FDEC17DDE87F009DCB93 /* libobjc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libobjc.dylib; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/usr/lib/libobjc.dylib; sourceTree = DEVELOPER_DIR; };
+		FAA0FDEE17DDEA29009DCB93 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		FAA0FDF017DDEA51009DCB93 /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
+		FAA0FDF117DDEA51009DCB93 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		FAA0FDF417DDECD5009DCB93 /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
+		FAA0FDF517DDECD5009DCB93 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		FAA0FDF817DDED53009DCB93 /* View.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = View.h; sourceTree = "<group>"; };
 		FADE9EC917ABEEEC008F54B5 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		FADE9ECB17ABEEFC008F54B5 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		FAE5DF1C17A53D5F008013E5 /* NativeHost */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NativeHost; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3000,9 +3010,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAA0FDEF17DDEA29009DCB93 /* Foundation.framework in Frameworks */,
 				FAA0FDED17DDE87F009DCB93 /* libobjc.dylib in Frameworks */,
 				FAA0FDEB17DDE86F009DCB93 /* UIKit.framework in Frameworks */,
-				FAA0FDE917DDE866009DCB93 /* CoreFoundation.framework in Frameworks */,
 				FAA0FD9217DDE3FC009DCB93 /* OpenAL.framework in Frameworks */,
 				FAA0FD9017DDE3F7009DCB93 /* OpenGLES.framework in Frameworks */,
 				FAA0FD8317DDE0CB009DCB93 /* libBacon-iOS.a in Frameworks */,
@@ -3416,6 +3426,7 @@
 		FA2B5BB617A4B72C00C96A83 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FAA0FDEE17DDEA29009DCB93 /* Foundation.framework */,
 				FAA0FDEC17DDE87F009DCB93 /* libobjc.dylib */,
 				FAA0FDEA17DDE86F009DCB93 /* UIKit.framework */,
 				FAA0FDE817DDE866009DCB93 /* CoreFoundation.framework */,
@@ -4914,10 +4925,15 @@
 		FAA0FDDF17DDE6EE009DCB93 /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				FAA0FDF017DDEA51009DCB93 /* AppDelegate.mm */,
+				FAA0FDF117DDEA51009DCB93 /* AppDelegate.h */,
 				FAA0FDE017DDE6EE009DCB93 /* GameController.mm */,
 				FAA0FDE117DDE6EE009DCB93 /* Platform.h */,
 				FAA0FDE217DDE6EE009DCB93 /* Platform.mm */,
 				FAA0FDE317DDE6EE009DCB93 /* View.mm */,
+				FAA0FDF817DDED53009DCB93 /* View.h */,
+				FAA0FDF417DDECD5009DCB93 /* ViewController.mm */,
+				FAA0FDF517DDECD5009DCB93 /* ViewController.h */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -5495,8 +5511,10 @@
 				FAA0FA4317DDDC8C009DCB93 /* Bacon-Prefix.pch in Headers */,
 				FAA0FA4417DDDC8C009DCB93 /* HandleArray.h in Headers */,
 				FAA0FA4517DDDC8C009DCB93 /* Platform.h in Headers */,
+				FAA0FDF717DDECD5009DCB93 /* ViewController.h in Headers */,
 				FAA0FA4617DDDC8C009DCB93 /* Bacon.h in Headers */,
 				FAA0FA4717DDDC8C009DCB93 /* BaconInternal.h in Headers */,
+				FAA0FDF317DDEA51009DCB93 /* AppDelegate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6688,6 +6706,7 @@
 			files = (
 				FAA0FA2917DDDC8C009DCB93 /* Window.cpp in Sources */,
 				FAA0FA2B17DDDC8C009DCB93 /* MaxRectsAllocator.cpp in Sources */,
+				FAA0FDF617DDECD5009DCB93 /* ViewController.mm in Sources */,
 				FAA0FA2C17DDDC8C009DCB93 /* DebugOverlay.cpp in Sources */,
 				FAA0FA2E17DDDC8C009DCB93 /* Keyboard.cpp in Sources */,
 				FAA0FDE617DDE6EE009DCB93 /* Platform.mm in Sources */,
@@ -6696,6 +6715,7 @@
 				FAA0FA3117DDDC8C009DCB93 /* Fonts.cpp in Sources */,
 				FAA0FDE717DDE6EE009DCB93 /* View.mm in Sources */,
 				FAA0FDE417DDE6EE009DCB93 /* GameController.mm in Sources */,
+				FAA0FDF217DDEA51009DCB93 /* AppDelegate.mm in Sources */,
 				FAA0FA3217DDDC8C009DCB93 /* Mouse.cpp in Sources */,
 				FAA0FA3317DDDC8C009DCB93 /* Graphics.cpp in Sources */,
 				FAA0FA3517DDDC8C009DCB93 /* Bacon.cpp in Sources */,
@@ -7427,6 +7447,7 @@
 		FAA0FA2417DDDBE6009DCB93 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -7444,6 +7465,7 @@
 		FAA0FA2517DDDBE6009DCB93 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				HEADER_SEARCH_PATHS = ../../Source;
 				INFOPLIST_FILE = "NativeHost-iOS-Info.plist";
@@ -7505,6 +7527,7 @@
 		FAA0FAD817DDDE3E009DCB93 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -7525,6 +7548,7 @@
 		FAA0FAD917DDDE3E009DCB93 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = (
@@ -7541,6 +7565,7 @@
 		FAA0FBFA17DDDE55009DCB93 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -7563,6 +7588,7 @@
 		FAA0FBFB17DDDE55009DCB93 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				EXECUTABLE_PREFIX = lib;
 				HEADER_SEARCH_PATHS = "";
@@ -7577,6 +7603,7 @@
 		FAA0FD1F17DDDE5E009DCB93 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -7595,6 +7622,7 @@
 		FAA0FD2017DDDE5E009DCB93 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = FT2_BUILD_LIBRARY;
@@ -7609,6 +7637,7 @@
 		FAA0FD7C17DDDE67009DCB93 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -7640,6 +7669,7 @@
 		FAA0FD7D17DDDE67009DCB93 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = ENABLE_OPENAL;

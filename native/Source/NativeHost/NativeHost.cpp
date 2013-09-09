@@ -117,10 +117,10 @@ int main(int argc, const char * argv[])
 	assert(!error);
 	
 	int voice;
-	error = Bacon_CreateVoice(&voice, sound, Bacon_VoiceFlags_Loop);
-	assert(!error);
+//	error = Bacon_CreateVoice(&voice, sound, Bacon_VoiceFlags_Loop);
+//	assert(!error);
 	//error = Bacon_PlayVoice(voice);
-	assert(!error);
+//	assert(!error);
 
 	//error = Bacon_LoadFont(&g_Font, "res/DejaVuSans.ttf");
     error = Bacon_GetDefaultFont(&g_Font);
