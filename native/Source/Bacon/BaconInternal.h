@@ -27,7 +27,7 @@ void Fonts_Shutdown();
 struct FIBITMAP;
 void Graphics_Init();
 void Graphics_Shutdown();
-void Graphics_InitGL();
+void Graphics_InitGL(unsigned int defaultFramebuffer = 0);
 void Graphics_ShutdownGL();
 void Graphics_BeginFrame(int width, int height);
 void Graphics_EndFrame();

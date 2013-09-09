@@ -6,6 +6,12 @@
 #include <mach/mach.h>
 #include <mach/mach_time.h>
 
+
+UIWindow* g_DeviceWindow;
+UIView* g_View;
+UIViewController* g_ViewController;
+CADisplayLink* g_DisplayLink;
+
 static uint64_t s_PerformanceStartTime;
 static float s_PerformanceTimebase;
 

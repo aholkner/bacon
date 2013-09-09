@@ -3,10 +3,6 @@
 #include "ViewController.h"
 #include "View.h"
 
-UIWindow* g_DeviceWindow;
-UIView* g_View;
-UIViewController* g_ViewController;
-
 @implementation AppDelegate
 
 +(void)staticInit

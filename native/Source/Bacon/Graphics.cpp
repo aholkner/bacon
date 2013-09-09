@@ -232,6 +232,7 @@ namespace {
 		
 		int m_FrameBufferWidth;
 		int m_FrameBufferHeight;
+		GLuint m_DefaultFrameBuffer;
 		
 		HandleArray<Shader> m_Shaders;
 		int m_DefaultShader;
@@ -358,7 +359,7 @@ void Graphics_Shutdown()
 	delete s_Impl;
 }
 
-void Graphics_InitGL()
+void Graphics_InitGL(GLuint defaultFramebuffer)
 {
     Bacon_Log(Bacon_LogLevel_Info, "GL_VENDOR: %s", glGetString(GL_VENDOR));
     Bacon_Log(Bacon_LogLevel_Info, "GL_RENDERER: %s", glGetString(GL_RENDERER));
@@ -1560,7 +1561,7 @@ static int BindFrameBuffer(int imageHandle, float contentScale)
 	if (!imageHandle)
 	{
         s_Impl->m_CurrentFrameBufferTexture = 0;
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, s_Impl->m_DefaultFrameBuffer);
 		Bacon_SetViewport(0, 0, s_Impl->m_FrameBufferWidth, s_Impl->m_FrameBufferHeight, contentScale);
 
         DebugOverlay_AddCounter(s_Impl->m_DebugCounter_FrameBufferBinds, 1);
