@@ -21,6 +21,7 @@ int Bacon_Init()
 	Window_Init();
 	Keyboard_Init();
 	Mouse_Init();
+	Touch_Init();
 	Graphics_Init();
 	Fonts_Init();
 	Audio_Init();
@@ -41,6 +42,7 @@ int Bacon_Shutdown()
 	Audio_Shutdown();
 	Fonts_Shutdown();
 	Graphics_Shutdown();
+	Touch_Shutdown();
 	Mouse_Shutdown();
 	Keyboard_Shutdown();
 	Window_Shutdown();

@@ -20,6 +20,7 @@ typedef void (*Bacon_WindowResizeEventHandler)(int width, int height);
 typedef void (*Bacon_KeyEventHandler)(int key, int pressed);
 typedef void (*Bacon_MouseButtonEventHandler)(int button, int pressed);
 typedef void (*Bacon_MouseScrollEventHandler)(float dx, float dy);
+typedef void (*Bacon_TouchEventHandler)(int touch, int pressed, float x, float y);
 typedef void (*Bacon_ControllerConnectedEventHandler)(int controller, int connected);
 typedef void (*Bacon_ControllerButtonEventHandler)(int controller, int button, int pressed);
 typedef void (*Bacon_ControllerAxisEventHandler)(int controller, int axis, float value);
@@ -53,6 +54,14 @@ enum Bacon_LogLevel
     Bacon_LogLevel_Error,
     Bacon_LogLevel_Fatal,
     Bacon_LogLevel_Disable
+};
+
+enum Bacon_Touch_States
+{
+	Bacon_Touch_State_None,
+	Bacon_Touch_State_Pressed,
+	Bacon_Touch_State_Released,
+	Bacon_Touch_State_Cancelled,
 };
 
 enum Bacon_Controller_Buttons
@@ -392,6 +401,10 @@ extern "C" {
 	BACON_API int Bacon_SetControllerAxisEventHandler(Bacon_ControllerAxisEventHandler handler);
 	BACON_API int Bacon_GetControllerPropertyInt(int controller, int property, int* outValue);
 	BACON_API int Bacon_GetControllerPropertyString(int controller, int property, char* outBuffer, int* inOutBufferSize);
+	
+	// Touch
+	BACON_API int Bacon_SetTouchEventHandler(Bacon_TouchEventHandler handler);
+	BACON_API int Bacon_GetTouchState(int touch, int* outState, float* outX, float* outY);
 	
 	// Audio
 	BACON_API int Bacon_LoadSound(int* outHandle, const char* path, int flags);

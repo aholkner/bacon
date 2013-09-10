@@ -45,6 +45,10 @@ void Mouse_SetMousePosition(float x, float y);
 void Mouse_SetMouseButtonPressed(int button, bool value);
 void Mouse_OnMouseScrolled(float dx, float dy);
 
+void Touch_Init();
+void Touch_Shutdown();
+void Touch_SetTouchState(int touch, int state, float x, float y);
+
 void Platform_Init();
 void Platform_Shutdown();
 int Platform_Run();

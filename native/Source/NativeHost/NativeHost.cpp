@@ -27,19 +27,24 @@ void Tick()
 	Bacon_SetColor(1, 1, 1, 1);
 	
 	float x = 10.f, y = 82.f;
-	for (int i = 0; i < s_NumGlyphs; ++i)
+	int touchPressed;
+	Bacon_GetTouchState(0, &touchPressed, &x, &y);
+	if (touchPressed)
 	{
-		if (!g_Glyphs[i].m_Image)
-			break;
-		
-		int w, h;
-		Bacon_GetImageSize(g_Glyphs[i].m_Image, &w, &h);
-		Bacon_DrawImage(g_Glyphs[i].m_Image,
-						x + g_Glyphs[i].m_OffsetX,
-						y - g_Glyphs[i].m_OffsetY,
-						x + g_Glyphs[i].m_OffsetX + w,
-						y - g_Glyphs[i].m_OffsetY + h);
-		x += g_Glyphs[i].m_Advance;
+		for (int i = 0; i < s_NumGlyphs; ++i)
+		{
+			if (!g_Glyphs[i].m_Image)
+				break;
+			
+			int w, h;
+			Bacon_GetImageSize(g_Glyphs[i].m_Image, &w, &h);
+			Bacon_DrawImage(g_Glyphs[i].m_Image,
+							x + g_Glyphs[i].m_OffsetX,
+							y - g_Glyphs[i].m_OffsetY,
+							x + g_Glyphs[i].m_OffsetX + w,
+							y - g_Glyphs[i].m_OffsetY + h);
+			x += g_Glyphs[i].m_Advance;
+		}
 	}
 
 	Bacon_SetFrameBuffer(g_Buffer2, 1.f);

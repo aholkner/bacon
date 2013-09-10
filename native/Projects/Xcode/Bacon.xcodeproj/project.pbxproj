@@ -1672,6 +1672,9 @@
 		FAA0FDF617DDECD5009DCB93 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAA0FDF417DDECD5009DCB93 /* ViewController.mm */; };
 		FAA0FDF717DDECD5009DCB93 /* ViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = FAA0FDF517DDECD5009DCB93 /* ViewController.h */; };
 		FAA0FDFA17DDF0A5009DCB93 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDF917DDF0A5009DCB93 /* QuartzCore.framework */; };
+		FAA0FDFD17DECB73009DCB93 /* Touch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAA0FDFB17DECB73009DCB93 /* Touch.cpp */; };
+		FAA0FDFE17DECB73009DCB93 /* Touch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAA0FDFB17DECB73009DCB93 /* Touch.cpp */; };
+		FAA0FDFF17DECB73009DCB93 /* Touch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAA0FDFB17DECB73009DCB93 /* Touch.cpp */; };
 		FADE9ECA17ABEEEC008F54B5 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADE9EC917ABEEEC008F54B5 /* OpenGL.framework */; };
 		FADE9ECC17ABEEFC008F54B5 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FADE9ECB17ABEEFC008F54B5 /* CoreVideo.framework */; };
 		FAE5DF0F17A4F224008013E5 /* tif_unix.c in Sources */ = {isa = PBXBuildFile; fileRef = FA2B621617A4ED7D00C96A83 /* tif_unix.c */; };
@@ -2878,6 +2881,7 @@
 		FAA0FDF517DDECD5009DCB93 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		FAA0FDF817DDED53009DCB93 /* View.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = View.h; sourceTree = "<group>"; };
 		FAA0FDF917DDF0A5009DCB93 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
+		FAA0FDFB17DECB73009DCB93 /* Touch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Touch.cpp; sourceTree = "<group>"; };
 		FADE9EC917ABEEEC008F54B5 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		FADE9ECB17ABEEFC008F54B5 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		FAE5DF1C17A53D5F008013E5 /* NativeHost */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NativeHost; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3369,6 +3373,7 @@
 				FA940F6417C4EA5D00B5FF13 /* MaxRectsAllocator.h */,
 				FA940F6517C4EAA000B5FF13 /* MaxRectsAllocator.cpp */,
 				FA940F6817C596A700B5FF13 /* DebugOverlay.cpp */,
+				FAA0FDFB17DECB73009DCB93 /* Touch.cpp */,
 			);
 			path = Bacon;
 			sourceTree = "<group>";
@@ -6305,6 +6310,7 @@
 				FA1E172817ADE47900CFDFC8 /* Window.cpp in Sources */,
 				FA1E172617ADE47900CFDFC8 /* View.mm in Sources */,
 				FA940F6717C4EAA500B5FF13 /* MaxRectsAllocator.cpp in Sources */,
+				FAA0FDFD17DECB73009DCB93 /* Touch.cpp in Sources */,
 				FA940F6A17C596A700B5FF13 /* DebugOverlay.cpp in Sources */,
 				FA1E172517ADE47900CFDFC8 /* Platform.mm in Sources */,
 				FA1E172117ADE47900CFDFC8 /* Keyboard.cpp in Sources */,
@@ -6606,6 +6612,7 @@
 				FA712E5D17C81FEB008024F9 /* Window.cpp in Sources */,
 				FA712E5E17C81FEB008024F9 /* View.mm in Sources */,
 				FA712E5F17C81FEB008024F9 /* MaxRectsAllocator.cpp in Sources */,
+				FAA0FDFE17DECB73009DCB93 /* Touch.cpp in Sources */,
 				FA712E6017C81FEB008024F9 /* DebugOverlay.cpp in Sources */,
 				FA712E6117C81FEB008024F9 /* Platform.mm in Sources */,
 				FA712E6217C81FEB008024F9 /* Keyboard.cpp in Sources */,
@@ -6721,6 +6728,7 @@
 				FAA0FDE417DDE6EE009DCB93 /* GameController.mm in Sources */,
 				FAA0FDF217DDEA51009DCB93 /* AppDelegate.mm in Sources */,
 				FAA0FA3217DDDC8C009DCB93 /* Mouse.cpp in Sources */,
+				FAA0FDFF17DECB73009DCB93 /* Touch.cpp in Sources */,
 				FAA0FA3317DDDC8C009DCB93 /* Graphics.cpp in Sources */,
 				FAA0FA3517DDDC8C009DCB93 /* Bacon.cpp in Sources */,
 			);
