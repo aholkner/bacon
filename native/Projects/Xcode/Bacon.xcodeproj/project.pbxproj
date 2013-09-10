@@ -6232,6 +6232,11 @@
 			attributes = {
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Alex Holkner";
+				TargetAttributes = {
+					FAA0FA1D17DDDBE6009DCB93 = {
+						DevelopmentTeam = CAQMK9X42Z;
+					};
+				};
 			};
 			buildConfigurationList = FA2B5BAF17A4B72C00C96A83 /* Build configuration list for PBXProject "Bacon" */;
 			compatibilityVersion = "Xcode 3.2";
