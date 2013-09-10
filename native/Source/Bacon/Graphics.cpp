@@ -361,6 +361,8 @@ void Graphics_Shutdown()
 
 void Graphics_InitGL(GLuint defaultFramebuffer)
 {
+	s_Impl->m_DefaultFrameBuffer = defaultFramebuffer;
+	
     Bacon_Log(Bacon_LogLevel_Info, "GL_VENDOR: %s", glGetString(GL_VENDOR));
     Bacon_Log(Bacon_LogLevel_Info, "GL_RENDERER: %s", glGetString(GL_RENDERER));
     Bacon_Log(Bacon_LogLevel_Info, "GL_SHADING_LANGUAGE_VERSION: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
