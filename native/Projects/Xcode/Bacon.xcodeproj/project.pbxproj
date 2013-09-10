@@ -3368,12 +3368,12 @@
 				FA1E170D17ADE47800CFDFC8 /* HandleArray.h */,
 				FA1E170E17ADE47800CFDFC8 /* Keyboard.cpp */,
 				FA1E170F17ADE47800CFDFC8 /* Mouse.cpp */,
+				FAA0FDFB17DECB73009DCB93 /* Touch.cpp */,
 				FA1E171717ADE47900CFDFC8 /* Window.cpp */,
 				FA940F5917C2CB8C00B5FF13 /* Rect.h */,
 				FA940F6417C4EA5D00B5FF13 /* MaxRectsAllocator.h */,
 				FA940F6517C4EAA000B5FF13 /* MaxRectsAllocator.cpp */,
 				FA940F6817C596A700B5FF13 /* DebugOverlay.cpp */,
-				FAA0FDFB17DECB73009DCB93 /* Touch.cpp */,
 			);
 			path = Bacon;
 			sourceTree = "<group>";

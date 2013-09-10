@@ -17,7 +17,7 @@ struct Glyph
 };
 Glyph g_Glyphs[26];
 
-int s_NumGlyphs = 1;
+int s_NumGlyphs = 16;
 
 void Tick()
 {
@@ -46,7 +46,7 @@ void Tick()
 			x += g_Glyphs[i].m_Advance;
 		}
 	}
-
+/*
 	Bacon_SetFrameBuffer(g_Buffer2, 1.f);
 	
     int kw, kh;
@@ -55,7 +55,7 @@ void Tick()
 	
 	Bacon_SetFrameBuffer(0, 1.f);
 	Bacon_DrawImage(g_Buffer2, 0, 0, 256, 256);
-	
+	*/
 	Bacon_SetBlending(Bacon_Blend_One, Bacon_Blend_One);
 	Bacon_SetColor(1, 0, 0, 1);
 	Bacon_FillRect(25, 225, 50, 250);

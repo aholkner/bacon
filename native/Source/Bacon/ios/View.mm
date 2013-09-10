@@ -36,6 +36,7 @@ Touch s_Touches[MaxTouches];
 	}
 	
     CGSize viewSize = [UIScreen mainScreen].bounds.size;
+	Bacon_SetWindowContentScale(1.f);
 	//	self.contentScaleFactor = [UIScreen mainScreen].scale;
     
     // Get the layer

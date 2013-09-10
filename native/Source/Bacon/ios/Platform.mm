@@ -22,7 +22,7 @@ void Platform_Init()
 	mach_timebase_info(&timebase);
 	s_PerformanceTimebase = (float)timebase.numer / timebase.denom / 1000000000.f;
 
-	Window_SetDeviceContentScale([UIScreen mainScreen].scale);
+//	Window_SetDeviceContentScale([UIScreen mainScreen].scale);
 }
 
 void Platform_Shutdown()
