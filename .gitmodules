@@ -1,0 +1,3 @@
+[submodule "native/Vendor/Python"]
+	path = native/Vendor/Python
+	url = https://github.com/aholkner/cpython.git
