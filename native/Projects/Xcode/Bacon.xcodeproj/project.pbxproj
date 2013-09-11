@@ -848,6 +848,8 @@
 		FA867F2F17B492260027B6E4 /* ArrayBoundsClamper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA867F2B17B492260027B6E4 /* ArrayBoundsClamper.cpp */; };
 		FA867F3017B492260027B6E4 /* ArrayBoundsClamper.h in Headers */ = {isa = PBXBuildFile; fileRef = FA867F2C17B492260027B6E4 /* ArrayBoundsClamper.h */; };
 		FA8BC76E17E07C6B004BC10F /* Lib in CopyFiles */ = {isa = PBXBuildFile; fileRef = FA8BC76D17E0786A004BC10F /* Lib */; };
+		FA8BC77017E0869C004BC10F /* examples in CopyFiles */ = {isa = PBXBuildFile; fileRef = FA8BC76F17E08590004BC10F /* examples */; };
+		FA8BC77217E08CF7004BC10F /* bacon in CopyFiles */ = {isa = PBXBuildFile; fileRef = FA8BC77117E08790004BC10F /* bacon */; };
 		FA940F6717C4EAA500B5FF13 /* MaxRectsAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA940F6517C4EAA000B5FF13 /* MaxRectsAllocator.cpp */; };
 		FA940F6A17C596A700B5FF13 /* DebugOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA940F6817C596A700B5FF13 /* DebugOverlay.cpp */; };
 		FAA0044717DF5443009DCB93 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDF917DDF0A5009DCB93 /* QuartzCore.framework */; };
@@ -1711,6 +1713,8 @@
 			dstSubfolderSpec = 7;
 			files = (
 				FA8BC76E17E07C6B004BC10F /* Lib in CopyFiles */,
+				FA8BC77017E0869C004BC10F /* examples in CopyFiles */,
+				FA8BC77217E08CF7004BC10F /* bacon in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2875,6 +2879,8 @@
 		FA867F2D17B492260027B6E4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		FA867F2E17B492260027B6E4 /* README.angle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.angle; sourceTree = "<group>"; };
 		FA8BC76D17E0786A004BC10F /* Lib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Lib; path = ../../Vendor/Python/Lib; sourceTree = "<group>"; };
+		FA8BC76F17E08590004BC10F /* examples */ = {isa = PBXFileReference; lastKnownFileType = folder; name = examples; path = ../../../examples; sourceTree = "<group>"; };
+		FA8BC77117E08790004BC10F /* bacon */ = {isa = PBXFileReference; lastKnownFileType = folder; name = bacon; path = ../../../bacon; sourceTree = "<group>"; };
 		FA940F5917C2CB8C00B5FF13 /* Rect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Rect.h; sourceTree = "<group>"; };
 		FA940F6417C4EA5D00B5FF13 /* MaxRectsAllocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaxRectsAllocator.h; sourceTree = "<group>"; };
 		FA940F6517C4EAA000B5FF13 /* MaxRectsAllocator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MaxRectsAllocator.cpp; sourceTree = "<group>"; };
@@ -4980,6 +4986,8 @@
 		FAA0045817DF54DE009DCB93 /* PythonHost */ = {
 			isa = PBXGroup;
 			children = (
+				FA8BC77117E08790004BC10F /* bacon */,
+				FA8BC76F17E08590004BC10F /* examples */,
 				FA8BC76D17E0786A004BC10F /* Lib */,
 				FAA0045917DF54DE009DCB93 /* PythonHost.cpp */,
 			);
