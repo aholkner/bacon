@@ -72,3 +72,9 @@ int Bacon_SetWindowSize(int width, int height)
 	// Ignore
 	return Bacon_Error_None;
 }
+
+int Bacon_SetWindowTitle(const char* title)
+{
+	// Ignore
+	return Bacon_Error_None;
+}

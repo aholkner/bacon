@@ -339,7 +339,7 @@ class MouseButtons(object):
     middle = 1
     right = 2
 
-def create_fn(function_wrapper):
+def create_dynamic_fn(function_wrapper):
     import ctypes
     if function_wrapper:
         def fn(f, *argtypes):
@@ -351,6 +351,18 @@ def create_fn(function_wrapper):
             f.restype = ctypes.c_int
             f.argtypes = argtypes
             return f    
+    return fn
+
+def create_builtin_fn(function_wrapper):
+    import ctypes
+    if function_wrapper:
+        def fn(f, *argtypes):
+            f = CFUNCTYPE(ctypes.c_int, *argtypes)(f)
+            return function_wrapper(f)
+    else:
+        def fn(f, *argtypes):
+            f = CFUNCTYPE(ctypes.c_int, *argtypes)(f)
+            return f
     return fn
 
 class _DllPath(object):
@@ -458,11 +470,15 @@ def load(function_wrapper = None):
         _lib = MockCDLL()
         fn = mock_function_wrapper
         can_init = False
+    elif sys.platform == 'ios':
+        import _bacon as _lib
+        fn = create_builtin_fn(function_wrapper)
+        can_init = True
     elif not _dll_path:
         raise ImportError('Unsupported platform %s' % sys.platform)
     else:
         _lib = _dll_path.get_lib()
-        fn = create_fn(function_wrapper)
+        fn = create_dynamic_fn(function_wrapper)
         can_init = True
 
     # Function types

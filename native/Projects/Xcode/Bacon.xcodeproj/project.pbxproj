@@ -850,6 +850,7 @@
 		FA8BC76E17E07C6B004BC10F /* Lib in CopyFiles */ = {isa = PBXBuildFile; fileRef = FA8BC76D17E0786A004BC10F /* Lib */; };
 		FA8BC77017E0869C004BC10F /* examples in CopyFiles */ = {isa = PBXBuildFile; fileRef = FA8BC76F17E08590004BC10F /* examples */; };
 		FA8BC77217E08CF7004BC10F /* bacon in CopyFiles */ = {isa = PBXBuildFile; fileRef = FA8BC77117E08790004BC10F /* bacon */; };
+		FA8BCA1817E09697004BC10F /* BaconPyModule.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA8BCA1617E09697004BC10F /* BaconPyModule.cpp */; };
 		FA940F6717C4EAA500B5FF13 /* MaxRectsAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA940F6517C4EAA000B5FF13 /* MaxRectsAllocator.cpp */; };
 		FA940F6A17C596A700B5FF13 /* DebugOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA940F6817C596A700B5FF13 /* DebugOverlay.cpp */; };
 		FAA0044717DF5443009DCB93 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDF917DDF0A5009DCB93 /* QuartzCore.framework */; };
@@ -2881,6 +2882,7 @@
 		FA8BC76D17E0786A004BC10F /* Lib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Lib; path = ../../Vendor/Python/Lib; sourceTree = "<group>"; };
 		FA8BC76F17E08590004BC10F /* examples */ = {isa = PBXFileReference; lastKnownFileType = folder; name = examples; path = ../../../examples; sourceTree = "<group>"; };
 		FA8BC77117E08790004BC10F /* bacon */ = {isa = PBXFileReference; lastKnownFileType = folder; name = bacon; path = ../../../bacon; sourceTree = "<group>"; };
+		FA8BCA1617E09697004BC10F /* BaconPyModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BaconPyModule.cpp; sourceTree = "<group>"; };
 		FA940F5917C2CB8C00B5FF13 /* Rect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Rect.h; sourceTree = "<group>"; };
 		FA940F6417C4EA5D00B5FF13 /* MaxRectsAllocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaxRectsAllocator.h; sourceTree = "<group>"; };
 		FA940F6517C4EAA000B5FF13 /* MaxRectsAllocator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MaxRectsAllocator.cpp; sourceTree = "<group>"; };
@@ -4990,6 +4992,7 @@
 				FA8BC76F17E08590004BC10F /* examples */,
 				FA8BC76D17E0786A004BC10F /* Lib */,
 				FAA0045917DF54DE009DCB93 /* PythonHost.cpp */,
+				FA8BCA1617E09697004BC10F /* BaconPyModule.cpp */,
 			);
 			path = PythonHost;
 			sourceTree = "<group>";
@@ -6793,6 +6796,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA8BCA1817E09697004BC10F /* BaconPyModule.cpp in Sources */,
 				FAA0045A17DF54DE009DCB93 /* PythonHost.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
