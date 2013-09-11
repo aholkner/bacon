@@ -847,8 +847,18 @@
 		FA867F2817B4918D0027B6E4 /* libAngleShaderTranslater.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FA867DF417B48A010027B6E4 /* libAngleShaderTranslater.a */; };
 		FA867F2F17B492260027B6E4 /* ArrayBoundsClamper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA867F2B17B492260027B6E4 /* ArrayBoundsClamper.cpp */; };
 		FA867F3017B492260027B6E4 /* ArrayBoundsClamper.h in Headers */ = {isa = PBXBuildFile; fileRef = FA867F2C17B492260027B6E4 /* ArrayBoundsClamper.h */; };
+		FA8BC76E17E07C6B004BC10F /* Lib in CopyFiles */ = {isa = PBXBuildFile; fileRef = FA8BC76D17E0786A004BC10F /* Lib */; };
 		FA940F6717C4EAA500B5FF13 /* MaxRectsAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA940F6517C4EAA000B5FF13 /* MaxRectsAllocator.cpp */; };
 		FA940F6A17C596A700B5FF13 /* DebugOverlay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA940F6817C596A700B5FF13 /* DebugOverlay.cpp */; };
+		FAA0044717DF5443009DCB93 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDF917DDF0A5009DCB93 /* QuartzCore.framework */; };
+		FAA0044817DF5443009DCB93 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDEE17DDEA29009DCB93 /* Foundation.framework */; };
+		FAA0044917DF5443009DCB93 /* libobjc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDEC17DDE87F009DCB93 /* libobjc.dylib */; };
+		FAA0044A17DF5443009DCB93 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FDEA17DDE86F009DCB93 /* UIKit.framework */; };
+		FAA0044B17DF5443009DCB93 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FD9117DDE3FC009DCB93 /* OpenAL.framework */; };
+		FAA0044C17DF5443009DCB93 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FD8F17DDE3F7009DCB93 /* OpenGLES.framework */; };
+		FAA0044D17DF5443009DCB93 /* libBacon-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0FA4B17DDDC8D009DCB93 /* libBacon-iOS.a */; };
+		FAA0045517DF5456009DCB93 /* libPython-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FAA0045417DF5456009DCB93 /* libPython-iOS.a */; };
+		FAA0045A17DF54DE009DCB93 /* PythonHost.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAA0045917DF54DE009DCB93 /* PythonHost.cpp */; };
 		FAA0FA1F17DDDBE6009DCB93 /* NativeHost.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA1E171917ADE47900CFDFC8 /* NativeHost.cpp */; };
 		FAA0FA2917DDDC8C009DCB93 /* Window.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA1E171717ADE47900CFDFC8 /* Window.cpp */; };
 		FAA0FA2B17DDDC8C009DCB93 /* MaxRectsAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA940F6517C4EAA000B5FF13 /* MaxRectsAllocator.cpp */; };
@@ -1693,6 +1703,16 @@
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
+		};
+		FAA0044E17DF5443009DCB93 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				FA8BC76E17E07C6B004BC10F /* Lib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		FAA0FA2217DDDBE6009DCB93 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -2854,10 +2874,16 @@
 		FA867F2C17B492260027B6E4 /* ArrayBoundsClamper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArrayBoundsClamper.h; sourceTree = "<group>"; };
 		FA867F2D17B492260027B6E4 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		FA867F2E17B492260027B6E4 /* README.angle */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.angle; sourceTree = "<group>"; };
+		FA8BC76D17E0786A004BC10F /* Lib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Lib; path = ../../Vendor/Python/Lib; sourceTree = "<group>"; };
 		FA940F5917C2CB8C00B5FF13 /* Rect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Rect.h; sourceTree = "<group>"; };
 		FA940F6417C4EA5D00B5FF13 /* MaxRectsAllocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaxRectsAllocator.h; sourceTree = "<group>"; };
 		FA940F6517C4EAA000B5FF13 /* MaxRectsAllocator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MaxRectsAllocator.cpp; sourceTree = "<group>"; };
 		FA940F6817C596A700B5FF13 /* DebugOverlay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebugOverlay.cpp; sourceTree = "<group>"; };
+		FAA0044117DF5400009DCB93 /* libPython-iOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libPython-iOS.a"; path = "../../Vendor/Python/Xcode/build/Debug-iphoneos/libPython-iOS.a"; sourceTree = "<group>"; };
+		FAA0045217DF5443009DCB93 /* PythonHost-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PythonHost-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAA0045317DF5444009DCB93 /* PythonHost-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "PythonHost-iOS-Info.plist"; path = "/Users/alex/development/bacon/native/Projects/Xcode/PythonHost-iOS-Info.plist"; sourceTree = "<absolute>"; };
+		FAA0045417DF5456009DCB93 /* libPython-iOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libPython-iOS.a"; path = "../../Vendor/Python/Xcode/build/Debug-iphoneos/libPython-iOS.a"; sourceTree = "<group>"; };
+		FAA0045917DF54DE009DCB93 /* PythonHost.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PythonHost.cpp; sourceTree = "<group>"; };
 		FAA0FA2617DDDBE6009DCB93 /* NativeHost-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "NativeHost-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAA0FA4B17DDDC8D009DCB93 /* libBacon-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libBacon-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAA0FADA17DDDE3E009DCB93 /* libAngleShaderTranslater-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libAngleShaderTranslater-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3009,6 +3035,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FAA0044617DF5443009DCB93 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAA0045517DF5456009DCB93 /* libPython-iOS.a in Frameworks */,
+				FAA0044717DF5443009DCB93 /* QuartzCore.framework in Frameworks */,
+				FAA0044817DF5443009DCB93 /* Foundation.framework in Frameworks */,
+				FAA0044917DF5443009DCB93 /* libobjc.dylib in Frameworks */,
+				FAA0044A17DF5443009DCB93 /* UIKit.framework in Frameworks */,
+				FAA0044B17DF5443009DCB93 /* OpenAL.framework in Frameworks */,
+				FAA0044C17DF5443009DCB93 /* OpenGLES.framework in Frameworks */,
+				FAA0044D17DF5443009DCB93 /* libBacon-iOS.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3348,6 +3389,7 @@
 			children = (
 				FA1E170617ADE47800CFDFC8 /* Bacon */,
 				FA1E171817ADE47900CFDFC8 /* NativeHost */,
+				FAA0045817DF54DE009DCB93 /* PythonHost */,
 			);
 			name = Source;
 			path = ../../Source;
@@ -3402,6 +3444,7 @@
 			isa = PBXGroup;
 			children = (
 				FAA0FDDE17DDE62C009DCB93 /* NativeHost-iOS-Info.plist */,
+				FAA0045317DF5444009DCB93 /* PythonHost-iOS-Info.plist */,
 				FA1E172B17ADE52900CFDFC8 /* Bacon-Prefix.pch */,
 				FA1E170517ADE47800CFDFC8 /* Source */,
 				FA2B601417A4ED7D00C96A83 /* Vendor */,
@@ -3427,6 +3470,7 @@
 				FAA0FBFC17DDDE55009DCB93 /* libFreeImage-iOS.a */,
 				FAA0FD2117DDDE5E009DCB93 /* libFreeType-iOS.a */,
 				FAA0FD7E17DDDE67009DCB93 /* libGorillaAudio-iOS.a */,
+				FAA0045217DF5443009DCB93 /* PythonHost-iOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3434,6 +3478,8 @@
 		FA2B5BB617A4B72C00C96A83 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				FAA0045417DF5456009DCB93 /* libPython-iOS.a */,
+				FAA0044117DF5400009DCB93 /* libPython-iOS.a */,
 				FAA0FDF917DDF0A5009DCB93 /* QuartzCore.framework */,
 				FAA0FDEE17DDEA29009DCB93 /* Foundation.framework */,
 				FAA0FDEC17DDE87F009DCB93 /* libobjc.dylib */,
@@ -4931,6 +4977,15 @@
 			path = Angle/src/third_party/compiler;
 			sourceTree = "<group>";
 		};
+		FAA0045817DF54DE009DCB93 /* PythonHost */ = {
+			isa = PBXGroup;
+			children = (
+				FA8BC76D17E0786A004BC10F /* Lib */,
+				FAA0045917DF54DE009DCB93 /* PythonHost.cpp */,
+			);
+			path = PythonHost;
+			sourceTree = "<group>";
+		};
 		FAA0FDDF17DDE6EE009DCB93 /* ios */ = {
 			isa = PBXGroup;
 			children = (
@@ -6105,6 +6160,23 @@
 			productReference = FA867DF417B48A010027B6E4 /* libAngleShaderTranslater.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		FAA0044317DF5443009DCB93 /* PythonHost-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FAA0044F17DF5443009DCB93 /* Build configuration list for PBXNativeTarget "PythonHost-iOS" */;
+			buildPhases = (
+				FAA0044417DF5443009DCB93 /* Sources */,
+				FAA0044617DF5443009DCB93 /* Frameworks */,
+				FAA0044E17DF5443009DCB93 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "PythonHost-iOS";
+			productName = NativeHost;
+			productReference = FAA0045217DF5443009DCB93 /* PythonHost-iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
 		FAA0FA1D17DDDBE6009DCB93 /* NativeHost-iOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FAA0FA2317DDDBE6009DCB93 /* Build configuration list for PBXNativeTarget "NativeHost-iOS" */;
@@ -6264,6 +6336,7 @@
 				FAA0FBFD17DDDE5E009DCB93 /* FreeType-iOS */,
 				FAA0FD2217DDDE67009DCB93 /* GorillaAudio-iOS */,
 				FAA0FA1D17DDDBE6009DCB93 /* NativeHost-iOS */,
+				FAA0044317DF5443009DCB93 /* PythonHost-iOS */,
 			);
 		};
 /* End PBXProject section */
@@ -6705,6 +6778,14 @@
 				FA867EC917B48A2A0027B6E4 /* intermOut.cpp in Sources */,
 				FA867F0517B48A2A0027B6E4 /* SymbolTable.cpp in Sources */,
 				FA867F1817B48A2A0027B6E4 /* ValidateLimitations.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FAA0044417DF5443009DCB93 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAA0045A17DF54DE009DCB93 /* PythonHost.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7461,6 +7542,46 @@
 			};
 			name = Release;
 		};
+		FAA0045017DF5443009DCB93 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					../../Source,
+					../../Vendor/Python/Include,
+					../../Vendor/Python/Xcode,
+				);
+				INFOPLIST_FILE = "PythonHost-iOS-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				PRODUCT_NAME = "PythonHost-iOS";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FAA0045117DF5443009DCB93 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				HEADER_SEARCH_PATHS = (
+					../../Source,
+					../../Vendor/Python/Include,
+					../../Vendor/Python/Xcode,
+				);
+				INFOPLIST_FILE = "PythonHost-iOS-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				PRODUCT_NAME = "PythonHost-iOS";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		FAA0FA2417DDDBE6009DCB93 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -7802,6 +7923,15 @@
 			buildConfigurations = (
 				FA867DF617B48A010027B6E4 /* Debug */,
 				FA867DF717B48A010027B6E4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FAA0044F17DF5443009DCB93 /* Build configuration list for PBXNativeTarget "PythonHost-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FAA0045017DF5443009DCB93 /* Debug */,
+				FAA0045117DF5443009DCB93 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

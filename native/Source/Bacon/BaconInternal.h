@@ -55,6 +55,8 @@ int Platform_Run();
 void Platform_Stop();
 void Platform_GetPerformanceTime(float& time);
 
+const char* Platform_GetBundlePath();
+
 void Window_Init();
 void Window_Shutdown();
 void Window_OnSizeChanged(int width, int height);

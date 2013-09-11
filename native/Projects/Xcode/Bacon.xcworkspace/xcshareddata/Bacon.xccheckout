@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>46169CAF-8562-40D2-AF0D-DFB3A44D5B4F</string>
+	<key>IDESourceControlProjectName</key>
+	<string>Bacon</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>67A7533C-D482-4147-8370-DC5B507CABAB</key>
+		<string>https://github.com/aholkner/bacon.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>native/projects/xcode/Bacon.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>67A7533C-D482-4147-8370-DC5B507CABAB</key>
+		<string>../../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/aholkner/bacon.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>67A7533C-D482-4147-8370-DC5B507CABAB</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>67A7533C-D482-4147-8370-DC5B507CABAB</string>
+			<key>IDESourceControlWCCName</key>
+			<string>bacon</string>
+		</dict>
+	</array>
+</dict>
+</plist>

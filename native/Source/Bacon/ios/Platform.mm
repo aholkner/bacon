@@ -50,6 +50,11 @@ void Platform_Stop()
 	exit(0);
 }
 
+const char* Platform_GetBundlePath()
+{
+	return [[[NSBundle mainBundle] bundlePath] UTF8String];
+}
+
 int Bacon_SetWindowFullscreen(int fullscreen)
 {
 	// Ignore
