@@ -8,6 +8,6 @@
       location = "group:../../Vendor/Python/Xcode/Python-iOS.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:../../Vendor/Python/Modules/_ctypes/libffi/libffi.xcodeproj">
+      location = "group:../../Vendor/libffi/libffi.xcodeproj">
    </FileRef>
 </Workspace>

@@ -1,3 +1,6 @@
 [submodule "native/Vendor/Python"]
 	path = native/Vendor/Python
 	url = https://github.com/aholkner/cpython.git
+[submodule "native/Vendor/libffi"]
+	path = native/Vendor/libffi
+	url = https://github.com/zwaldowski/libffi
