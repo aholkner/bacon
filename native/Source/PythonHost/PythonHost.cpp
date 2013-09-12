@@ -27,7 +27,7 @@ int main(int argc, char * argv[])
 	wstring pythonPath = bundlePath + L"/Lib:";
 	pythonPath += L":" + bundlePath;
 	
-	string scriptPath = string(Platform_GetBundlePath()) + "/examples/bouncing_balls.py";
+	string scriptPath = string(Platform_GetBundlePath()) + "/MonthlyVisitor/MonthlyVisitor.py";
 	
 	FILE* fp = fopen(scriptPath.c_str(), "r");
 	

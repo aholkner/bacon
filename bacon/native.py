@@ -339,6 +339,14 @@ class MouseButtons(object):
     middle = 1
     right = 2
 
+@enum
+class TouchStates(object):
+    none = 0
+    pressed = 1
+    moved = 2
+    released = 3
+    cancelled = 4
+
 def create_dynamic_fn(function_wrapper):
     import ctypes
     if function_wrapper:
@@ -488,6 +496,7 @@ def load(function_wrapper = None):
     KeyEventHandler = CFUNCTYPE(None, c_int, c_int)
     MouseButtonEventHandler = CFUNCTYPE(None, c_int, c_int)
     MouseScrollEventHandler = CFUNCTYPE(None, c_float, c_float)
+    TouchEventHandler = CFUNCTYPE(None, c_int, c_int, c_float, c_float)
     ControllerConnectedEventHandler = CFUNCTYPE(None, c_int, c_int)
     ControllerButtonEventHandler = CFUNCTYPE(None, c_int, c_uint, c_int)
     ControllerAxisEventHandler = CFUNCTYPE(None, c_int, c_int, c_float)
@@ -561,6 +570,8 @@ def load(function_wrapper = None):
     GetMousePosition = fn(_lib.Bacon_GetMousePosition, POINTER(c_float), POINTER(c_float))
     SetMouseButtonEventHandler = fn(_lib.Bacon_SetMouseButtonEventHandler, MouseButtonEventHandler)
     SetMouseScrollEventHandler = fn(_lib.Bacon_SetMouseScrollEventHandler, MouseScrollEventHandler)
+
+    SetTouchEventHandler = fn(_lib.Bacon_SetTouchEventHandler, TouchEventHandler)
 
     SetControllerConnectedEventHandler = fn(_lib.Bacon_SetControllerConnectedEventHandler, ControllerConnectedEventHandler)
     SetControllerButtonEventHandler = fn(_lib.Bacon_SetControllerButtonEventHandler, ControllerButtonEventHandler)

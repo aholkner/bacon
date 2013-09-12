@@ -57,11 +57,11 @@ void Touch_SetTouchState(int touch, int state, float x, float y)
 		return;
 
 	bool oldPressed = s_Touches[touch].m_Pressed;
-	s_Touches[touch].m_Pressed = state == Bacon_Touch_State_Pressed ? 1 : 0;
+	s_Touches[touch].m_Pressed = (state == Bacon_Touch_State_Pressed || state == Bacon_Touch_State_Moved) ? 1 : 0;
 	s_Touches[touch].m_X = x;
 	s_Touches[touch].m_Y = y;
 	
-	if (oldPressed != s_Touches[touch].m_Pressed && s_Handler)
+	if (s_Handler)
 		(s_Handler)(touch, state, x, y);
 	
 	if (!oldPressed && s_Touches[touch].m_Pressed)

@@ -5,9 +5,9 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
-	<string>${EXECUTABLE_NAME}</string>
+	<string>PythonHost-iOS</string>
 	<key>CFBundleIdentifier</key>
-	<string>bacon.${PRODUCT_NAME:rfc1034identifier}</string>
+	<string>bacon.MonthlyVisitor</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
@@ -22,5 +22,9 @@
 	<false/>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>CFBundleName</key>
+	<string>MonthlyVisitor</string>
+	<key>CFBundleDisplayName</key>
+	<string>MonthlyVisitor</string>
 </dict>
 </plist>

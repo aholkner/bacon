@@ -174,7 +174,7 @@ static void UpdateTouchStates(UIView* view, NSSet* touches, int state)
 
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-	UpdateTouchStates(self, touches, Bacon_Touch_State_Pressed);
+	UpdateTouchStates(self, touches, Bacon_Touch_State_Moved);
 }
 
 @end

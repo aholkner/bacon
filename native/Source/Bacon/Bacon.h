@@ -60,6 +60,7 @@ enum Bacon_Touch_States
 {
 	Bacon_Touch_State_None,
 	Bacon_Touch_State_Pressed,
+	Bacon_Touch_State_Moved,
 	Bacon_Touch_State_Released,
 	Bacon_Touch_State_Cancelled,
 };

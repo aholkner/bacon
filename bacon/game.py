@@ -9,6 +9,7 @@ from bacon import keyboard
 from bacon import graphics
 from bacon import mouse_input
 from bacon import shader
+from bacon import touch_input
 from bacon import window
 
 class Game(object):
@@ -24,6 +25,9 @@ class Game(object):
         bacon.run(MyGame())
 
     '''
+
+    #: Emulate mouse position and events from touch input
+    emulate_mouse = True
 
     def on_init(self):
         '''Called once when the game starts.  You can use this to do any initialization that
@@ -59,6 +63,15 @@ class Game(object):
 
         :param dx: relative scroll amount along the ``x`` axis
         :param dy: relative scroll amount along the ``y`` axis
+        '''
+        pass
+
+    def on_touch(self, touch, state):
+        '''Called when a touch event is generated.
+
+        :param Touch touch: :class:`Touch` for this event; use :attr:`Touch.index` to distinguish
+            the order touches were applied to the screen.
+        :param int state: a member of :class:`TouchStates`
         '''
         pass
 
@@ -148,7 +161,8 @@ def _tick_callback():
 
     graphics._target_stack = [None]
     window._begin_frame()
-    mouse_input.mouse._update_position()
+    if not bacon._current_game.emulate_mouse:
+        mouse_input.mouse._update_position()
 
     try:
         bacon._current_game.on_tick()
@@ -183,6 +197,10 @@ def run(game):
     mouse_scroll_callback_handle = lib.MouseScrollEventHandler(mouse_input._mouse_scroll_event_handler)
     lib.SetMouseScrollEventHandler(mouse_scroll_callback_handle)
 
+    # Touch handler
+    touch_callback_handle = lib.TouchEventHandler(touch_input._touch_event_handler)
+    lib.SetTouchEventHandler(touch_callback_handle)
+
     # Controller handlers
     controller_connected_handle = lib.ControllerConnectedEventHandler(controller._controller_connected_event_handler)
     lib.SetControllerConnectedEventHandler(controller_connected_handle)
@@ -203,6 +221,7 @@ def run(game):
     lib.SetKeyEventHandler(lib.KeyEventHandler(0))
     lib.SetMouseButtonEventHandler(lib.MouseButtonEventHandler(0))
     lib.SetMouseScrollEventHandler(lib.MouseScrollEventHandler(0))
+    lib.SetTouchEventHandler(lib.TouchEventHandler(0))
     lib.SetControllerConnectedEventHandler(lib.ControllerConnectedEventHandler(0))
     lib.SetControllerButtonEventHandler(lib.ControllerButtonEventHandler(0))
     lib.SetControllerAxisEventHandler(lib.ControllerAxisEventHandler(0))

@@ -1099,12 +1099,17 @@ int Bacon_GetImageRegion(int* outImage, int imageHandle, int x1, int y1, int x2,
 {
 	if (!outImage)
 		return Bacon_Error_InvalidHandle;
+
+	*outImage = s_Impl->m_Images.Alloc();
 	
 	Image* image = s_Impl->m_Images.Get(imageHandle);
 	if (!image)
+	{
+		s_Impl->m_Images.Free(*outImage);
+		*outImage = 0;
 		return Bacon_Error_InvalidHandle;
+	}
 
-	*outImage = s_Impl->m_Images.Alloc();
 	Image* region = s_Impl->m_Images.Get(*outImage);
     region->m_RefCount = 1;
 	region->m_Bitmap = nullptr;
