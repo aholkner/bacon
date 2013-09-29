@@ -29,6 +29,7 @@ def _touch_event_handler(touch, state, x, y):
     print('_touch_event_handler %r %r' % (was_pressed, touch_object.pressed))
 
     if touch == 0 and game.emulate_mouse:
+        mouse_input.mouse.button_mask = (1 << 0) if touch_object.pressed else 0
         mouse_input.mouse.x = x
         mouse_input.mouse.y = y
         if was_pressed != touch_object.pressed:
