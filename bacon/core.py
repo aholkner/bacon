@@ -135,6 +135,10 @@ class RunningError(BaconError):
 class RenderingToSelfError(BaconError):
     pass
 
+@error_code(native.ErrorCodes.io_error)
+def  _io_error(error_code):
+    return IOError()
+
 def _error_wrapper(fn):
     def f(*args):
         result = fn(*args)

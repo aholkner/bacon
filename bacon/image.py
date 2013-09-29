@@ -45,6 +45,7 @@ class Image(object):
         defaults to :attr:`Window.content_scale` for empty images.  The effect of setting content_scale to 2.0 is that
         the ``width`` and ``height`` properties will be half the actual pixel values.
     '''
+    _handle = -1
 
     def __init__(self, file=None, premultiply_alpha=True, discard_bitmap=True, sample_nearest=False, wrap=False, atlas=1, width=None, height=None, content_scale=None, handle=None):
         flags = 0
@@ -104,7 +105,8 @@ class Image(object):
 
     def unload(self):
         '''Releases renderer resources associated with this image.'''
-        lib.UnloadImage(self._handle)
+        if self._handle != -1:
+            lib.UnloadImage(self._handle)
         self._handle = -1
 
     @property
