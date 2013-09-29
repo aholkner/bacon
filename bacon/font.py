@@ -71,6 +71,8 @@ class _FontFile(object):
     _font_files = {}
     _default_font_file = None
 
+    _handle = -1
+
     def __init__(self, file, handle=None):
         if not handle:
             handle = c_int()
@@ -83,8 +85,9 @@ class _FontFile(object):
         self.unload()
 
     def unload(self):
-        lib.UnloadFont(self._handle)
-        self._handle = -1
+        if self._handle != -1:
+            lib.UnloadFont(self._handle)
+            self._handle = -1
 
     def get_metrics(self, size):
         ascent = c_int()
