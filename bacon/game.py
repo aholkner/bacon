@@ -165,7 +165,14 @@ def run(game):
     '''Start running the game.  The window is created and shown at this point, and then
     the main event loop is entered.  'game.on_tick' and other event handlers are called
     repeatedly until the game exits.
+
+    If a game is already running, this function replaces the :class:`Game` instance that
+    receives events.
     '''
+    if bacon._current_game:
+        bacon._current_game = game
+        return
+
     global _tick_callback_handle
     bacon._current_game = game
 
