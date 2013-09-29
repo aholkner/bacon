@@ -66,7 +66,7 @@ void Audio_Init()
 {
 	gc_initialize(0);
 	s_Impl = new Impl;
-	s_Impl->m_Manager = gau_manager_create();
+	s_Impl->m_Manager = gau_manager_create_custom(GA_DEVICE_TYPE_DEFAULT, GAU_THREAD_POLICY_MULTI, 4, 512);
 	s_Impl->m_Mixer = gau_manager_mixer(s_Impl->m_Manager);
 	s_Impl->m_StreamManager = gau_manager_streamManager(s_Impl->m_Manager);
 
