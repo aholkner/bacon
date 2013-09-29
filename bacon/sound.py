@@ -19,6 +19,8 @@ class Sound(object):
     :param file: path to the sound file to load.  The sound format is deduced from the file extension.
     :param stream: if ``True``, the sound is streamed from disk; otherwise it is fully cached in memory.
     '''
+    _handle = -1
+
     def __init__(self, file, stream=False):
         flags = 0
         if stream:
@@ -38,8 +40,9 @@ class Sound(object):
 
     def unload(self):
         '''Release all resources associated with the sound.'''
-        lib.UnloadSound(self._handle)
-        self._handle = -1
+        if self._handle != -1:
+            lib.UnloadSound(self._handle)
+            self._handle = -1
 
     def play(self, gain=None, pan=None, pitch=None):
         '''Play the sound as a `one-shot`.
