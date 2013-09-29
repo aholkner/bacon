@@ -48,7 +48,9 @@ void Tick()
     Bacon_GetImageSize(g_Kitten, &kw, &kh);
     Bacon_DrawImage(g_Kitten, 50, 50, kw, kh);
 	
-	Bacon_SetFrameBuffer(0, 1.f);
+	float contentScale;
+	Bacon_GetWindowContentScale(&contentScale);
+	Bacon_SetFrameBuffer(0, contentScale);
 	Bacon_DrawImage(g_Buffer2, 0, 0, 256, 256);
 	
 	Bacon_SetBlending(Bacon_Blend_One, Bacon_Blend_One);
@@ -109,6 +111,7 @@ int main(int argc, const char * argv[])
 	Bacon_SetControllerConnectedEventHandler(OnControllerConnected);
 	Bacon_SetWindowResizable(true);
 	Bacon_SetWindowSize(512, 512);
+	Bacon_SetWindowContentScale(2.f);
 
 	int error;
 
