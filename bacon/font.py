@@ -4,6 +4,7 @@ from bacon.core import lib
 from bacon import native
 from bacon import resource
 import bacon.image
+import bacon.text
 
 class FontMetrics(object):
     '''Aggregates pixel metrics for a font loaded at a particular size.  See :attr:`Font.metrics`
@@ -214,3 +215,14 @@ class Font(object):
         :param str: the string to render
         '''
         return [self.get_glyph(c) for c in str]
+
+    def measure_string(self, str):
+        '''Calculates the width of the given string in this font.
+
+        :param str: the string to measure
+        :return float: width of the string, in pixels
+        '''
+        style = bacon.text.Style(self)
+        run = bacon.text.GlyphRun(style, str)
+        glyph_layout = bacon.text.GlyphLayout([run], 0, 0)
+        return glyph_layout.content_width
