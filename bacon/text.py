@@ -224,6 +224,9 @@ class GlyphLayout(object):
                 if x >= width:
                     continue
 
+                # Force a break on one glyph if we couldn't break at all
+                if run_i == i:
+                    i += 1
                 return self._break(line_runs, remaining_runs, run_i, i, i)
 
     def _break(self, line_runs, remaining_runs, run_i, end_glyph_i, start_glyph_i):
