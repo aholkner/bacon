@@ -182,13 +182,16 @@ int Bacon_CreateVoice(int* outHandle, int soundHandle, int voiceFlags)
 	voice->m_Loop = nullptr;
 	gau_SampleSourceLoop** loop = (voiceFlags & Bacon_VoiceFlags_Loop) ? &voice->m_Loop : nullptr;
 	voice->m_Handle = CreateHandle(sound, VoiceCallback, (void*)(size_t)*outHandle, loop);
-	if (!sound->m_Path.empty())
+	if (!voice->m_Handle)
 	{
-		Bacon_Log(Bacon_LogLevel_Error, "Audio: Failed to load sound at %s", sound->m_Path.c_str());
-		return Bacon_Error_IOError;
+		if (!sound->m_Path.empty())
+		{
+			Bacon_Log(Bacon_LogLevel_Error, "Audio: Failed to load sound at %s", sound->m_Path.c_str());
+			return Bacon_Error_IOError;
+		}
+		else
+			return Bacon_Error_Unknown;
 	}
-	else
-		return Bacon_Error_Unknown;
 	
     DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Voices, 1);
 
