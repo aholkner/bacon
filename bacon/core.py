@@ -156,6 +156,9 @@ if not native._mock_native:
     lib.SetLogCallback(_log_callback_handle)
     lib.Init()
 
+    import commands
+    commands.init()
+
     # Expose library version
     major_version = c_int()
     minor_version = c_int()

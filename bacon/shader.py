@@ -3,6 +3,7 @@ from ctypes import *
 from bacon.core import lib
 from bacon.readonly_collections import ReadOnlyDict
 from bacon import native
+from bacon import commands
 
 ShaderUniformType = native.ShaderUniformType
 
@@ -169,12 +170,24 @@ class ShaderUniform(object):
         except KeyError:
             raise ValueError('Unsupported shader uniform type %s' % native.ShaderUniformType.tostring(type))
 
-        if array_count > 1:
-            ctype = native_type.ctype
-            converter = native_type.converter
-            self._converter = lambda v: (ctype * array_count)(*(converter(x) for x in v))
+        if commands._enabled:
+            if _shader:
+                if native_type.ctype == c_float:
+                    self._set_func = lib.SetShaderUniformFloats
+                else:
+                    self._set_func = lib.SetShaderUniformInts
+            else:
+                if native_type.ctype == c_float:
+                    self._set_func = lib.SetSharedShaderUniformFloats
+                else:
+                    self._set_func = lib.SetSharedShaderUniformInts
         else:
-            self._converter = native_type.converter
+            if array_count > 1:
+                ctype = native_type.ctype
+                converter = native_type.converter
+                self._converter = lambda v: (ctype * array_count)(*(converter(x) for x in v))
+            else:
+                self._converter = native_type.converter
             
     def __repr__(self):
         return 'ShaderUniform(%d, %s, %s, %d)' % (self._shader_handle, self.name, native.ShaderUniformType.tostring(self.type), self.array_count)
@@ -191,11 +204,19 @@ class ShaderUniform(object):
         return self._value
     def _set_value(self, value):
         self._value = value
-        native_value = self._converter(value)
-        if self._shader_handle is not None:
-            lib.SetShaderUniform(self._shader_handle, self._uniform_handle, byref(native_value), sizeof(native_value))
+        if commands._enabled:
+            if self._array_count == 1:
+                value = (value,)
+            if self._shader_handle is not None:
+                self._set_func(self._shader_handle, self._uniform_handle, value)
+            else:
+                self._set_func(self._uniform_handle, value)
         else:
-            lib.SetSharedShaderUniform(self._uniform_handle, byref(native_value), sizeof(native_value))
+            native_value = self._converter(value)
+            if self._shader_handle is not None:
+                lib.SetShaderUniform(self._shader_handle, self._uniform_handle, byref(native_value), sizeof(native_value))
+            else:
+                lib.SetSharedShaderUniform(self._uniform_handle, byref(native_value), sizeof(native_value))
     value = property(_get_value, _set_value, doc='''Current value of the uniform as seen by the shader.
 
         Uniforms with names beginning with ``g_`` (e.g., ``g_Projection``) share their value across all shaders.  Otherwise,

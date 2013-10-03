@@ -4,6 +4,7 @@ import time
 import bacon
 from bacon.core import lib
 from bacon import native
+from bacon import commands
 from bacon import controller
 from bacon import keyboard
 from bacon import graphics
@@ -152,6 +153,7 @@ def _tick_callback():
 
     try:
         bacon._current_game.on_tick()
+        commands.flush()
     except:
         _tick_callback_handle = lib.TickCallback(_error_tick_callback)
         lib.SetTickCallback(_tick_callback_handle)
