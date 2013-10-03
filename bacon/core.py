@@ -135,6 +135,10 @@ class RunningError(BaconError):
 class RenderingToSelfError(BaconError):
     pass
 
+@error_code(native.ErrorCodes.io_error)
+def  _io_error(error_code):
+    return IOError()
+
 def _error_wrapper(fn):
     def f(*args):
         result = fn(*args)
@@ -151,6 +155,9 @@ if not native._mock_native:
     _log_callback_handle = lib.LogCallback(_log_callback)
     lib.SetLogCallback(_log_callback_handle)
     lib.Init()
+
+    import commands
+    commands.init()
 
     # Expose library version
     major_version = c_int()

@@ -59,7 +59,10 @@ int Bacon_LoadFont(int* outHandle, const char* path)
 	if (error == FT_Err_Unknown_File_Format)
 		return Bacon_Error_UnsupportedFormat;
 	else if (error != FT_Err_Ok)
-		return Bacon_Error_Unknown;
+	{
+		Bacon_Log(Bacon_LogLevel_Error, "Font: Failed to load font at %s", path);
+        return Bacon_Error_IOError;
+	}
 
 	*outHandle = s_Impl->m_Fonts.Alloc();
 	Font* font = s_Impl->m_Fonts.Get(*outHandle);
@@ -103,7 +106,7 @@ int LoadBuiltinFont(int* outHandle, const void* compressedData, unsigned int com
     if (error == FT_Err_Unknown_File_Format)
         return Bacon_Error_UnsupportedFormat;
     else if (error != FT_Err_Ok)
-        return Bacon_Error_Unknown;
+		return Bacon_Error_Unknown;
 
     font->m_Face = face;
     return Bacon_Error_None;

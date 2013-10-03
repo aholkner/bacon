@@ -43,7 +43,8 @@ enum Bacon_Error
 	Bacon_Error_InvalidFontSize,
 	Bacon_Error_NotLooping,
     Bacon_Error_Running,
-    Bacon_Error_RenderingToSelf
+    Bacon_Error_RenderingToSelf,
+	Bacon_Error_IOError
 };
 
 enum Bacon_LogLevel
@@ -202,6 +203,35 @@ enum Bacon_SoundFlags
 enum Bacon_VoiceFlags
 {
 	Bacon_VoiceFlags_Loop = 1 << 0,
+};
+
+enum Bacon_Commands
+{
+	Bacon_Command_PushTransform,
+	Bacon_Command_PopTransform,
+	Bacon_Command_Translate,
+	Bacon_Command_Scale,
+	Bacon_Command_Rotate,
+	Bacon_Command_SetTransform,
+	Bacon_Command_PushColor,
+	Bacon_Command_PopColor,
+	Bacon_Command_SetColor,
+	Bacon_Command_MultiplyColor,
+	Bacon_Command_SetBlending,
+	Bacon_Command_DrawImage,
+	Bacon_Command_DrawImageRegion,
+	Bacon_Command_DrawImageQuad,
+	Bacon_Command_DrawLine,
+	Bacon_Command_DrawRect,
+	Bacon_Command_FillRect,
+	Bacon_Command_SetShaderUniformFloats,
+	Bacon_Command_SetShaderUniformInts,
+	Bacon_Command_SetSharedShaderUniformFloats,
+	Bacon_Command_SetSharedShaderUniformInts,
+	Bacon_Command_SetShader,
+	Bacon_Command_Clear,
+	Bacon_Command_SetFrameBuffer,
+	Bacon_Command_SetViewport
 };
 
 enum Keys
@@ -424,6 +454,9 @@ extern "C" {
 	BACON_API int Bacon_IsVoicePlaying(int voice, int* playing);
 	BACON_API int Bacon_GetVoicePosition(int voice, int* sample);
 	BACON_API int Bacon_SetVoicePosition(int voice, int sample);
+	
+	// Command list
+	BACON_API int Bacon_ExecuteCommands(int* commands, int commandCount, float* floatData, int floatDataCount);
 	
 #if __cplusplus
 }

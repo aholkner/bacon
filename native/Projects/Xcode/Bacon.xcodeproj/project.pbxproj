@@ -94,6 +94,8 @@
 		FA16421217A9424300113E18 /* gau.c in Sources */ = {isa = PBXBuildFile; fileRef = FA1641AF17A9424300113E18 /* gau.c */; };
 		FA16421517A9447500113E18 /* libGorillaAudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FA16412117A9422400113E18 /* libGorillaAudio.a */; };
 		FA16421917A9A23900113E18 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA16421317A9439800113E18 /* OpenAL.framework */; };
+		FA17BA2917F8E2F30074628B /* CommandList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA17BA2717F8E2F30074628B /* CommandList.cpp */; };
+		FA17BA2A17F8E2F30074628B /* CommandList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA17BA2717F8E2F30074628B /* CommandList.cpp */; };
 		FA1E171A17ADE47900CFDFC8 /* Audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA1E170717ADE47800CFDFC8 /* Audio.cpp */; };
 		FA1E171B17ADE47900CFDFC8 /* Bacon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA1E170817ADE47800CFDFC8 /* Bacon.cpp */; };
 		FA1E171C17ADE47900CFDFC8 /* Bacon.h in Headers */ = {isa = PBXBuildFile; fileRef = FA1E170917ADE47800CFDFC8 /* Bacon.h */; };
@@ -1837,6 +1839,7 @@
 		FA1641AE17A9424300113E18 /* ga_stream.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ga_stream.c; sourceTree = "<group>"; };
 		FA1641AF17A9424300113E18 /* gau.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gau.c; sourceTree = "<group>"; };
 		FA16421317A9439800113E18 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		FA17BA2717F8E2F30074628B /* CommandList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CommandList.cpp; sourceTree = "<group>"; };
 		FA1E170717ADE47800CFDFC8 /* Audio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Audio.cpp; sourceTree = "<group>"; };
 		FA1E170817ADE47800CFDFC8 /* Bacon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Bacon.cpp; sourceTree = "<group>"; };
 		FA1E170917ADE47800CFDFC8 /* Bacon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Bacon.h; sourceTree = "<group>"; };
@@ -3419,6 +3422,7 @@
 				FA1E170817ADE47800CFDFC8 /* Bacon.cpp */,
 				FA1E170917ADE47800CFDFC8 /* Bacon.h */,
 				FA1E170A17ADE47800CFDFC8 /* BaconInternal.h */,
+				FA17BA2717F8E2F30074628B /* CommandList.cpp */,
 				FA1E170B17ADE47800CFDFC8 /* Fonts.cpp */,
 				FA1E170C17ADE47800CFDFC8 /* Graphics.cpp */,
 				FA1E170D17ADE47800CFDFC8 /* HandleArray.h */,
@@ -6404,6 +6408,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA17BA2917F8E2F30074628B /* CommandList.cpp in Sources */,
 				FA1E172817ADE47900CFDFC8 /* Window.cpp in Sources */,
 				FA1E172617ADE47900CFDFC8 /* View.mm in Sources */,
 				FA940F6717C4EAA500B5FF13 /* MaxRectsAllocator.cpp in Sources */,
@@ -6706,6 +6711,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA17BA2A17F8E2F30074628B /* CommandList.cpp in Sources */,
 				FA712E5D17C81FEB008024F9 /* Window.cpp in Sources */,
 				FA712E5E17C81FEB008024F9 /* View.mm in Sources */,
 				FA712E5F17C81FEB008024F9 /* MaxRectsAllocator.cpp in Sources */,

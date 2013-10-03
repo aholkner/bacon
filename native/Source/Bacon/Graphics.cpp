@@ -287,6 +287,14 @@ namespace {
 
 static int CreateSharedUniform(ShaderUniform const& uniform);
 
+static void FreeImageErrorHandler(FREE_IMAGE_FORMAT format, const char* message)
+{
+	const char* formatString = "FreeImage";
+	if (format != FIF_UNKNOWN)
+		formatString = FreeImage_GetFormatFromFIF(format);
+	Bacon_Log(Bacon_LogLevel_Error, "%s: %s", formatString, message);
+}
+
 void Graphics_Init()
 {
 	s_Impl = new Impl;
@@ -317,6 +325,9 @@ void Graphics_Init()
     s_Impl->m_DebugCounter_FrameBufferBinds = DebugOverlay_CreateCounter("Targets/Frame");
     s_Impl->m_DebugCounter_DrawCalls = DebugOverlay_CreateCounter("Draws/Frame");
     s_Impl->m_DebugCounter_Primitives = DebugOverlay_CreateCounter("Primitives/Frame");
+	
+	// Init FreeImage error reporting
+	FreeImage_SetOutputMessage(FreeImageErrorHandler);
 	
     // Create common case blank image in atlas group 1 to avoid texture swaps when rendering lines and rects.
 	Bacon_CreateImage(&s_Impl->m_BlankImage, 1, 1, Bacon_ImageFlags_DiscardBitmap | (1 << Bacon_ImageFlags_AtlasGroupShift));
@@ -1068,7 +1079,7 @@ int Bacon_LoadImage(int* outHandle, const char* path, int flags)
 	
 	FIBITMAP *bitmap = FreeImage_Load(fif, path, 0);
 	if (!bitmap)
-		return Bacon_Error_Unknown;
+		return Bacon_Error_IOError;
 	
 	if (flags & Bacon_ImageFlags_PremultiplyAlpha)
 		FreeImage_PreMultiplyWithAlpha(bitmap);
@@ -1101,7 +1112,6 @@ int Bacon_GetImageRegion(int* outImage, int imageHandle, int x1, int y1, int x2,
 		return Bacon_Error_InvalidHandle;
 
 	*outImage = s_Impl->m_Images.Alloc();
-	
 	Image* image = s_Impl->m_Images.Get(imageHandle);
 	if (!image)
 	{

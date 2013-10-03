@@ -4,6 +4,7 @@ from bacon.core import lib
 from bacon import native
 from bacon import resource
 import bacon.image
+import bacon.text
 
 class FontMetrics(object):
     '''Aggregates pixel metrics for a font loaded at a particular size.  See :attr:`Font.metrics`
@@ -71,6 +72,8 @@ class _FontFile(object):
     _font_files = {}
     _default_font_file = None
 
+    _handle = -1
+
     def __init__(self, file, handle=None):
         if not handle:
             handle = c_int()
@@ -83,8 +86,9 @@ class _FontFile(object):
         self.unload()
 
     def unload(self):
-        lib.UnloadFont(self._handle)
-        self._handle = -1
+        if self._handle != -1:
+            lib.UnloadFont(self._handle)
+            self._handle = -1
 
     def get_metrics(self, size):
         ascent = c_int()
@@ -211,3 +215,14 @@ class Font(object):
         :param str: the string to render
         '''
         return [self.get_glyph(c) for c in str]
+
+    def measure_string(self, str):
+        '''Calculates the width of the given string in this font.
+
+        :param str: the string to measure
+        :return float: width of the string, in pixels
+        '''
+        style = bacon.text.Style(self)
+        run = bacon.text.GlyphRun(style, str)
+        glyph_layout = bacon.text.GlyphLayout([run], 0, 0)
+        return glyph_layout.content_width

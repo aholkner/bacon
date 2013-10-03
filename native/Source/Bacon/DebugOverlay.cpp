@@ -167,6 +167,7 @@ void DebugOverlay_Draw()
     int width, height;
     Bacon_GetWindowSize(&width, &height);
 
+	Bacon_SetShader(0);
 	Bacon_SetBlending(Bacon_Blend_One, Bacon_Blend_OneMinusSrcAlpha);
     Bacon_SetColor(0.1, 0.1, 0.1, 0.9);
     Bacon_FillRect(20, 20, width - 20, height - 20);

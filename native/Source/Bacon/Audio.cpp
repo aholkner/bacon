@@ -66,7 +66,7 @@ void Audio_Init()
 {
 	gc_initialize(0);
 	s_Impl = new Impl;
-	s_Impl->m_Manager = gau_manager_create();
+	s_Impl->m_Manager = gau_manager_create_custom(GA_DEVICE_TYPE_DEFAULT, GAU_THREAD_POLICY_MULTI, 4, 512);
 	s_Impl->m_Mixer = gau_manager_mixer(s_Impl->m_Manager);
 	s_Impl->m_StreamManager = gau_manager_streamManager(s_Impl->m_Manager);
 
@@ -117,7 +117,10 @@ int Bacon_LoadSound(int* outHandle, const char* path, int flags)
 	{
 		sound->m_Sound = gau_load_sound_file(path, GetSoundFormat(flags));
 		if (!sound->m_Sound)
-			return Bacon_Error_Unknown;
+		{
+			Bacon_Log(Bacon_LogLevel_Error, "Audio: Failed to load sound at %s", path);
+			return Bacon_Error_IOError;
+		}
 	}
 
     DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Sounds, 1);
@@ -154,7 +157,15 @@ int Bacon_PlaySound(int soundHandle)
 	
 	ga_Handle* handle = CreateHandle(sound, gau_on_finish_destroy, nullptr, nullptr);
 	if (!handle)
-		return Bacon_Error_Unknown;
+	{
+		if (!sound->m_Path.empty())
+		{
+			Bacon_Log(Bacon_LogLevel_Error, "Audio: Failed to load sound at %s", sound->m_Path.c_str());
+			return Bacon_Error_IOError;
+		}
+		else
+			return Bacon_Error_Unknown;
+	}
 	
 	return ConvertGAError(ga_handle_play(handle));
 }
@@ -172,7 +183,15 @@ int Bacon_CreateVoice(int* outHandle, int soundHandle, int voiceFlags)
 	gau_SampleSourceLoop** loop = (voiceFlags & Bacon_VoiceFlags_Loop) ? &voice->m_Loop : nullptr;
 	voice->m_Handle = CreateHandle(sound, VoiceCallback, (void*)(size_t)*outHandle, loop);
 	if (!voice->m_Handle)
-		return Bacon_Error_Unknown;
+	{
+		if (!sound->m_Path.empty())
+		{
+			Bacon_Log(Bacon_LogLevel_Error, "Audio: Failed to load sound at %s", sound->m_Path.c_str());
+			return Bacon_Error_IOError;
+		}
+		else
+			return Bacon_Error_Unknown;
+	}
 	
     DebugOverlay_AddCounter(s_Impl->m_DebugCounter_Voices, 1);
 

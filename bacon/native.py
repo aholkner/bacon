@@ -87,6 +87,7 @@ class ErrorCodes(object):
     not_looping = 10
     running = 11
     rendering_to_self = 12
+    io_error = 13
 
 @enum
 class LogLevels(object):
@@ -96,6 +97,34 @@ class LogLevels(object):
     error = 3
     fatal = 4
     disable = 5
+
+@enum
+class Commands(object):
+    push_transform = 0
+    pop_transform = 1
+    translate = 2
+    scale = 3
+    rotate = 4
+    set_transform = 5
+    push_color = 6
+    pop_color = 7
+    set_color = 8
+    multiply_color = 9
+    set_blending = 10
+    draw_image = 11
+    draw_image_region = 12
+    draw_image_quad = 13
+    draw_line = 14
+    draw_rect = 15
+    fill_rect = 16
+    set_shader_uniform_floats = 17
+    set_shader_uniform_ints = 18
+    set_shared_shader_uniform_floats = 19
+    set_shared_shader_uniform_ints = 20
+    set_shader = 21
+    clear = 22
+    set_frame_buffer = 23
+    set_viewport = 24
 
 '''Blend values that can be passed to set_blending'''
 @enum
@@ -595,6 +624,8 @@ def load(function_wrapper = None):
     IsVoicePlaying = fn(_lib.Bacon_IsVoicePlaying, c_int, POINTER(c_int))
     GetVoicePosition = fn(_lib.Bacon_GetVoicePosition, c_int, POINTER(c_int))
     SetVoicePosition = fn(_lib.Bacon_SetVoicePosition, c_int, c_int)
+
+    ExecuteCommands = fn(_lib.Bacon_ExecuteCommands, POINTER(c_int), c_int, POINTER(c_float), c_int)
 
     class BaconLibrary(object):
         pass
