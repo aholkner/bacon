@@ -101,12 +101,8 @@ def SetViewport(x, y, width, height, content_scale):
 
 def flush():
     if _commands:
-        try:
-            lib.ExecuteCommands((c_int * len(_commands))(*_commands), len(_commands),
-                                   (c_float * len(_data))(*_data), len(_data))
-        except:
-            print('error')
-            print(repr(_commands))
+        lib.ExecuteCommands((c_int * len(_commands))(*_commands), len(_commands),
+                            (c_float * len(_data))(*_data), len(_data))
         del _commands[:]
         del _data[:]
 

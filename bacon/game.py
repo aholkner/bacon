@@ -153,13 +153,13 @@ def _tick_callback():
 
     try:
         bacon._current_game.on_tick()
-        commands.flush()
     except:
         _tick_callback_handle = lib.TickCallback(_error_tick_callback)
         lib.SetTickCallback(_tick_callback_handle)
         raise
 
     window._end_frame()
+    commands.flush()
 
 bacon._current_game = None
 
