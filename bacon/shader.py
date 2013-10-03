@@ -111,27 +111,47 @@ class _ShaderUniformNativeType(object):
         elif hasattr(ctype, '_length_'):
             self.converter = lambda x: ctype(*x)
         else:
-            self.converter = ctype
+            self.converter = None
 
-
-_shader_uniform_native_types = {
-    native.ShaderUniformType.float_:    _ShaderUniformNativeType(c_float),
-    native.ShaderUniformType.vec2:      _ShaderUniformNativeType(c_float * 2),
-    native.ShaderUniformType.vec3:      _ShaderUniformNativeType(c_float * 3),
-    native.ShaderUniformType.vec4:      _ShaderUniformNativeType(c_float * 4),
-    native.ShaderUniformType.int_:      _ShaderUniformNativeType(c_int),
-    native.ShaderUniformType.ivec2:     _ShaderUniformNativeType(c_int * 2),
-    native.ShaderUniformType.ivec3:     _ShaderUniformNativeType(c_int * 3),
-    native.ShaderUniformType.ivec4:     _ShaderUniformNativeType(c_int * 4),
-    native.ShaderUniformType.bool_:     _ShaderUniformNativeType(c_int),
-    native.ShaderUniformType.bvec2:     _ShaderUniformNativeType(c_int * 2),
-    native.ShaderUniformType.bvec3:     _ShaderUniformNativeType(c_int * 3),
-    native.ShaderUniformType.bvec4:     _ShaderUniformNativeType(c_int * 4),
-    native.ShaderUniformType.mat2:      _ShaderUniformNativeType(c_float * 4),
-    native.ShaderUniformType.mat3:      _ShaderUniformNativeType(c_float * 9),
-    native.ShaderUniformType.mat4:      _ShaderUniformNativeType(c_float * 16),
-    native.ShaderUniformType.sampler2D: _ShaderUniformNativeType(c_int, lambda image : c_int(image._handle))
-}
+if commands._enabled:
+    _shader_uniform_native_types = {
+        native.ShaderUniformType.float_:    _ShaderUniformNativeType(c_float, lambda value : (value,)),
+        native.ShaderUniformType.vec2:      _ShaderUniformNativeType(c_float),
+        native.ShaderUniformType.vec3:      _ShaderUniformNativeType(c_float),
+        native.ShaderUniformType.vec4:      _ShaderUniformNativeType(c_float),
+        native.ShaderUniformType.int_:      _ShaderUniformNativeType(c_int, lambda value : (value,)),
+        native.ShaderUniformType.ivec2:     _ShaderUniformNativeType(c_int),
+        native.ShaderUniformType.ivec3:     _ShaderUniformNativeType(c_int),
+        native.ShaderUniformType.ivec4:     _ShaderUniformNativeType(c_int),
+        native.ShaderUniformType.bool_:     _ShaderUniformNativeType(c_int, lambda value : (value,)),
+        native.ShaderUniformType.bvec2:     _ShaderUniformNativeType(c_int),
+        native.ShaderUniformType.bvec3:     _ShaderUniformNativeType(c_int),
+        native.ShaderUniformType.bvec4:     _ShaderUniformNativeType(c_int),
+        native.ShaderUniformType.mat2:      _ShaderUniformNativeType(c_float),
+        native.ShaderUniformType.mat3:      _ShaderUniformNativeType(c_float),
+        native.ShaderUniformType.mat4:      _ShaderUniformNativeType(c_float),
+        native.ShaderUniformType.sampler2D: _ShaderUniformNativeType(c_int, lambda image : (c_int(image._handle),))
+    }
+else:
+    _shader_uniform_native_types = {
+        native.ShaderUniformType.float_:    _ShaderUniformNativeType(c_float),
+        native.ShaderUniformType.vec2:      _ShaderUniformNativeType(c_float * 2),
+        native.ShaderUniformType.vec3:      _ShaderUniformNativeType(c_float * 3),
+        native.ShaderUniformType.vec4:      _ShaderUniformNativeType(c_float * 4),
+        native.ShaderUniformType.int_:      _ShaderUniformNativeType(c_int),
+        native.ShaderUniformType.ivec2:     _ShaderUniformNativeType(c_int * 2),
+        native.ShaderUniformType.ivec3:     _ShaderUniformNativeType(c_int * 3),
+        native.ShaderUniformType.ivec4:     _ShaderUniformNativeType(c_int * 4),
+        native.ShaderUniformType.bool_:     _ShaderUniformNativeType(c_int),
+        native.ShaderUniformType.bvec2:     _ShaderUniformNativeType(c_int * 2),
+        native.ShaderUniformType.bvec3:     _ShaderUniformNativeType(c_int * 3),
+        native.ShaderUniformType.bvec4:     _ShaderUniformNativeType(c_int * 4),
+        native.ShaderUniformType.mat2:      _ShaderUniformNativeType(c_float * 4),
+        native.ShaderUniformType.mat3:      _ShaderUniformNativeType(c_float * 9),
+        native.ShaderUniformType.mat4:      _ShaderUniformNativeType(c_float * 16),
+        native.ShaderUniformType.sampler2D: _ShaderUniformNativeType(c_int, lambda image : c_int(image._handle))
+    }
+    
 
 class ShaderUniform(object):
     '''A uniform variable, either shared between all shaders (if its name begins with ``g_``),
@@ -181,7 +201,19 @@ class ShaderUniform(object):
                     self._set_func = lib.SetSharedShaderUniformFloats
                 else:
                     self._set_func = lib.SetSharedShaderUniformInts
+            self._converter = native_type.converter
+            if array_count > 1:
+                def flatten(v):
+                    return tuple(item for sublist in v for item in sublist)
+                if self._converter:
+                    self._converter = lambda v: flatten(converter(x) for x in v)
+                else:
+                    self._converter = flatten
+            else:
+                self._converter = native_type.converter
         else:
+            if not native_type.converter:
+                native_type.converter = native_type.ctype
             if array_count > 1:
                 ctype = native_type.ctype
                 converter = native_type.converter
@@ -205,8 +237,8 @@ class ShaderUniform(object):
     def _set_value(self, value):
         self._value = value
         if commands._enabled:
-            if self._array_count == 1:
-                value = (value,)
+            if self._converter:
+                value = self._converter(value)
             if self._shader_handle is not None:
                 self._set_func(self._shader_handle, self._uniform_handle, value)
             else:

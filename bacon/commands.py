@@ -56,21 +56,22 @@ def DrawImageRegion(image, x1, y1, x2, y2, ix1, iy1, ix2, iy2):
 
 def DrawLine(x1, y1, x2, y2):
     _commands.append(native.Commands.draw_line)
-    _data.extend((x1, y1, x2, y2, ix1, iy1, ix2, iy2))
+    _data.extend((x1, y1, x2, y2))
 
 def DrawRect(x1, y1, x2, y2):
     _commands.append(native.Commands.draw_rect)
-    _data.extend((x1, y1, x2, y2, ix1, iy1, ix2, iy2))
+    _data.extend((x1, y1, x2, y2))
 
 def FillRect(x1, y1, x2, y2):
     _commands.append(native.Commands.fill_rect)
-    _data.extend((x1, y1, x2, y2, ix1, iy1, ix2, iy2))
+    _data.extend((x1, y1, x2, y2))
 
 def SetShaderUniformFloats(handle, uniform, values):
     _commands.extend((native.Commands.set_shader_uniform_floats, handle, uniform, len(values)))
     _data.extend(values)
 
 def SetShaderUniformInts(handle, uniform, values):
+    import pdb; pdb.set_trace()
     _commands.extend((native.Commands.set_shader_uniform_ints, handle, uniform, len(values)))
     _commands.extend(values)
     
@@ -79,6 +80,7 @@ def SetSharedShaderUniformFloats(handle, values):
     _data.extend(values)
 
 def SetSharedShaderUniformInts(handle, values):
+    import pdb; pdb.set_trace()
     _commands.extend((native.Commands.set_shared_shader_uniform_ints, handle, len(values)))
     _commands.extend(values)
     
@@ -99,8 +101,12 @@ def SetViewport(x, y, width, height, content_scale):
 
 def flush():
     if _commands:
-        lib.ExecuteCommands((c_int * len(_commands))(*_commands), len(_commands),
-                               (c_float * len(_data))(*_data), len(_data))
+        try:
+            lib.ExecuteCommands((c_int * len(_commands))(*_commands), len(_commands),
+                                   (c_float * len(_data))(*_data), len(_data))
+        except:
+            print('error')
+            print(repr(_commands))
         del _commands[:]
         del _data[:]
 
