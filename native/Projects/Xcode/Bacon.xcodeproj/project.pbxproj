@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA0ED1B117FEE9A600AD250A /* CommandList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA17BA2717F8E2F30074628B /* CommandList.cpp */; };
 		FA1641B017A9424300113E18 /* config_types.h in Headers */ = {isa = PBXBuildFile; fileRef = FA16412C17A9424300113E18 /* config_types.h */; };
 		FA1641B117A9424300113E18 /* ogg.h in Headers */ = {isa = PBXBuildFile; fileRef = FA16412E17A9424300113E18 /* ogg.h */; };
 		FA1641B217A9424300113E18 /* os_types.h in Headers */ = {isa = PBXBuildFile; fileRef = FA16412F17A9424300113E18 /* os_types.h */; };
@@ -2889,7 +2890,7 @@
 		FA8BC76F17E08590004BC10F /* examples */ = {isa = PBXFileReference; lastKnownFileType = folder; name = examples; path = ../../../examples; sourceTree = "<group>"; };
 		FA8BC77117E08790004BC10F /* bacon */ = {isa = PBXFileReference; lastKnownFileType = folder; name = bacon; path = ../../../bacon; sourceTree = "<group>"; };
 		FA8BCA1617E09697004BC10F /* BaconPyModule.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BaconPyModule.cpp; sourceTree = "<group>"; };
-		FA8BCA2417E0A521004BC10F /* libffi.a */ = {isa = PBXFileReference; lastKnownFileType = file; name = libffi.a; path = "../../Vendor/libffi/build/Debug-iphoneos/libffi.a"; sourceTree = "<group>"; };
+		FA8BCA2417E0A521004BC10F /* libffi.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libffi.a; path = "../../Vendor/libffi/build/Debug-iphoneos/libffi.a"; sourceTree = "<group>"; };
 		FA8BCA2617E12695004BC10F /* MonthlyVisitor */ = {isa = PBXFileReference; lastKnownFileType = folder; name = MonthlyVisitor; path = ../../../../MonthlyVisitor; sourceTree = "<group>"; };
 		FA940F5917C2CB8C00B5FF13 /* Rect.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Rect.h; sourceTree = "<group>"; };
 		FA940F6417C4EA5D00B5FF13 /* MaxRectsAllocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaxRectsAllocator.h; sourceTree = "<group>"; };
@@ -6842,6 +6843,7 @@
 				FAA0FA3217DDDC8C009DCB93 /* Mouse.cpp in Sources */,
 				FAA0FDFF17DECB73009DCB93 /* Touch.cpp in Sources */,
 				FAA0FA3317DDDC8C009DCB93 /* Graphics.cpp in Sources */,
+				FA0ED1B117FEE9A600AD250A /* CommandList.cpp in Sources */,
 				FAA0FA3517DDDC8C009DCB93 /* Bacon.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -7584,6 +7586,7 @@
 				);
 				INFOPLIST_FILE = "PythonHost-iOS-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				LLVM_LTO = YES;
 				PRODUCT_NAME = "PythonHost-iOS";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -7595,6 +7598,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				GCC_OPTIMIZATION_LEVEL = 3;
 				HEADER_SEARCH_PATHS = (
 					../../Source,
 					../../Vendor/Python/Include,
@@ -7602,6 +7606,7 @@
 				);
 				INFOPLIST_FILE = "PythonHost-iOS-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				LLVM_LTO = YES;
 				PRODUCT_NAME = "PythonHost-iOS";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";

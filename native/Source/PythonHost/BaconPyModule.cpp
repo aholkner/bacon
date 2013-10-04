@@ -137,7 +137,9 @@ PyObject* BaconModule_Init()
 	EXPORT_BACON_FUNCTION(Bacon_IsVoicePlaying);
 	EXPORT_BACON_FUNCTION(Bacon_GetVoicePosition);
 	EXPORT_BACON_FUNCTION(Bacon_SetVoicePosition);
-	
+
+	EXPORT_BACON_FUNCTION(Bacon_ExecuteCommands);
+
 	return module;
 
 }

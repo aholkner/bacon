@@ -413,7 +413,7 @@ class _DllPath(object):
         try:
             # Import without using import keyword, to avoid analysis tools
             # picking up that we depend on pkg_resources
-            _pkg_resources = __import__('pkg_resources', globals(), locals(), [], -1)
+            _pkg_resources = __import__('pkg_resources', globals(), locals(), [], 0)
             resource_filename = _pkg_resources.resource_filename
             package = 'bacon.' + self.module
             dll_dir = os.path.dirname(resource_filename(package, self.files[0]))

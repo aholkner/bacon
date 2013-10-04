@@ -156,7 +156,7 @@ if not native._mock_native:
     lib.SetLogCallback(_log_callback_handle)
     lib.Init()
 
-    import commands
+    from bacon import commands
     commands.init()
 
     # Expose library version
