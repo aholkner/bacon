@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Source\Bacon\Audio.cpp" />
     <ClCompile Include="..\..\Source\Bacon\Bacon.cpp" />
+    <ClCompile Include="..\..\Source\Bacon\CommandList.cpp" />
     <ClCompile Include="..\..\Source\Bacon\DebugOverlay.cpp" />
     <ClCompile Include="..\..\Source\Bacon\Fonts.cpp" />
     <ClCompile Include="..\..\Source\Bacon\Graphics.cpp" />

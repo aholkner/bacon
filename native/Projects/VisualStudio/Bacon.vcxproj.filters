@@ -54,6 +54,9 @@
     <ClCompile Include="..\..\Source\Bacon\Resources\SourceCodePro_otf.cpp">
       <Filter>Source\Resources</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\Bacon\CommandList.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\Source\Bacon\Bacon.h">
