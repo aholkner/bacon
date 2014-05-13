@@ -11,20 +11,16 @@ if native._mock_native:
     resource_dir = ''
 
 # Or use frozen executable path
-try:
+if hasattr(sys, 'frozen'):
     if sys.frozen:
         resource_dir = os.path.dirname(sys.executable)
-except AttributeError:
-    pass
 
 # In PyInstaller --onefile mode, use sys._MEIPASS temporary
 # directory to find local files if they are not found in default resource 
 # directory
 _dll_dir = None
-try:
+if hasattr(sys, '_MEIPASS'):
     _dll_dir = sys._MEIPASS
-except AttributeError:
-    pass
 
 def get_resource_path(filename):
     '''Get a path to the given filename to load as a resource.  All non-absolute filenames passed to
