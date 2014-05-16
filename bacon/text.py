@@ -165,7 +165,7 @@ class GlyphLayout(object):
         else:
             self._update_overflow()
 
-        self._content_width = sum(line.content_width for line in self.lines)
+        self._content_width = max(line.content_width for line in self.lines)
         self._content_height = sum(line.descent - line.ascent for line in self.lines)
 
         self._update_line_position()
