@@ -21,6 +21,11 @@ Rectangles can drawn or filled in the current color with :func:`draw_rect` and :
 .. literalinclude:: ../examples/rect.py
     :emphasize-lines: 7,9
 
+Triangles can be drawn or filled in the current color with :func:`draw_triangle` and :func:`fill_triangle`:
+
+.. literalinclude:: ../examples/triangles.py
+    :emphasize-lines: 8,10
+
 Lines can similarly be drawn with :func:`draw_line`.
 
 Images

@@ -79,6 +79,8 @@ Drawing
 .. autofunction:: clear
 
 .. autofunction:: draw_line
+.. autofunction:: draw_triangle
+.. autofunction:: fill_triangle
 .. autofunction:: draw_rect
 .. autofunction:: fill_rect
 
