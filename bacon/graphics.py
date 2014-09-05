@@ -239,3 +239,23 @@ fill_rect.__doc__ = '''Fill a rectangle bounding coordinates ``(x1, y1)`` to ``(
 
 No texture is applied.
 '''
+
+if native._mock_native:
+    def draw_triangle(x1, y1, x2, y2, x3, y3):
+        pass
+else:
+    draw_triangle = lib.DrawTriangle
+draw_triangle.__doc__ = '''Draw a triangle with coordinates ``(x1, y1)``, ``(x2, y2)``, ``(x3, y3)``.
+
+No texture is applied.
+'''
+
+if native._mock_native:
+    def fill_triangle(x1, y1, x2, y2, x3, y3):
+        pass
+else:
+    fill_triangle = lib.FillTriangle
+fill_triangle.__doc__ = '''Fill a triangle with coordinates ``(x1, y1)``, ``(x2, y2)``, ``(x3, y3)``.
+
+No texture is applied.
+'''

@@ -2021,6 +2021,53 @@ int Bacon_DrawLine(float x1, float y1, float x2, float y2)
 	return Bacon_Error_None;
 }
 
+int Graphics_DrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3, bool filled)
+{
+	Image* image = GetBlankImage();
+	if (!image)
+		return Bacon_Error_InvalidHandle; // TODO
+
+	SetCurrentImage(image);
+	if (filled)
+		SetCurrentMode(GL_TRIANGLES);
+	else
+		SetCurrentMode(GL_LINE_LOOP);
+
+	RequireVertices(3);
+	RequireIndices(3);
+
+	float z = s_Impl->m_CurrentZ;
+	mat4f const& transform = s_Impl->m_TransformStack.back();
+	vec4f const& color = s_Impl->m_ColorStack.back();
+	vector<Vertex>& vertices = s_Impl->m_Vertices;
+	unsigned short index = vertices.size();
+	vertices.push_back(Vertex(transform * vec3f(x1, y1, z), image->m_UVScaleBias.Apply(vec2f(0, 1)), color));
+	vertices.push_back(Vertex(transform * vec3f(x2, y2, z), image->m_UVScaleBias.Apply(vec2f(1, 0)), color));
+	vertices.push_back(Vertex(transform * vec3f(x3, y3, z), image->m_UVScaleBias.Apply(vec2f(1, 1)), color));
+
+	vector<unsigned short>& indices = s_Impl->m_Indices;
+	indices.push_back(index + 0);
+	indices.push_back(index + 1);
+	indices.push_back(index + 2);
+
+	return Bacon_Error_None;
+}
+
+
+int Bacon_DrawTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
+{
+	REQUIRE_GL();
+
+	return Graphics_DrawTriangle(x1, y1, x2, y2, x3, y3, false);
+}
+
+int Bacon_FillTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
+{
+	REQUIRE_GL();
+
+	return Graphics_DrawTriangle(x1, y1, x2, y2, x3, y3, true);
+}
+
 static unsigned short DrawRectIndices[] = {
 	0, 1,
 	1, 2,

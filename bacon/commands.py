@@ -58,6 +58,14 @@ def DrawLine(x1, y1, x2, y2):
     _commands.append(native.Commands.draw_line)
     _data.extend((x1, y1, x2, y2))
 
+def DrawTriangle(x1, y1, x2, y2, x3, y3):
+    _commands.append(native.Commands.draw_triangle)
+    _data.extend((x1, y1, x2, y2, x3, y3))
+
+def FillTriangle(x1, y1, x2, y2, x3, y3):
+    _commands.append(native.Commands.fill_triangle)
+    _data.extend((x1, y1, x2, y2, x3, y3))
+
 def DrawRect(x1, y1, x2, y2):
     _commands.append(native.Commands.draw_rect)
     _data.extend((x1, y1, x2, y2))
@@ -123,6 +131,8 @@ def init():
     lib.DrawImage = DrawImage
     lib.DrawImageRegion = DrawImageRegion
     lib.DrawLine = DrawLine
+    lib.DrawTriangle = DrawTriangle
+    lib.FillTriangle = FillTriangle
     lib.DrawRect = DrawRect
     lib.FillRect = FillRect
     lib.SetShaderUniformFloats = SetShaderUniformFloats
