@@ -116,6 +116,28 @@ int Bacon_ExecuteCommands(int* commands, int commandCount, float* data, int data
 				Bacon_DrawLine(x1, y1, x2, y2);
 				break;
 			}
+			case Bacon_Command_DrawTriangle:
+			{
+				float x1 = *data++;
+				float y1 = *data++;
+				float x2 = *data++;
+				float y2 = *data++;
+				float x3 = *data++;
+				float y3 = *data++;
+				Bacon_DrawTriangle(x1, y1, x2, y2, x3, y3);
+				break;
+			}
+			case Bacon_Command_FillTriangle:
+			{
+				float x1 = *data++;
+				float y1 = *data++;
+				float x2 = *data++;
+				float y2 = *data++;
+				float x3 = *data++;
+				float y3 = *data++;
+				Bacon_FillTriangle(x1, y1, x2, y2, x3, y3);
+				break;
+			}
 			case Bacon_Command_DrawRect:
 			{
 				float x1 = *data++;
