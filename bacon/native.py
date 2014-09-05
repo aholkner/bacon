@@ -115,16 +115,18 @@ class Commands(object):
     draw_image_region = 12
     draw_image_quad = 13
     draw_line = 14
-    draw_rect = 15
-    fill_rect = 16
-    set_shader_uniform_floats = 17
-    set_shader_uniform_ints = 18
-    set_shared_shader_uniform_floats = 19
-    set_shared_shader_uniform_ints = 20
-    set_shader = 21
-    clear = 22
-    set_frame_buffer = 23
-    set_viewport = 24
+    draw_triangle = 15
+    fill_triangle = 16
+    draw_rect = 17
+    fill_rect = 18
+    set_shader_uniform_floats = 19
+    set_shader_uniform_ints = 20
+    set_shared_shader_uniform_floats = 21
+    set_shared_shader_uniform_ints = 22
+    set_shader = 23
+    clear = 24
+    set_frame_buffer = 25
+    set_viewport = 26
 
 '''Blend values that can be passed to set_blending'''
 @enum
@@ -559,6 +561,8 @@ def load(function_wrapper = None):
     DrawImage = fn(_lib.Bacon_DrawImage, c_int, c_float, c_float, c_float, c_float)
     DrawImageRegion = fn(_lib.Bacon_DrawImageRegion, c_int, c_float, c_float, c_float, c_float, c_float, c_float, c_float, c_float)
     DrawLine = fn(_lib.Bacon_DrawLine, c_float, c_float, c_float, c_float)
+    FillTriangle = fn(_lib.Bacon_FillTriangle, c_float, c_float, c_float, c_float, c_float, c_float)
+    DrawTriangle = fn(_lib.Bacon_FillTriangle, c_float, c_float, c_float, c_float, c_float, c_float)
     DrawRect = fn(_lib.Bacon_DrawRect, c_float, c_float, c_float, c_float)
     FillRect = fn(_lib.Bacon_FillRect, c_float, c_float, c_float, c_float)
 
